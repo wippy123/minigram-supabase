@@ -8,4 +8,15 @@
     "https://deno.land/x": true
   },
   "deno.lint": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always"
+  },
+  "eslint.validate": [
+      "javascript",
+      "typescript",
+      "javascriptreact",
+      "typescriptreact"
+  ]
 }

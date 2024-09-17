@@ -1,76 +1,92 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import AddTeamForm from "@/components/teams/AddTeamForm";
+import Modal from "@/components/Modal";
+import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import Card from "@/components/Card";
+
+// Define the Team type
+type Team = {
+  id: string;
+  name: string;
+  tasks: {
+    id: string;
+    title: string;
+    assigned_user_id: string;
+  }[];
+};
 
 export default function HomePage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [teams, setTeams] = useState<Team[]>([]);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  useEffect(() => {
+    fetchTeams();
+  }, []);
+
+  const fetchTeams = async () => {
+    const { data, error } = await supabase.from("teams").select(`
+        id,
+        name,
+        tasks (
+          id,
+          title,
+          assigned_user_id
+        )
+      `);
+    if (error) {
+      console.error("Error fetching teams:", error);
+    } else {
+      setTeams(data as Team[]);
+    }
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-6">Welcome to Minigram</h1>
-      <p className="text-xl mb-8">
-        Your AI-powered virtual assistant for seamless productivity and
-        organization.
-      </p>
-
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="bg-card rounded-lg p-6 shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">What is Minigram?</h2>
-          <p className="mb-4">
-            Minigram is an innovative virtual assistant app designed to
-            streamline your daily tasks, boost productivity, and help you stay
-            organized. Powered by advanced AI technology, Minigram learns from
-            your habits and preferences to provide personalized assistance
-            tailored to your needs.
-          </p>
-          <Link href="/tasks" className="text-primary hover:underline">
-            Explore Tasks &rarr;
-          </Link>
-        </div>
-
-        <div className="bg-card rounded-lg p-6 shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Key Features</h2>
-          <ul className="list-disc list-inside space-y-2">
-            <li>Intelligent task management and prioritization</li>
-            <li>Smart notifications and reminders</li>
-            <li>Natural language processing for easy interaction</li>
-            <li>Seamless integration with your calendar and email</li>
-            <li>Customizable themes and settings</li>
-            <li>Cross-platform synchronization</li>
-          </ul>
-        </div>
-
-        <div className="bg-card rounded-lg p-6 shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">
-            How Minigram Helps You
-          </h2>
-          <p className="mb-4">
-            Minigram acts as your personal digital assistant, helping you manage
-            your time more effectively, stay on top of your tasks, and reduce
-            cognitive load. By analyzing your work patterns and preferences,
-            Minigram provides intelligent suggestions and automates routine
-            tasks, allowing you to focus on what truly matters.
-          </p>
-          <Link
-            href="/account-settings"
-            className="text-primary hover:underline"
-          >
-            Customize Your Experience &rarr;
-          </Link>
-        </div>
-
-        <div className="bg-card rounded-lg p-6 shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Get Started</h2>
-          <p className="mb-4">
-            Ready to revolutionize your productivity? Start using Minigram today
-            and experience the power of AI-assisted task management. Sign up for
-            free and take the first step towards a more organized and efficient
-            lifestyle.
-          </p>
-          <Link
-            href="/login"
-            className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
-          >
-            Sign Up Now
-          </Link>
-        </div>
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Welcome to Minigram</h1>
+        <button
+          onClick={openModal}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+        >
+          + Create Team
+        </button>
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {teams.map((team) => (
+          <Card key={team.id}>
+            <Link href={`/teams/${team.id}`}>
+              <h2 className="text-xl font-semibold mb-4">{team.name}</h2>
+            </Link>
+            <h3 className="text-lg font-medium mb-2">Tasks:</h3>
+            <ul className="space-y-2">
+              {team.tasks.map((task) => (
+                <li key={task.id} className="bg-gray-100 p-2 rounded">
+                  {task.title}
+                </li>
+              ))}
+            </ul>
+            {team.tasks.length === 0 && (
+              <p className="text-gray-500">No tasks for this team.</p>
+            )}
+          </Card>
+        ))}
+      </div>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <AddTeamForm
+          onTeamAdded={() => {
+            closeModal();
+            fetchTeams();
+          }}
+        />
+      </Modal>
     </div>
   );
 }

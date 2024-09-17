@@ -1,7 +1,6 @@
 import DeployButton from "@/components/deploy-button";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { HeaderAuth } from "@/components/header-auth";
-import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Link from "next/link";
@@ -70,6 +69,9 @@ export default function RootLayout({
                     />
                   </li>
                   <li>
+                    <NavLink href="/teams" iconName="Users" title="Teams" />
+                  </li>
+                  <li>
                     <NavLink
                       href="/account-settings"
                       iconName="Settings"
@@ -80,16 +82,10 @@ export default function RootLayout({
               </nav>
               {/* Main Content */}
               <main className="flex-1 flex flex-col ml-16 p-4 bg-gray-100">
-                {" "}
-                {/* Updated background color */}
                 {/* Page Content */}
                 <div className="flex-1">
                   <div className="max-w-5xl mx-auto">{children}</div>
                 </div>
-                {/* Footer */}
-                <footer className="border-t border-border py-4 text-center text-sm mt-auto">
-                  <ThemeSwitcher />
-                </footer>
               </main>
             </div>
           </div>

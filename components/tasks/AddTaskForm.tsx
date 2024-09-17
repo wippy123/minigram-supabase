@@ -1,39 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function AddTaskForm() {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [teamId, setTeamId] = useState<string | null>(null);
+  const [assignedUserId, setAssignedUserId] = useState<string | null>(null);
+  const [followers, setFollowers] = useState<string[]>([]); // Array of user IDs
+  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
+  const [users, setUsers] = useState<{ id: string; email: string }[]>([]);
+
+  useEffect(() => {
+    fetchTeams();
+    fetchUsers();
+  }, []);
+
+  const fetchTeams = async () => {
+    const { data, error } = await supabase.from("teams").select("*");
+    if (error) console.error("Error fetching teams:", error);
+    else setTeams(data);
+  };
+
+  const fetchUsers = async () => {
+    const { data, error } = await supabase.from("users").select("*");
+    if (error) console.error("Error fetching users:", error);
+    else setUsers(data);
+  };
 
   const addTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const response = await fetch("/api/tasks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title, description }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setSuccess("Task added successfully!");
-        setTitle("");
-        setDescription("");
-        // Optionally, trigger a re-fetch or update state
-        window.location.reload();
-      } else {
-        setError(data.error || "Failed to add task.");
-      }
-    } catch (err) {
-      setError("An unexpected error occurred.");
+    const { error } = await supabase.from("tasks").insert([
+      {
+        title,
+        description,
+        team_id: teamId,
+        assigned_user_id: assignedUserId,
+        followers,
+      },
+    ]);
+    if (error) {
+      console.error("Error adding task:", error);
+    } else {
+      // Optionally, trigger a re-fetch or update state
+      window.location.reload();
     }
   };
 
@@ -65,8 +76,56 @@ export default function AddTaskForm() {
           placeholder="Task description (optional)"
         ></textarea>
       </div>
-      {error && <p className="text-red-500">{error}</p>}
-      {success && <p className="text-green-500">{success}</p>}
+      <div>
+        <label htmlFor="team" className="block text-sm font-medium">
+          Select Team
+        </label>
+        <select
+          id="team"
+          value={teamId || ""}
+          onChange={(e) => setTeamId(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+        >
+          <option value="">Select a team</option>
+          {teams.map((team) => (
+            <option key={team.id} value={team.id}>
+              {team.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="assignedUser" className="block text-sm font-medium">
+          Assign User
+        </label>
+        <select
+          id="assignedUser"
+          value={assignedUserId || ""}
+          onChange={(e) => setAssignedUserId(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+        >
+          <option value="">Select a user</option>
+          {users.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.email}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="followers" className="block text-sm font-medium">
+          Add Followers (User Emails)
+        </label>
+        <input
+          type="text"
+          value={followers.join(", ")}
+          onChange={(e) =>
+            setFollowers(e.target.value.split(",").map((email) => email.trim()))
+          }
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          placeholder="Comma-separated emails"
+        />
+      </div>
       <button
         type="submit"
         className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
