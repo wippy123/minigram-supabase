@@ -1,27 +1,37 @@
-import { signOutAction } from "@/app/actions";
-import { hasEnvVars } from "@/utils/supabase/check-env-vars";
-import Link from "next/link";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
+"use client";
 
-export async function HeaderAuth() {
-  const supabase = createClient(cookies());
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+import { signOutAction } from "@/app/actions";
+import Link from "next/link";
+import { Button } from "./ui/button";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useEffect, useState } from "react";
+import { User } from "@supabase/supabase-js";
+
+export function HeaderAuth() {
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClientComponentClient();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    fetchUser();
+  }, [supabase.auth]);
+
+  const handleSignOut = async () => {
+    await signOutAction();
+  };
 
   return (
     <div className="flex items-center gap-4">
-      <Link href="/tasks" className="text-primary hover:underline">
-        Tasks
-      </Link>
-      <Link href="/notifications" className="text-primary hover:underline">
-        Notifications
+      <Link href="/" className="text-primary hover:underline">
+        Home
       </Link>
       {user ? (
-        <Button onClick={signOutAction} variant="ghost">
+        <Button onClick={handleSignOut} variant="ghost">
           Sign Out
         </Button>
       ) : (

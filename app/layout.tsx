@@ -3,10 +3,17 @@ import { EnvVarWarning } from "@/components/env-var-warning";
 import { HeaderAuth } from "@/components/header-auth";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
-import { GeistSans } from "geist/font/sans";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import Link from "next/link";
+import NavLink from "@/components/NavLink";
 import "./globals.css";
+import { Roboto } from "next/font/google";
+
+const roboto = Roboto({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  display: "swap",
+});
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -14,8 +21,8 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Minigram",
+  description: "Minigram is an AI-powered version of Monogram",
 };
 
 export default function RootLayout({
@@ -24,58 +31,66 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={GeistSans.className} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={roboto.className}>
       <body className="bg-background text-foreground">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <main className="min-h-screen flex flex-col items-center">
-            <div className="flex-1 w-full flex flex-col gap-20 items-center">
-              <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-                <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-                  <div className="flex gap-5 items-center font-semibold">
-                    <Link href={"/"}>Next.js Supabase Starter</Link>
-                    <Link
-                      href="/tasks"
-                      className="text-primary hover:underline"
-                    >
-                      Tasks
-                    </Link>
-                    <Link
-                      href="/notifications"
-                      className="text-primary hover:underline"
-                    >
-                      Notifications
-                    </Link>
-                    <div className="flex items-center gap-2">
-                      <DeployButton />
-                    </div>
-                  </div>
+        <ThemeProvider>
+          <div className="flex flex-col min-h-screen bg-background">
+            {/* Top Navigation */}
+            <header className="border-b border-border h-16 w-full fixed top-0 left-0 z-10 bg-background">
+              <div className="h-full flex items-center justify-between px-4">
+                <Link href="/" className="text-2xl font-bold font-display">
+                  Minigram
+                </Link>
+                <div className="flex items-center gap-4">
+                  <DeployButton />
                   {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
                 </div>
-              </nav>
-              <div className="flex flex-col gap-20 max-w-5xl p-5">
-                {children}
               </div>
-              <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
-                <p>
-                  Powered by{" "}
-                  <a
-                    href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-                    target="_blank"
-                    className="font-bold hover:underline"
-                    rel="noreferrer"
-                  >
-                    Supabase
-                  </a>
-                </p>
-                <ThemeSwitcher />
-              </footer>
+            </header>
+
+            <div className="flex flex-1 pt-16">
+              {/* Left Navigation */}
+              <nav className="w-16 border-r border-border fixed left-0 top-16 h-full bg-background">
+                <ul className="flex flex-col items-center space-y-4 pt-4">
+                  <li>
+                    <NavLink href="/" iconName="Home" title="Home" />
+                  </li>
+                  <li>
+                    <NavLink
+                      href="/tasks"
+                      iconName="CheckSquare"
+                      title="Tasks"
+                    />
+                  </li>
+                  <li>
+                    <NavLink
+                      href="/notifications"
+                      iconName="Bell"
+                      title="Notifications"
+                    />
+                  </li>
+                  <li>
+                    <NavLink
+                      href="/account-settings"
+                      iconName="Settings"
+                      title="Account Settings"
+                    />
+                  </li>
+                </ul>
+              </nav>
+              {/* Main Content */}
+              <main className="flex-1 flex flex-col ml-16 p-4 bg-background">
+                {/* Page Content */}
+                <div className="flex-1">
+                  <div className="max-w-5xl mx-auto">{children}</div>
+                </div>
+                {/* Footer */}
+                <footer className="border-t border-border py-4 text-center text-sm mt-auto">
+                  <ThemeSwitcher />
+                </footer>
+              </main>
             </div>
-          </main>
+          </div>
         </ThemeProvider>
       </body>
     </html>
