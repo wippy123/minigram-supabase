@@ -35,19 +35,35 @@ export default async function NotificationsPage() {
     <div className="container mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-5">All Notifications</h1>
       <AddNotification userId={user.id} />
-      <ul className="space-y-4 mt-5">
-        {notifications.map((notification: Notification) => (
-          <li
-            key={notification.id}
-            className={`p-4 border rounded ${notification.read ? "bg-gray-100" : "bg-white"}`}
-          >
-            <p>{notification.message}</p>
-            <small className="text-gray-500">
-              {new Date(notification.created_at).toLocaleString()}
-            </small>
-          </li>
-        ))}
-      </ul>
+      <div className="overflow-x-auto mt-5">
+        <table className="min-w-full bg-white border border-gray-200">
+          <thead>
+            <tr>
+              <th className="px-4 py-2 border-b text-center">Message</th>
+              <th className="px-4 py-2 border-b text-center">Read</th>
+              <th className="px-4 py-2 border-b text-center">Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {notifications.map((notification: Notification) => (
+              <tr
+                key={notification.id}
+                className={notification.read ? "bg-gray-100" : "bg-white"}
+              >
+                <td className="px-4 py-2 border-b text-center">
+                  {notification.message}
+                </td>
+                <td className="px-4 py-2 border-b text-center">
+                  {notification.read ? "Yes" : "No"}
+                </td>
+                <td className="px-4 py-2 border-b text-center">
+                  {new Date(notification.created_at).toLocaleString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

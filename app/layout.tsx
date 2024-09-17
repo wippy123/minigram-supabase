@@ -79,7 +79,9 @@ export default function RootLayout({
                 </ul>
               </nav>
               {/* Main Content */}
-              <main className="flex-1 flex flex-col ml-16 p-4 bg-background">
+              <main className="flex-1 flex flex-col ml-16 p-4 bg-gray-100">
+                {" "}
+                {/* Updated background color */}
                 {/* Page Content */}
                 <div className="flex-1">
                   <div className="max-w-5xl mx-auto">{children}</div>

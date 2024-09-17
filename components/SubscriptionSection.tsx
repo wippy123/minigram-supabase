@@ -15,8 +15,21 @@ interface Product {
   }[];
 }
 
+interface Subscription {
+  id: string;
+  status: string;
+  plan: {
+    id: string;
+    nickname: string;
+    amount: number;
+    currency: string;
+    interval: string;
+  };
+}
+
 export default function SubscriptionSection() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -30,7 +43,18 @@ export default function SubscriptionSection() {
       }
     };
 
+    const fetchSubscription = async () => {
+      try {
+        const response = await fetch("/api/stripe/subscription");
+        const data = await response.json();
+        setSubscription(data);
+      } catch (error) {
+        console.error("Error fetching subscription:", error);
+      }
+    };
+
     fetchProducts();
+    fetchSubscription();
   }, []);
 
   const handleSubscribe = async (priceId: string) => {
@@ -54,8 +78,33 @@ export default function SubscriptionSection() {
     }
   };
 
+  if (subscription && subscription.plan) {
+    return (
+      <div className="mt-8 mb-16">
+        {" "}
+        {/* Added mb-16 for more space */}
+        <h2 className="text-2xl font-bold mb-4">Your Subscription</h2>
+        <div className="border p-4 rounded">
+          <h3 className="text-xl font-semibold">
+            {subscription.plan.nickname}
+          </h3>
+          <p className="mb-4">
+            {new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: subscription.plan.currency,
+            }).format(subscription.plan.amount / 100)}{" "}
+            / {subscription.plan.interval}
+          </p>
+          <p>Status: {subscription.status}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="mt-8">
+    <div className="mt-8 mb-16">
+      {" "}
+      {/* Added mb-16 for more space */}
       <h2 className="text-2xl font-bold mb-4">Subscriptions</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {products.map((product) => (

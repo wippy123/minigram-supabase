@@ -25,15 +25,31 @@ export function HeaderAuth() {
     await signOutAction();
   };
 
+  const getInitials = (name: string) => {
+    const initials = name
+      .split(" ")
+      .map((n) => n[0])
+      .join("");
+    return initials.toUpperCase();
+  };
+
   return (
     <div className="flex items-center gap-4">
       <Link href="/" className="text-primary hover:underline">
         Home
       </Link>
       {user ? (
-        <Button onClick={handleSignOut} variant="ghost">
-          Sign Out
-        </Button>
+        <>
+          <div className="relative">
+            <button className="bg-primary text-primary-foreground w-10 h-10 rounded-full flex items-center justify-center">
+              {getInitials(user.user_metadata.full_name || user.email)}
+            </button>
+            {/* Add a dropdown menu here if needed */}
+          </div>
+          <Button onClick={handleSignOut} variant="ghost">
+            Sign Out
+          </Button>
+        </>
       ) : (
         <Link href="/login" className="text-primary hover:underline">
           Login

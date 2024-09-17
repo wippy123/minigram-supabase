@@ -2,9 +2,10 @@
   "deno.enablePaths": [
     "supabase/functions"
   ],
+  "deno.enable": true,
+  "deno.import_intellisense_origins": {
+    "https://deno.land": true,
+    "https://deno.land/x": true
+  },
   "deno.lint": true,
-  "deno.unstable": true,
-  "[typescript]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
-  }
 }
