@@ -112,10 +112,12 @@ async function addUserToTeam(email: string, teamId: string, role: 'admin' | 'con
 
     if (userError) {
         // If user does not exist, create a new user
+       
         const { data: newUser, error: createUserError } = await supabase.auth.signUp({
             email,
             password: generateRandomPassword(), // Implement this function
         });
+        supabase.auth.resetPasswordForEmail(email)
 
         if (createUserError) throw createUserError;
 

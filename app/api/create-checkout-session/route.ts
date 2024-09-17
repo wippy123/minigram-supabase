@@ -12,14 +12,14 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
   }
 
   const { priceId } = await req.json();
 
   try {
     const session = await stripe.checkout.sessions.create({
-      customer_email: user.email,
+      payment_method_types: ['card'],
       line_items: [
         {
           price: priceId,
@@ -28,7 +28,11 @@ export async function POST(req: Request) {
       ],
       mode: 'subscription',
       success_url: `${req.headers.get('origin')}/account-settings?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get('origin')}/account-settings`,
+      cancel_url: `${req.headers.get('origin')}/canceled`,
+      customer_email: user.email,
+      metadata: {
+        userId: user.id,
+      },
     });
 
     return NextResponse.json({ sessionId: session.id });

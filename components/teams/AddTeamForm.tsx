@@ -10,7 +10,7 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
   const [step, setStep] = useState(1);
   const [teamName, setTeamName] = useState("");
   const [users, setUsers] = useState<string[]>([""]);
-  const [canCreateTeam, setCanCreateTeam] = useState(false);
+
   const { user } = useAuth();
 
   useEffect(() => {
@@ -29,13 +29,11 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
 
     if (error) {
       console.error("Error checking user team status:", error);
-    } else {
-      setCanCreateTeam(data.length === 0);
     }
   };
 
   const addTeam = async () => {
-    if (!canCreateTeam || !user) {
+    if (!user) {
       console.error("User cannot create a team");
       return;
     }
@@ -85,60 +83,54 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
 
   return (
     <div>
-      {!canCreateTeam ? (
-        <p>You are already a member of a team and cannot create a new one.</p>
-      ) : (
-        <div>
-          {step === 1 && (
-            <div>
-              <h2 className="text-lg font-bold">Step 1: Enter Team Name</h2>
-              <p>Please enter the name of the team you want to create.</p>
-              <input
-                type="text"
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                placeholder="Team Name"
-                className="border p-2 rounded w-full mt-2"
-              />
-              <button
-                onClick={handleNextStep}
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Next
-              </button>
-            </div>
-          )}
+      <div>
+        {step === 1 && (
+          <div>
+            <h2 className="text-lg font-bold">Step 1: Enter Team Name</h2>
+            <p>Please enter the name of the team you want to create.</p>
+            <input
+              type="text"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              placeholder="Team Name"
+              className="border p-2 rounded w-full mt-2"
+            />
+            <button
+              onClick={handleNextStep}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Next
+            </button>
+          </div>
+        )}
 
-          {step === 2 && (
-            <div>
-              <h2 className="text-lg font-bold">Step 2: Add Users to Team</h2>
-              <p>
-                Please enter the email addresses of users to add to the team.
-              </p>
-              {users.map((user, index) => (
-                <div key={index} className="flex items-center mt-2">
-                  <input
-                    type="email"
-                    value={user}
-                    onChange={(e) => handleUserChange(index, e.target.value)}
-                    placeholder="User Email"
-                    className="border p-2 rounded w-full"
-                  />
-                </div>
-              ))}
-              <button onClick={addUserField} className="mt-2 text-blue-500">
-                + Add Another User
-              </button>
-              <button
-                onClick={handleNextStep}
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Create Team
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+        {step === 2 && (
+          <div>
+            <h2 className="text-lg font-bold">Step 2: Add Users to Team</h2>
+            <p>Please enter the email addresses of users to add to the team.</p>
+            {users.map((user, index) => (
+              <div key={index} className="flex items-center mt-2">
+                <input
+                  type="email"
+                  value={user}
+                  onChange={(e) => handleUserChange(index, e.target.value)}
+                  placeholder="User Email"
+                  className="border p-2 rounded w-full"
+                />
+              </div>
+            ))}
+            <button onClick={addUserField} className="mt-2 text-blue-500">
+              + Add Another User
+            </button>
+            <button
+              onClick={handleNextStep}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Create Team
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

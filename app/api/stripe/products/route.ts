@@ -16,7 +16,7 @@ export async function GET() {
       expand: ['data.product'],
     });
 
-    console.log('prices', {products: JSON.stringify(products.data), prices: JSON.stringify(prices.data)});
+    console.log('prices', {key: process.env.STRIPE_SECRET_KEY,products: JSON.stringify(products.data), prices: JSON.stringify(prices.data)});
 
     const productData = products.data.map((product) => {
       const productPrices = prices.data.filter(
