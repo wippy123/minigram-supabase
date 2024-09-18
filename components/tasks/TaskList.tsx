@@ -8,6 +8,7 @@ import { toast } from "react-hot-toast";
 import { Task } from "@/lib/types";
 import { Separator } from "@/components/ui/separator";
 import { MessageCircle, Edit, Trash2, Bell } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Task {
   id: number;
@@ -82,12 +83,25 @@ export default function TaskList({
         <Card key={task.id}>
           <CardContent className="p-4">
             <div className="flex justify-between items-start mb-2">
-              <h3 className="text-lg font-semibold">{task.title}</h3>
-              {task.due_date && new Date(task.due_date) < new Date() && (
-                <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                  Overdue
-                </span>
-              )}
+              <div className="flex-grow">
+                <h3 className="text-lg font-semibold">{task.title}</h3>
+                {task.due_date && new Date(task.due_date) < new Date() && (
+                  <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                    Overdue
+                  </span>
+                )}
+              </div>
+              <Avatar className="h-8 w-8">
+                <AvatarImage
+                  src={`https://avatar.vercel.sh/${task.assigned_user_id || "user"}.png`}
+                  alt="User avatar"
+                />
+                <AvatarFallback>
+                  {task.assigned_user_id
+                    ? task.assigned_user_id[0].toUpperCase()
+                    : "U"}
+                </AvatarFallback>
+              </Avatar>
             </div>
             <div className="flex items-center mb-2">
               <span
