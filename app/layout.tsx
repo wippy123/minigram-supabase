@@ -1,3 +1,5 @@
+"use client";
+
 import DeployButton from "@/components/deploy-button";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { HeaderAuth } from "@/components/header-auth";
@@ -7,7 +9,9 @@ import Link from "next/link";
 import NavLink from "@/components/NavLink";
 import "./globals.css";
 import { Roboto } from "next/font/google";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
+import { useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 const roboto = Roboto({
   weight: ["400", "700"],
@@ -19,17 +23,54 @@ const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
-export const metadata = {
-  metadataBase: new URL(defaultUrl),
-  title: "Minigram",
-  description: "Minigram is an AI-powered version of Monogram",
-};
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const showNotification = (message: string) => {
+    console.log("Showing notification", Notification, message);
+    if (Notification.permission === "granted") {
+      new Notification("New Notification", { body: message });
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          new Notification("New Notification", { body: message });
+        }
+      });
+    }
+
+    // Add toast notification
+    toast(message, {
+      icon: "🔔",
+      duration: 5000,
+    });
+  };
+
+  useEffect(() => {
+    // Subscribe to real-time changes (e.g., new rows inserted into a table)
+    const handleInserts = (payload: any) => {
+      console.log("Change received!", payload);
+      showNotification(`New task added: ${payload.new.title}`);
+    };
+
+    // Listen to inserts
+    const subscription = supabase
+      .channel("tasks")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "tasks" },
+        handleInserts
+      )
+      .subscribe();
+    console.log("Subscribed to tasks");
+
+    // Cleanup function
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <html lang="en" suppressHydrationWarning className={roboto.className}>
       <body className="bg-background text-foreground">
