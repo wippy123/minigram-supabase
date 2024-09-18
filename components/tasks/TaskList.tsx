@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import { supabase } from "@/lib/supabaseClient";
 interface Task {
   id: number;
   title: string;
@@ -10,49 +10,33 @@ interface Task {
   created_at: string;
 }
 
-export default function TaskList() {
+interface TaskListProps {
+  teamId: string;
+}
+
+export default function TaskList({ teamId }: TaskListProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTasks = async () => {
-    try {
-      const response = await fetch("/api/tasks");
-      const data = await response.json();
-      if (response.ok) {
-        setTasks(data.tasks);
-      } else {
-        setError(data.error || "Failed to fetch tasks.");
-      }
-    } catch (err) {
-      setError("An unexpected error occurred.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteTask = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this task?")) return;
-
-    try {
-      const response = await fetch(`/api/tasks/${id}`, {
-        method: "DELETE",
-      });
-      const data = await response.json();
-      if (response.ok) {
-        // Remove the deleted task from the state
-        setTasks(tasks.filter((task) => task.id !== id));
-      } else {
-        setError(data.error || "Failed to delete task.");
-      }
-    } catch (err) {
-      setError("An unexpected error occurred.");
-    }
-  };
-
   useEffect(() => {
+    const fetchTasks = async () => {
+      let query = supabase.from("tasks").select("*");
+
+      if (teamId !== "all") {
+        query = query.eq("team_id", teamId);
+      }
+
+      const { data, error } = await query;
+      if (error) {
+        console.error("Error fetching tasks:", error);
+      } else {
+        setTasks(data as Task[]);
+      }
+    };
+
     fetchTasks();
-  }, []);
+  }, [teamId]);
 
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -70,7 +54,7 @@ export default function TaskList() {
             )}
           </div>
           <button
-            onClick={() => deleteTask(task.id)}
+            // onClick={() => deleteTask(task.id)}
             className="text-red-500 hover:text-red-700"
           >
             Delete

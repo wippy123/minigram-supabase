@@ -2,150 +2,110 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/lib/supabaseClient";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Select } from "@/components/ui/select";
 import AddTaskForm from "@/components/tasks/AddTaskForm";
+import TaskList from "@/components/tasks/TaskList";
+import { supabase } from "@/lib/supabaseClient";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 
-type Team = {
+interface Team {
   id: string;
   name: string;
-};
-
-type Task = {
-  id: string;
-  title: string;
-  description: string;
-  team_id: string;
-};
-
-type FileUpload = {
-  id: string;
-  file_name: string;
-  file_path: string;
-};
-
-type TaskWithFiles = Task & {
-  file_uploads: FileUpload[];
-};
-
-const STORAGE_BUCKET_NAME = "task-files"; // Make sure this matches the bucket name you created
+}
 
 export default function TasksPage() {
   const [teams, setTeams] = useState<Team[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState<string>("all");
-  const [tasks, setTasks] = useState<TaskWithFiles[]>([]);
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
     if (user) {
       fetchTeams();
-      fetchTasks();
     }
   }, [user]);
 
   const fetchTeams = async () => {
-    const { data, error } = await supabase
-      .from("teams")
-      .select("id, name")
-      .order("name", { ascending: true });
+    try {
+      const { data, error } = await supabase.from("teams").select("*");
+      if (error) throw error;
 
-    if (error) {
+      const allTeamsOption: Team = { id: "all", name: "All Teams" };
+      const teamsWithAllOption = [allTeamsOption, ...(data as Team[])];
+
+      setTeams(teamsWithAllOption);
+      if (teamsWithAllOption.length > 0) {
+        setSelectedTeamId(teamsWithAllOption[0].id);
+      }
+    } catch (error) {
       console.error("Error fetching teams:", error);
-    } else {
-      setTeams(data || []);
     }
   };
 
-  const fetchTasks = async () => {
-    let query = supabase.from("tasks").select(`
-        *,
-        file_uploads (id, file_name, file_path)
-      `);
-
-    if (selectedTeam !== "all") {
-      query = query.eq("team_id", selectedTeam);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("Error fetching tasks:", error);
-    } else {
-      setTasks((data as TaskWithFiles[]) || []);
-    }
+  const handleTeamChange = (teamId: string) => {
+    setSelectedTeamId(teamId);
   };
 
-  useEffect(() => {
-    fetchTasks();
-  }, [selectedTeam]);
+  const handleTaskAdded = () => {
+    setIsAddTaskModalOpen(false);
+    // Refresh the task list or update the UI as needed
+  };
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Tasks</h1>
-        <div className="flex flex-col items-end">
-          <label
-            htmlFor="team-select"
-            className="block text-sm font-medium text-gray-700 mb-1"
+        <Button onClick={() => setIsAddTaskModalOpen(true)}>Add Task</Button>
+      </div>
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Select Team</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Select
+            onValueChange={handleTeamChange}
+            value={selectedTeamId || undefined}
           >
-            Select Team
-          </label>
-          <div className="w-64">
-            <Select
-              id="team-select"
-              value={selectedTeam}
-              onValueChange={(value: string) => setSelectedTeam(value)}
-            >
-              <option value="all">All Teams</option>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a team" />
+            </SelectTrigger>
+            <SelectContent>
               {teams.map((team) => (
-                <option key={team.id} value={team.id}>
+                <SelectItem key={team.id} value={team.id}>
                   {team.name}
-                </option>
+                </SelectItem>
               ))}
-            </Select>
-          </div>
-        </div>
-      </div>
-
-      {selectedTeam !== "all" && (
-        <div className="mb-8">
-          <h2 className="text-xl font-bold mb-4">Add New Task</h2>
-          <AddTaskForm teamId={selectedTeam} onTaskAdded={fetchTasks} />
-        </div>
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+      {selectedTeamId && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Task List</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TaskList teamId={selectedTeamId} />
+          </CardContent>
+        </Card>
       )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {tasks.map((task) => (
-          <Card key={task.id}>
-            <CardHeader>
-              <CardTitle>{task.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>{task.description}</p>
-              {task.file_uploads && task.file_uploads.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="font-bold">Attachments:</h4>
-                  <ul className="list-disc pl-5">
-                    {task.file_uploads.map((file) => (
-                      <li key={file.id}>
-                        <a
-                          href={`${supabase.storage.from(STORAGE_BUCKET_NAME).getPublicUrl(file.file_path).data.publicUrl}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-500 hover:underline"
-                        >
-                          {file.file_name}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Modal
+        isOpen={isAddTaskModalOpen}
+        onClose={() => setIsAddTaskModalOpen(false)}
+        title="Add New Task"
+      >
+        {selectedTeamId && (
+          <AddTaskForm teamId={selectedTeamId} onTaskAdded={handleTaskAdded} />
+        )}
+      </Modal>
     </div>
   );
 }

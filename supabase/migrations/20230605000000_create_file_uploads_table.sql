@@ -38,6 +38,11 @@ BEGIN
     END IF;
 END $$;
 
+-- Add due_date and assigned_user_id columns to tasks table
+ALTER TABLE public.tasks 
+ADD COLUMN due_date DATE,
+ADD COLUMN assigned_user_id UUID REFERENCES auth.users(id);
+
 -- Create function to update file_count
 CREATE OR REPLACE FUNCTION update_task_file_count()
 RETURNS TRIGGER AS $$

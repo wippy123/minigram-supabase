@@ -25,7 +25,7 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
     const { data, error } = await supabase
       .from("team_members")
       .select("team_id")
-      .eq("user_id", user.id);
+      .eq("member_id", user.id);
 
     if (error) {
       console.error("Error checking user team status:", error);

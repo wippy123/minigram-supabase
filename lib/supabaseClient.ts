@@ -14,11 +14,29 @@ export interface FileUploadData {
   file_size?: number;
 }
 
+export interface TaskData {
+  title: string;
+  description: string;
+  team_id: string;
+  due_date: string | null;
+  assigned_user_id: string | null;
+}
+
 export async function insertFileUpload(fileData: FileUploadData) {
   const { data, error } = await supabase
     .from('file_uploads')
     .insert(fileData)
     .select();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getTeamMembers(teamId: string) {
+  const { data, error } = await supabase
+    .from('members')
+    .select('id, user_id, users:auth.users(id, email)')
+    .eq('team_id', teamId);
 
   if (error) throw error;
   return data;

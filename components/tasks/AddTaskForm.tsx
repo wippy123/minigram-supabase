@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   supabase,
   insertFileUpload,
   FileUploadData,
+  TaskData,
+  getTeamMembers,
 } from "@/lib/supabaseClient";
+import { UserDropdown } from "@/components/UserDropdown";
 
 const STORAGE_BUCKET_NAME = "task-files";
 
@@ -15,11 +18,36 @@ type AddTaskFormProps = {
   onTaskAdded: () => void;
 };
 
+interface TeamMember {
+  id: string;
+  user_id: string;
+  users: {
+    id: string;
+    email: string;
+  };
+}
+
 export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [assignedUserId, setAssignedUserId] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        const members = await getTeamMembers(teamId);
+        setTeamMembers(members as unknown as TeamMember[]);
+      } catch (error) {
+        console.error("Error fetching team members:", error);
+      }
+    };
+
+    fetchTeamMembers();
+  }, [teamId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -32,10 +60,18 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
     if (!user) return;
 
     try {
+      const newTaskData: TaskData = {
+        title,
+        description,
+        team_id: teamId,
+        due_date: dueDate || null,
+        assigned_user_id: assignedUserId,
+      };
+
       // Insert task
-      const { data: taskData, error: taskError } = await supabase
+      const { data: insertedTask, error: taskError } = await supabase
         .from("tasks")
-        .insert({ title, description, team_id: teamId })
+        .insert(newTaskData)
         .select()
         .single();
 
@@ -43,7 +79,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
 
       // Upload files
       for (const file of files) {
-        const filePath = `${teamId}/${taskData.id}/${file.name}`;
+        const filePath = `${teamId}/${insertedTask.id}/${file.name}`;
         const { error: uploadError } = await supabase.storage
           .from(STORAGE_BUCKET_NAME)
           .upload(filePath, file);
@@ -52,7 +88,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
 
         // Insert file record
         const fileUploadData: FileUploadData = {
-          task_id: taskData.id,
+          task_id: insertedTask.id,
           user_id: user.id,
           file_name: file.name,
           file_path: filePath,
@@ -65,6 +101,8 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
 
       setTitle("");
       setDescription("");
+      setDueDate("");
+      setAssignedUserId(null);
       setFiles([]);
       onTaskAdded();
     } catch (error) {
@@ -88,6 +126,17 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         placeholder="Task Description"
         className="w-full p-2 border rounded"
         rows={3}
+      />
+      <input
+        type="date"
+        value={dueDate}
+        onChange={(e) => setDueDate(e.target.value)}
+        className="w-full p-2 border rounded"
+      />
+      <UserDropdown
+        users={teamMembers.map((m) => m.users)}
+        value={assignedUserId}
+        onChange={setAssignedUserId}
       />
       <input
         type="file"
