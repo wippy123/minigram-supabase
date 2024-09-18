@@ -35,6 +35,8 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const { user } = useAuth();
+  const [status, setStatus] = useState<TaskData["status"]>("Pending");
+  const [notUrgent, setNotUrgent] = useState(false);
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -66,6 +68,8 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         team_id: teamId,
         due_date: dueDate || null,
         assigned_user_id: assignedUserId,
+        status,
+        not_urgent: notUrgent,
       };
 
       // Insert task
@@ -144,6 +148,25 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         multiple
         className="w-full p-2 border rounded"
       />
+      <select
+        value={status}
+        onChange={(e) => setStatus(e.target.value as TaskData["status"])}
+        className="w-full p-2 border rounded"
+      >
+        <option value="Pending">Pending</option>
+        <option value="Accepted">Accepted</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+      <label className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          checked={notUrgent}
+          onChange={(e) => setNotUrgent(e.target.checked)}
+        />
+        <span>Not Urgent</span>
+      </label>
       <button
         type="submit"
         className="w-full p-2 bg-blue-500 text-white rounded"

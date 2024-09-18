@@ -25,11 +25,14 @@ export default function TasksPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
-  const { user } = useAuth();
+  const [refreshTaskList, setRefreshTaskList] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const { user } = useAuth(); // Assuming useAuth provides the user object
 
   useEffect(() => {
     if (user) {
       fetchTeams();
+      checkAdminStatus();
     }
   }, [user]);
 
@@ -50,31 +53,36 @@ export default function TasksPage() {
     }
   };
 
+  const checkAdminStatus = async () => {
+    try {
+      const response = await fetch("/api/teams/isAdmin");
+      const data = await response.json();
+      setIsAdmin(data.isAdmin);
+    } catch (error) {
+      console.error("Error checking admin status:", error);
+      setIsAdmin(false);
+    }
+  };
+
   const handleTeamChange = (teamId: string) => {
     setSelectedTeamId(teamId);
   };
 
   const handleTaskAdded = () => {
     setIsAddTaskModalOpen(false);
-    // Refresh the task list or update the UI as needed
+    setRefreshTaskList((prev) => prev + 1); // Increment to trigger TaskList refresh
   };
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Tasks</h1>
-        <Button onClick={() => setIsAddTaskModalOpen(true)}>Add Task</Button>
-      </div>
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>Select Team</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <div className="flex items-center space-x-4">
           <Select
             onValueChange={handleTeamChange}
             value={selectedTeamId || undefined}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-48">
               <SelectValue placeholder="Select a team" />
             </SelectTrigger>
             <SelectContent>
@@ -85,15 +93,26 @@ export default function TasksPage() {
               ))}
             </SelectContent>
           </Select>
-        </CardContent>
-      </Card>
+          <Button
+            onClick={() => setIsAddTaskModalOpen(true)}
+            disabled={selectedTeamId === "all"}
+            className={selectedTeamId === "all" ? "bg-gray-400" : ""}
+          >
+            Add Task
+          </Button>
+        </div>
+      </div>
       {selectedTeamId && (
         <Card>
           <CardHeader>
             <CardTitle>Task List</CardTitle>
           </CardHeader>
           <CardContent>
-            <TaskList teamId={selectedTeamId} />
+            <TaskList
+              teamId={selectedTeamId}
+              refreshTrigger={refreshTaskList}
+              isAdmin={isAdmin}
+            />
           </CardContent>
         </Card>
       )}
@@ -102,7 +121,7 @@ export default function TasksPage() {
         onClose={() => setIsAddTaskModalOpen(false)}
         title="Add New Task"
       >
-        {selectedTeamId && (
+        {selectedTeamId && selectedTeamId !== "all" && (
           <AddTaskForm teamId={selectedTeamId} onTaskAdded={handleTaskAdded} />
         )}
       </Modal>

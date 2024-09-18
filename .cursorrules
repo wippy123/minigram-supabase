@@ -1,3 +1,4 @@
+When I ask for UI changes, i do not want to to get changes to other parts of the app or page beyond what I ask for.
 Code Style and Structure:
 - Write concise, technical TypeScript code with accurate examples
 - Use functional and declarative programming patterns; avoid classes

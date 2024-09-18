@@ -20,6 +20,8 @@ export interface TaskData {
   team_id: string;
   due_date: string | null;
   assigned_user_id: string | null;
+  status: 'Pending' | 'Accepted' | 'In Progress' | 'Completed' | 'Cancelled';
+  not_urgent: boolean;
 }
 
 export async function insertFileUpload(fileData: FileUploadData) {
