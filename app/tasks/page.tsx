@@ -73,6 +73,38 @@ export default function TasksPage() {
     setRefreshTaskList((prev) => prev + 1); // Increment to trigger TaskList refresh
   };
 
+  const showNotification = (message: string) => {
+    console.log("Showing notification", Notification, message);
+    if (Notification.permission === "granted") {
+      new Notification("New Notification", { body: message });
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          new Notification("New Notification", { body: message });
+        }
+      });
+    }
+  };
+
+  useEffect(() => {
+    // Subscribe to real-time changes (e.g., new rows inserted into a table)
+    const handleInserts = (payload: any) => {
+      console.log("Change received!", payload);
+      showNotification(payload.new.title);
+    };
+
+    // Listen to inserts
+    supabase
+      .channel("tasks")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "tasks" },
+        handleInserts
+      )
+      .subscribe();
+    console.log("Subscribed to tasks");
+  }, []);
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
