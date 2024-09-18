@@ -37,6 +37,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
   const { user } = useAuth();
   const [status, setStatus] = useState<TaskData["status"]>("Pending");
   const [notUrgent, setNotUrgent] = useState(false);
+  const [dueTime, setDueTime] = useState("");
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -67,6 +68,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         description,
         team_id: teamId,
         due_date: dueDate || null,
+        due_time: dueTime || null, // Add this line
         assigned_user_id: assignedUserId,
         status,
         not_urgent: notUrgent,
@@ -106,6 +108,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
       setTitle("");
       setDescription("");
       setDueDate("");
+      setDueTime(""); // Add this line
       setAssignedUserId(null);
       setFiles([]);
       onTaskAdded();
@@ -135,6 +138,12 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         type="date"
         value={dueDate}
         onChange={(e) => setDueDate(e.target.value)}
+        className="w-full p-2 border rounded"
+      />
+      <input
+        type="time"
+        value={dueTime}
+        onChange={(e) => setDueTime(e.target.value)}
         className="w-full p-2 border rounded"
       />
       <UserDropdown

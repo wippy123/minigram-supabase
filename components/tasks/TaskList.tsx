@@ -17,6 +17,7 @@ interface Task {
   completed: boolean;
   created_at: string;
   due_date?: string;
+  due_time?: string; // Add this line
   assigned_user_id?: string;
   status: "Pending" | "Accepted" | "In Progress" | "Completed" | "Cancelled";
   not_urgent: boolean;
@@ -74,6 +75,18 @@ export default function TaskList({
     }
   };
 
+  const formatDateTime = (date?: string, time?: string) => {
+    if (!date) return "No due date";
+    const dateObj = new Date(`${date}T${time || "00:00:00"}`);
+    return dateObj.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    });
+  };
+
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
@@ -85,11 +98,13 @@ export default function TaskList({
             <div className="flex justify-between items-start mb-2">
               <div className="flex-grow">
                 <h3 className="text-lg font-semibold">{task.title}</h3>
-                {task.due_date && new Date(task.due_date) < new Date() && (
-                  <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                    Overdue
-                  </span>
-                )}
+                {task.due_date &&
+                  new Date(`${task.due_date}T${task.due_time || "00:00:00"}`) <
+                    new Date() && (
+                    <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                      Overdue
+                    </span>
+                  )}
               </div>
               <Avatar className="h-8 w-8">
                 <AvatarImage
@@ -115,11 +130,12 @@ export default function TaskList({
                 </span>
               )}
             </div>
-            {task.due_date && (
-              <p className="text-xs text-gray-500 mb-1">
-                Due: {new Date(task.due_date).toLocaleDateString()}
-              </p>
+            {task.description && (
+              <p className="text-sm text-gray-600 mb-2">{task.description}</p>
             )}
+            <p className="text-xs text-gray-500 mb-1">
+              Due: {formatDateTime(task.due_date, task.due_time)}
+            </p>
             {task.assigned_user_id && (
               <p className="text-xs text-gray-500 mb-2">
                 Assigned to: {task.assigned_user_id}

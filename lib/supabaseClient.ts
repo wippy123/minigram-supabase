@@ -18,6 +18,7 @@ export interface TaskData {
   description: string;
   team_id: string;
   due_date: string | null;
+  due_time: string | null;
   assigned_user_id: string | null;
   status: 'Pending' | 'Accepted' | 'In Progress' | 'Completed' | 'Cancelled';
   not_urgent: boolean;
