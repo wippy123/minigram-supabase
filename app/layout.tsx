@@ -7,6 +7,7 @@ import Link from "next/link";
 import NavLink from "@/components/NavLink";
 import "./globals.css";
 import { Roboto } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 
 const roboto = Roboto({
   weight: ["400", "700"],
@@ -90,6 +91,7 @@ export default function RootLayout({
             </div>
           </div>
         </ThemeProvider>
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );

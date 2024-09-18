@@ -1,32 +1,27 @@
-"use client";
-
 import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+
+interface DeleteTaskResult {
+  success: boolean;
+  error: Error | null;
+}
 
 export default function useDeleteTask() {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const deleteTask = async (id: number) => {
-    setLoading(true);
-    setError(null);
+  const deleteTask = async (taskId: number): Promise<DeleteTaskResult> => {
     try {
-      const response = await fetch(`/api/tasks/${id}`, {
-        method: "DELETE",
-      });
+      const { error } = await supabase.from("tasks").delete().eq("id", taskId);
 
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Failed to delete task.");
-      } else {
-        // Optionally, trigger a re-fetch or update state
-        window.location.reload();
+      if (error) {
+        throw error;
       }
-    } catch (err) {
-      setError("An unexpected error occurred.");
+
+      return { success: true, error: null };
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      return { success: false, error: error as Error };
     } finally {
-      setLoading(false);
     }
   };
 
-  return { deleteTask, loading, error };
+  return { deleteTask };
 }

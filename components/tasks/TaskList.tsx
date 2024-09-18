@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import useDeleteTask from "./useDeleteTask";
+import toast from "react-hot-toast";
 
 interface Task {
   id: number;
@@ -22,6 +24,7 @@ export default function TaskList({ teamId }: TaskListProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { deleteTask } = useDeleteTask();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -45,6 +48,16 @@ export default function TaskList({ teamId }: TaskListProps) {
 
     fetchTasks();
   }, [teamId]);
+
+  const handleDeleteTask = async (taskId: number) => {
+    const { success, error } = await deleteTask(taskId);
+    if (success) {
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+      toast.success("Task deleted successfully");
+    } else {
+      toast.error(`Failed to delete task: ${error?.message}`);
+    }
+  };
 
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -83,9 +96,7 @@ export default function TaskList({ teamId }: TaskListProps) {
               </button>
               <button
                 className="text-red-500 hover:text-red-700"
-                onClick={() => {
-                  /* Delete task */
-                }}
+                onClick={() => handleDeleteTask(task.id)}
               >
                 Delete
               </button>
