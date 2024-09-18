@@ -10,6 +10,7 @@ import {
   getTeamMembers,
 } from "@/lib/supabaseClient";
 import { UserDropdown } from "@/components/UserDropdown";
+import { toast } from "react-hot-toast"; // Add this import
 
 const STORAGE_BUCKET_NAME = "task-files";
 
@@ -105,15 +106,21 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         await insertFileUpload(fileUploadData);
       }
 
+      // Reset form fields
       setTitle("");
       setDescription("");
       setDueDate("");
       setDueTime(""); // Add this line
       setAssignedUserId(null);
       setFiles([]);
+
+      // Show success toast
+      toast.success("Task added successfully!");
+
       onTaskAdded();
     } catch (error) {
       console.error("Error adding task:", error);
+      toast.error("Failed to add task. Please try again.");
     }
   };
 
