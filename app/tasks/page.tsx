@@ -103,18 +103,11 @@ export default function TasksPage() {
         </div>
       </div>
       {selectedTeamId && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Task List</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TaskList
-              teamId={selectedTeamId}
-              refreshTrigger={refreshTaskList}
-              isAdmin={isAdmin}
-            />
-          </CardContent>
-        </Card>
+        <TaskList
+          teamId={selectedTeamId}
+          refreshTrigger={refreshTaskList}
+          isAdmin={isAdmin}
+        />
       )}
       <Modal
         isOpen={isAddTaskModalOpen}

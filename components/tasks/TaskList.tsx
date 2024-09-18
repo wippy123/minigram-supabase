@@ -93,10 +93,10 @@ export default function TaskList({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-100 p-4 rounded-lg">
       {tasks.map((task) => (
-        <Card key={task.id}>
-          <CardContent className="p-4">
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex-grow">
+        <Card key={task.id} className="flex flex-col">
+          <CardContent className="p-4 flex-grow flex flex-col">
+            <div className="flex-grow">
+              <div className="flex justify-between items-start mb-2">
                 <h3 className="text-lg font-semibold">{task.title}</h3>
                 {task.due_date &&
                   new Date(`${task.due_date}T${task.due_time || "00:00:00"}`) <
@@ -106,7 +106,7 @@ export default function TaskList({
                     </span>
                   )}
               </div>
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-8 w-8 mb-2">
                 <AvatarImage
                   src={`https://avatar.vercel.sh/${task.assigned_user_id || "user"}.png`}
                   alt="User avatar"
@@ -117,22 +117,22 @@ export default function TaskList({
                     : "U"}
                 </AvatarFallback>
               </Avatar>
-            </div>
-            <div className="flex items-center mb-2">
-              <span
-                className={`text-xs px-2 py-1 rounded ${getStatusColor(task.status)}`}
-              >
-                {task.status}
-              </span>
-              {!task.not_urgent && (
-                <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded ml-2.5">
-                  Urgent
-                </span>
+              {task.description && (
+                <p className="text-sm text-gray-500 mb-2">{task.description}</p>
               )}
+              <div className="flex justify-between items-center mb-2">
+                <span
+                  className={`text-xs px-2 py-1 rounded ${getStatusColor(task.status)}`}
+                >
+                  {task.status}
+                </span>
+                {!task.not_urgent && (
+                  <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                    Urgent
+                  </span>
+                )}
+              </div>
             </div>
-            {task.description && (
-              <p className="text-sm text-gray-600 mb-2">{task.description}</p>
-            )}
             <p className="text-xs text-gray-500 mb-1">
               Due: {formatDateTime(task.due_date, task.due_time)}
             </p>
@@ -142,16 +142,6 @@ export default function TaskList({
               </p>
             )}
             <div className="mt-2 flex justify-between items-center">
-              <button
-                className={`px-2 py-1 rounded text-xs ${
-                  task.completed ? "bg-gray-300" : "bg-green-500 text-white"
-                }`}
-                onClick={() => {
-                  /* Toggle completion status */
-                }}
-              >
-                {task.completed ? "Completed" : "Mark Complete"}
-              </button>
               {isAdmin && (
                 <button
                   className="text-red-500 hover:text-red-700 text-xs"

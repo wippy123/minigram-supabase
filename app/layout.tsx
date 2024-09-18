@@ -91,8 +91,8 @@ export default function RootLayout({
 
             <div className="flex flex-1 pt-16">
               {/* Left Navigation */}
-              <nav className="w-16 border-r border-border fixed left-0 top-16 h-full bg-background">
-                <ul className="flex flex-col items-center space-y-4 pt-4">
+              <nav className="w-16 border-r border-border fixed left-0 top-16 h-[calc(100vh-4rem)] bg-background flex flex-col">
+                <ul className="flex-1 flex flex-col items-center space-y-4 pt-4">
                   <li>
                     <NavLink href="/" iconName="Home" title="Home" />
                   </li>
@@ -114,13 +114,12 @@ export default function RootLayout({
                     <NavLink href="/teams" iconName="Users" title="Teams" />
                   </li>
                   <li>
-                    <NavLink
-                      href="/account-settings"
-                      iconName="Settings"
-                      title="Account Settings"
-                    />
+                    <NavLink href="/profile" iconName="User" title="Profile" />
                   </li>
                 </ul>
+                <div className="w-full mt-auto">
+                  <hr className="border-t border-border mx-2 mb-4" />
+                </div>
               </nav>
               {/* Main Content */}
               <main className="flex-1 flex flex-col ml-16 p-4 bg-gray-100">
