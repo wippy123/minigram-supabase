@@ -1,92 +1,111 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import AddTeamForm from "@/components/teams/AddTeamForm";
-import Modal from "@/components/Modal";
-import { supabase } from "@/lib/supabaseClient";
-import Link from "next/link";
-import Card from "@/components/Card";
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+} from "chart.js";
+import { Pie, Line, Bar, Doughnut } from "react-chartjs-2";
 
-// Define the Team type
-type Team = {
-  id: string;
-  name: string;
-  tasks: {
-    id: string;
-    title: string;
-    assigned_user_id: string;
-  }[];
-};
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement
+);
+
+const generateRandomData = (count: number) =>
+  Array.from({ length: count }, () => Math.floor(Math.random() * 100));
+const generateRandomColors = (count: number) =>
+  Array.from(
+    { length: count },
+    () =>
+      `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.6)`
+  );
 
 export default function HomePage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [teams, setTeams] = useState<Team[]>([]);
-
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const [chartData, setChartData] = useState<any>(null);
 
   useEffect(() => {
-    fetchTeams();
+    const labels = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+    ];
+    const datasets = [
+      {
+        label: "Dataset 1",
+        data: generateRandomData(7),
+        backgroundColor: generateRandomColors(7),
+        borderColor: "rgba(255, 255, 255, 1)",
+        borderWidth: 1,
+      },
+    ];
+
+    setChartData({
+      labels,
+      datasets,
+    });
   }, []);
 
-  const fetchTeams = async () => {
-    const { data, error } = await supabase.from("teams").select(`
-        id,
-        name,
-        tasks (
-          id,
-          title,
-          assigned_user_id
-        )
-      `);
-    if (error) {
-      console.error("Error fetching teams:", error);
-    } else {
-      setTeams(data as Team[]);
-    }
-  };
+  if (!chartData) return <div>Loading...</div>;
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Welcome to Minigram</h1>
-        <button
-          onClick={openModal}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-        >
-          + Create Team
-        </button>
-      </div>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Pie Chart</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Pie data={chartData} />
+          </CardContent>
+        </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {teams.map((team) => (
-          <Card key={team.id}>
-            <Link href={`/teams/${team.id}`}>
-              <h2 className="text-xl font-semibold mb-4">{team.name}</h2>
-            </Link>
-            <h3 className="text-lg font-medium mb-2">Tasks:</h3>
-            <ul className="space-y-2">
-              {team.tasks.map((task) => (
-                <li key={task.id} className="bg-gray-100 p-2 rounded">
-                  {task.title}
-                </li>
-              ))}
-            </ul>
-            {team.tasks.length === 0 && (
-              <p className="text-gray-500">No tasks for this team.</p>
-            )}
-          </Card>
-        ))}
-      </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Line Chart</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Line data={chartData} />
+          </CardContent>
+        </Card>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <AddTeamForm
-          onTeamAdded={() => {
-            closeModal();
-            fetchTeams();
-          }}
-        />
-      </Modal>
+        <Card>
+          <CardHeader>
+            <CardTitle>Bar Chart</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Bar data={chartData} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Doughnut Chart</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Doughnut data={chartData} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
