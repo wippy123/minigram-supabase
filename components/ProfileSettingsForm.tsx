@@ -10,7 +10,7 @@ interface AccountSettings {
   theme: string;
   email_notifications: boolean;
   push_notifications: boolean; // New field
-  onesignal_id: string;
+  _id: string;
 }
 
 const themeOptions = [
@@ -30,7 +30,7 @@ const themeOptions = [
   "violet",
 ];
 
-export default function AccountSettingsForm({
+export default function ProfileSettingsForm({
   initialData,
   userId,
 }: {
@@ -59,12 +59,8 @@ export default function AccountSettingsForm({
     e.preventDefault();
     setMessage(null);
 
-    // Generate or retrieve OneSignal ID here
-    const onesignalId = await getOrCreateOneSignalId(userId);
-
     const updatedData = {
       ...formData,
-      onesignal_id: onesignalId,
     };
 
     const { error } = await supabase
@@ -167,11 +163,4 @@ export default function AccountSettingsForm({
       )}
     </form>
   );
-}
-
-async function getOrCreateOneSignalId(userId: string): Promise<string> {
-  // Implement the logic to get or create a OneSignal ID for the user
-  // This might involve calling a OneSignal API or generating a unique ID
-  // For now, we'll just return a placeholder
-  return `onesignal_${userId}`;
 }

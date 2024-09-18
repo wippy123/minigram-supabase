@@ -53,9 +53,10 @@ export async function POST(request: Request) {
         if (teamError) throw teamError;
 
         // Add creator as admin
-        await supabase.from("team_members").insert([
-            { team_id: teamData.id, user_id: userId, role: 'admin' }
+        const { data: teamMemberData, error: teamMemberError } = await supabase.from("team_members").insert([
+            { team_id: teamData.id, member_id: userId, role: 'admin' }
         ]);
+        console.log('teamMemberData', teamMemberData, teamMemberError, userId)
 
         // Add users to team as contributors
         for (const email of users) {
@@ -104,29 +105,28 @@ async function isAdmin(userId: string, teamId: string) {
 
 async function addUserToTeam(email: string, teamId: string, role: 'admin' | 'contributor') {
     // Check if the user already exists
-    const { data: userData, error: userError } = await supabase
-        .from("users")
-        .select("*")
-        .eq("email", email)
-        .single();
+    const { data: userData } = await supabase.auth.admin.listUsers();
+      
+    console.log('stuff', {userData})
 
-    if (userError) {
-        // If user does not exist, create a new user
-       
-        const { data: newUser, error: createUserError } = await supabase.auth.signUp({
-            email,
-            password: generateRandomPassword(), // Implement this function
-        });
-        supabase.auth.resetPasswordForEmail(email)
-
-        if (createUserError) throw createUserError;
-
-        // Use the newly created user
-        await supabase.from("team_members").insert([{ team_id: teamId, user_id: newUser.user?.id, role }]);
-    } else {
-        // User exists, add to team
-        await supabase.from("team_members").insert([{ team_id: teamId, user_id: userData.id, role }]);
+    if (userData.users.length > 0) {
+        const foundUser = userData.users.find((user: any) => user.email === email);
+        console.log('foundUser', foundUser)
+        if (foundUser) {
+            await supabase.from("team_members").insert([{ team_id: teamId, member_id: foundUser.id, role }]);
+            return
+        }
     }
+
+    // If user does not exist, create a new user
+    const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email);
+    console.log('inviteData', inviteData)
+    if (inviteError) throw inviteError;
+    const newUserId = inviteData.user.id;
+    // Use the newly created user
+    const { data: teamMemberData, error: teamMemberError } = await supabase.from("team_members").insert([{ team_id: teamId, member_id: newUserId, role }]);
+    console.log('teamMemberData', teamMemberData)
+    console.log('teamMemberError', teamMemberError)
 }
 
 function generateRandomPassword() {

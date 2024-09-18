@@ -8,6 +8,7 @@ const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
  // Initialize Supabase client with your project's URL and Service Role key
  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
  const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+ 
 Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('not allowed', { status: 400 })

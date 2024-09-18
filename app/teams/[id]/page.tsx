@@ -47,10 +47,23 @@ export default function TeamDetailsPage() {
   const fetchTeamUsers = async () => {
     const { data, error } = await supabase
       .from("team_members")
-      .select("users:user_id(*)")
+      .select(
+        `
+        member_id,
+        users:auth.users!member_id(id, email)
+      `
+      )
       .eq("team_id", id);
-    if (error) console.error("Error fetching team users:", error);
-    else setUsers(data.map((item: any) => item.users));
+
+    if (error) {
+      console.error("Error fetching team users:", error);
+    } else {
+      //   const formattedUsers = data.map((item) => ({
+      //     id: item.users.id,
+      //     email: item.users.email
+      //   }));
+      //   setUsers(formattedUsers);
+    }
   };
 
   const checkAdminStatus = async () => {
@@ -59,7 +72,7 @@ export default function TeamDetailsPage() {
     const { data, error } = await supabase
       .from("team_members")
       .select("role")
-      .eq("user_id", user.id)
+      .eq("member_id", user.id)
       .eq("team_id", id)
       .single();
 
@@ -98,7 +111,7 @@ export default function TeamDetailsPage() {
         .from("team_members")
         .delete()
         .eq("team_id", team.id)
-        .eq("user_id", userId);
+        .eq("member_id", userId);
 
       if (error) throw error;
 

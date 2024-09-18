@@ -1,7 +1,7 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import AccountSettingsForm from "@/components/AccountSettingsForm";
+import ProfileSettingsForm from "@/components/ProfileSettingsForm";
 import SubscriptionSection from "@/components/SubscriptionSection";
 
 export default async function AccountSettingsPage() {
@@ -28,7 +28,7 @@ export default async function AccountSettingsPage() {
   return (
     <div className="container mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-5">Account Settings</h1>
-      <AccountSettingsForm initialData={accountSettings} userId={user.id} />
+      <ProfileSettingsForm initialData={accountSettings} userId={user.id} />
       <SubscriptionSection />
     </div>
   );
