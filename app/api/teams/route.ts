@@ -105,13 +105,14 @@ async function isAdmin(userId: string, teamId: string) {
 export async function addUserToTeam(email: string, teamId: string, role: 'admin' | 'contributor') {
     // Check if the user already exists
     const { data: userData } = await supabase.auth.admin.listUsers();
-      
 
     if (userData.users.length > 0) {
         const foundUser = userData.users.find((user: any) => user.email === email);
         console.log('foundUser', foundUser)
         if (foundUser) {
-            await supabase.from("team_members").insert([{ team_id: teamId, member_id: foundUser.id, role }]);
+            const { data: teamMemberData, error: teamMemberError } = await supabase.from("team_members").insert([{ team_id: teamId, member_id: foundUser.id, role }]);
+            console.log('teamMemberData', teamMemberData)
+            console.log('teamMemberError', teamMemberError)
             return
         }
     }

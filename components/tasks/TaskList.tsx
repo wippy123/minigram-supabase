@@ -182,11 +182,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                         src={task.assigned_avatar_url}
                         alt="User avatar"
                       />
-                      <AvatarFallback>
-                        {task.assigned_user_id
-                          ? task.assigned_user_id[0].toUpperCase()
-                          : ""}
-                      </AvatarFallback>
+                      <AvatarFallback>{""}</AvatarFallback>
                     </Avatar>
                   </div>
                   {task.due_date &&

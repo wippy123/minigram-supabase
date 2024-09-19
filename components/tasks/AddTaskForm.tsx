@@ -66,6 +66,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
       const newTaskData: TaskData = {
         title,
         description,
+        owner_id: user.data.user?.id as string,
         team_id: teamId,
         due_date: dueDate || null,
         due_time: dueTime || null, // Add this line

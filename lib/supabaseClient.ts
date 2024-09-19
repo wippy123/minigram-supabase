@@ -18,6 +18,7 @@ export interface FileUploadData {
 }
 
 export interface TaskData {
+  owner_id: string;
   title: string;
   description: string;
   team_id: string;
