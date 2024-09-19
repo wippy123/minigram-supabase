@@ -1,6 +1,12 @@
 
 -- Rename the trigger
-ALTER TRIGGER update_account_settings_updated_at
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_account_settings_updated_at') THEN
+    ALTER TRIGGER update_account_settings_updated_at
+    ON profile_settings RENAME TO update_profile_settings_updated_at;
+  END IF;
+END $$;
 ON profile_settings RENAME TO update_profile_settings_updated_at;
 
 -- Update the function name in the create_account_settings_for_new_user function

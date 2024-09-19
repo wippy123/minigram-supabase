@@ -1,18 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  supabase,
-  insertFileUpload,
-  FileUploadData,
-  TaskData,
-  getTeamMembers,
-} from "@/lib/supabaseClient";
+import { TaskData, getTeamMembers } from "@/lib/supabaseClient";
 import { UserDropdown } from "@/components/UserDropdown";
-import { toast } from "react-hot-toast"; // Add this import
+import { toast } from "react-hot-toast";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-
-const STORAGE_BUCKET_NAME = "task-files";
 
 type AddTaskFormProps = {
   teamId: string;
@@ -69,48 +61,46 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         owner_id: user.data.user?.id as string,
         team_id: teamId,
         due_date: dueDate || null,
-        due_time: dueTime || null, // Add this line
+        due_time: dueTime || null,
         assigned_user_id: assignedUserId,
         status,
         not_urgent: notUrgent,
       };
 
-      // Insert task
-      const { data: insertedTask, error: taskError } = await supabase
-        .from("tasks")
-        .insert(newTaskData)
-        .select()
-        .single();
+      // const formData = new FormData();
+      // formData.append("taskData", JSON.stringify(newTaskData));
+      // files.forEach((file, index) => {
+      //   formData.append(`file${index}`, file);
+      // });
 
-      if (taskError) throw taskError;
+      // const response = await fetch("/api/tasks", {
+      //   method: "POST",
+      //   body: formData,
+      // });
 
-      // Upload files
-      for (const file of files) {
-        const filePath = `${teamId}/${insertedTask.id}/${file.name}`;
-        const { error: uploadError } = await supabase.storage
-          .from(STORAGE_BUCKET_NAME)
-          .upload(filePath, file);
+      const response = await fetch("/api/tasks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          newTaskData,
+          files,
+        }),
+      });
 
-        if (uploadError) throw uploadError;
-
-        // Insert file record
-        const fileUploadData: FileUploadData = {
-          task_id: insertedTask.id,
-          user_id: user.id,
-          file_name: file.name,
-          file_path: filePath,
-          file_type: file.type,
-          file_size: file.size,
-        };
-
-        await insertFileUpload(fileUploadData);
+      if (!response.ok) {
+        throw new Error("Failed to create task");
       }
+
+      const result = await response.json();
+      console.log("result", result);
 
       // Reset form fields
       setTitle("");
       setDescription("");
       setDueDate("");
-      setDueTime(""); // Add this line
+      setDueTime("");
       setAssignedUserId(null);
       setFiles([]);
 

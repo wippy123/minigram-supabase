@@ -20,6 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 interface Task {
   id: number;
@@ -49,6 +51,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
   const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -218,15 +221,13 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
 
               <Separator className="my-4" />
               <div className="flex justify-end space-x-4">
-                <button
+                <Link
+                  href={`/tasks/${task.id}/chat`}
                   className="text-gray-500 hover:text-blue-500 transition-colors"
-                  onClick={() => {
-                    window.location.href = `/tasks/${task.id}/chat`;
-                  }}
                   title="Chat"
                 >
                   <MessageCircle size={20} />
-                </button>
+                </Link>
                 <button
                   className="text-gray-500 hover:text-green-500 transition-colors"
                   onClick={() => openEditModal(task)}
