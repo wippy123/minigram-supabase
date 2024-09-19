@@ -12,6 +12,7 @@ import {
   CameraIcon,
 } from "@heroicons/react/24/outline";
 import { v4 as uuidv4 } from "uuid";
+import toast from "react-hot-toast"; // Import toast
 
 interface AccountSettings {
   display_name: string;
@@ -94,14 +95,13 @@ export default function ProfileSettingsForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setMessage("Error: User not authenticated");
+      toast.error("Error: User not authenticated");
       return;
     }
 
@@ -111,7 +111,7 @@ export default function ProfileSettingsForm({
       try {
         avatarUrl = await uploadAvatar(user.id);
       } catch (error) {
-        setMessage("Error uploading avatar");
+        toast.error("Error uploading avatar");
         console.error(error);
         return;
       }
@@ -133,9 +133,9 @@ export default function ProfileSettingsForm({
       .eq("id", user.id);
 
     if (error) {
-      setMessage(`Error updating settings: ${error.message}`);
+      toast.error(`Error updating settings: ${error.message}`);
     } else {
-      setMessage("Settings updated successfully!");
+      toast.success("Settings updated successfully!");
       setTheme(formData.theme);
       setFormData((prev) => ({ ...prev, avatar_url: avatarUrl }));
     }
@@ -329,15 +329,6 @@ export default function ProfileSettingsForm({
       >
         Save Settings
       </button>
-      {message && (
-        <p
-          className={
-            message.includes("Error") ? "text-red-500" : "text-green-500"
-          }
-        >
-          {message}
-        </p>
-      )}
     </form>
   );
 }
