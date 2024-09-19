@@ -8,7 +8,7 @@ import {
   TrashIcon,
   UserPlusIcon,
 } from "@heroicons/react/24/solid";
-import { getTeamMembers } from "@/lib/supabaseClient"; // Import the existing function and delete function
+import { getTeamMembers } from "@/lib/supabaseClient"; // Import the existing functions
 import Modal from "@/components/Modal";
 import {
   createClientComponentClient,
@@ -16,7 +16,7 @@ import {
 } from "@supabase/auth-helpers-nextjs";
 
 import { TrashIcon as MemberTrashIcon } from "@heroicons/react/24/solid"; // Import the icon
-import { deleteTeamMember } from "@/app/api/teams/route";
+import { addUserToTeam, deleteTeamMember } from "@/app/api/teams/route";
 import { toast } from "react-hot-toast";
 
 type Team = {
@@ -63,10 +63,14 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
   );
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [teamToDelete, setTeamToDelete] = useState<string | null>(null);
   const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
+  const [teamToAddMember, setTeamToAddMember] = useState<string | null>(null);
+  const [newMemberEmail, setNewMemberEmail] = useState<string>("");
   const supabase = createClientComponentClient();
+
   useEffect(() => {
     const fetchUser = async () => {
       const { data, error } = await supabase.auth.getUser();
@@ -109,6 +113,11 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
     setIsDeleteModalOpen(true);
   };
 
+  const handleAddMemberClick = (teamId: string) => {
+    setTeamToAddMember(teamId);
+    setIsAddMemberModalOpen(true);
+  };
+
   const handleConfirmDelete = async () => {
     if (teamToDelete) {
       try {
@@ -145,6 +154,33 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
     }
   };
 
+  const handleConfirmAddMember = async () => {
+    if (teamToAddMember && newMemberEmail) {
+      try {
+        await addUserToTeam(newMemberEmail, teamToAddMember, "contributor");
+        setTeamMembers((prev) => ({
+          ...prev,
+          [teamToAddMember]: [
+            ...(prev[teamToAddMember] || []),
+            {
+              id: new Date().toISOString(),
+              team_id: teamToAddMember,
+              display_name: newMemberEmail,
+              role: "member",
+            },
+          ],
+        }));
+        toast.success("Member added successfully");
+        setIsAddMemberModalOpen(false);
+        setNewMemberEmail("");
+        setTeamToAddMember(null);
+      } catch (error) {
+        console.error("Error adding member:", error);
+        toast.error("Failed to add member");
+      }
+    }
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
@@ -177,13 +213,13 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
             </div>
             <div className="flex justify-between items-center mt-8">
               <h4 className="text-lg font-medium">Members</h4>
-              <Link
-                href={`/teams/${team.id}/add-members`}
+              <button
+                onClick={() => handleAddMemberClick(team.id)}
                 className="flex items-center border border-gray-300 text-black px-3 py-1 rounded hover:bg-gray-100 transition-colors duration-300 text-sm"
               >
                 <UserPlusIcon className="w-4 h-4 mr-1" />
                 Add Members
-              </Link>
+              </button>
             </div>
             <ul className="mt-8 space-y-2">
               {teamMembers[team.id]?.map((member) => (
@@ -227,6 +263,33 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
             className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
           >
             Delete
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isAddMemberModalOpen}
+        onClose={() => setIsAddMemberModalOpen(false)}
+      >
+        <p>Enter the email of the member you want to add:</p>
+        <input
+          type="email"
+          value={newMemberEmail}
+          onChange={(e) => setNewMemberEmail(e.target.value)}
+          className="mt-2 p-2 border border-gray-300 rounded-md w-full"
+        />
+        <div className="mt-4 flex justify-end space-x-2">
+          <button
+            onClick={() => setIsAddMemberModalOpen(false)}
+            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleConfirmAddMember}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Add
           </button>
         </div>
       </Modal>

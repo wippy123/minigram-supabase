@@ -102,7 +102,7 @@ async function isAdmin(userId: string, teamId: string) {
     return data?.role === 'admin';
 }
 
-async function addUserToTeam(email: string, teamId: string, role: 'admin' | 'contributor') {
+export async function addUserToTeam(email: string, teamId: string, role: 'admin' | 'contributor') {
     // Check if the user already exists
     const { data: userData } = await supabase.auth.admin.listUsers();
       
