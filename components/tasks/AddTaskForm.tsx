@@ -19,13 +19,11 @@ type AddTaskFormProps = {
   onTaskAdded: () => void;
 };
 
-interface TeamMember {
-  id: string;
-  user_id: string;
-  users: {
-    id: string;
-    email: string;
-  };
+export interface TeamMember {
+  display_name: string;
+  team_id: string;
+  member_id: string;
+  role: string;
 }
 
 export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
@@ -44,6 +42,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
     const fetchTeamMembers = async () => {
       try {
         const members = await getTeamMembers(teamId);
+        console.log("Members:", members);
         setTeamMembers(members as unknown as TeamMember[]);
       } catch (error) {
         console.error("Error fetching team members:", error);
@@ -154,7 +153,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         className="w-full p-2 border rounded"
       />
       <UserDropdown
-        users={teamMembers.map((m) => m.users)}
+        users={teamMembers}
         value={assignedUserId}
         onChange={setAssignedUserId}
       />

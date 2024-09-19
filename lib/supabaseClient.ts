@@ -35,11 +35,34 @@ export async function insertFileUpload(fileData: FileUploadData) {
 }
 
 export async function getTeamMembers(teamId: string) {
-  const { data, error } = await supabase
-    .from('members')
-    .select('id, user_id, users:auth.users(id, email)')
+  const { data: teamMembers, error: teamMembersError } = await supabase
+    .from('team_members')
+    .select('team_id, member_id, role')
     .eq('team_id', teamId);
 
-  if (error) throw error;
-  return data;
+  if (teamMembersError) throw teamMembersError;
+
+  if (teamMembers && teamMembers.length > 0) {
+    const memberIds = teamMembers.map(member => member.member_id);
+
+    const { data: profileData, error: profileError } = await supabase
+      .from('profile_settings')
+      .select('id, display_name')
+      .in('id', memberIds);
+
+    if (profileError) throw profileError;
+
+    const membersWithProfiles = teamMembers.map(member => {
+      const profile = profileData?.find(p => p.id === member.member_id);
+      console.log("profile", { profile, profileData });
+      return {
+        ...member,
+        display_name: profile?.display_name || 'Unknown',
+      };
+    });
+
+    return membersWithProfiles;
+  }
+
+  return [];
 }

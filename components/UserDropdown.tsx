@@ -6,14 +6,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface User {
-  id: string;
-  email: string;
-}
+import { TeamMember } from "./tasks/AddTaskForm";
 
 interface UserDropdownProps {
-  users: User[];
+  users: TeamMember[];
   value: string | null;
   onChange: (value: string) => void;
 }
@@ -26,8 +22,8 @@ export function UserDropdown({ users, value, onChange }: UserDropdownProps) {
       </SelectTrigger>
       <SelectContent>
         {users.map((user) => (
-          <SelectItem key={user.id} value={user.id}>
-            {user.email}
+          <SelectItem key={user.member_id} value={user.member_id}>
+            {user.display_name}
           </SelectItem>
         ))}
       </SelectContent>
