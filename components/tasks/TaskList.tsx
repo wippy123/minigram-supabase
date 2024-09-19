@@ -168,27 +168,29 @@ export default function TaskList({
             <CardContent className="p-4 flex-grow flex flex-col">
               <div className="flex-grow">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold">{task.title}</h3>
+                  <div className="flex items-center justify-between w-full">
+                    <h3 className="text-lg font-semibold">{task.title}</h3>
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        src={`https://avatar.vercel.sh/${task.assigned_user_id || "user"}.png`}
+                        alt="User avatar"
+                      />
+                      <AvatarFallback>
+                        {task.assigned_user_id
+                          ? task.assigned_user_id[0].toUpperCase()
+                          : "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
                   {task.due_date &&
                     new Date(
                       `${task.due_date}T${task.due_time || "00:00:00"}`
                     ) < new Date() && (
-                      <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                      <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded ml-2">
                         Overdue
                       </span>
                     )}
                 </div>
-                <Avatar className="h-8 w-8 mb-2">
-                  <AvatarImage
-                    src={`https://avatar.vercel.sh/${task.assigned_user_id || "user"}.png`}
-                    alt="User avatar"
-                  />
-                  <AvatarFallback>
-                    {task.assigned_user_id
-                      ? task.assigned_user_id[0].toUpperCase()
-                      : "U"}
-                  </AvatarFallback>
-                </Avatar>
                 {task.description && (
                   <p className="text-sm text-gray-500 mb-2">
                     {task.description}
