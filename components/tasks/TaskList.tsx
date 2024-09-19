@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { getAvatarUrl } from "@/utils/utils";
 import {
   Select,
   SelectContent,
@@ -153,16 +154,6 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
     }
   };
 
-  const getAvatarUrl = async (userId: string) => {
-    const { data: profile } = await supabase
-      .from("profile_settings")
-      .select("avatar_url")
-      .eq("id", userId)
-      .single();
-    console.log("avatar data", profile?.avatar_url);
-    return profile?.avatar_url;
-  };
-
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -234,7 +225,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                 <button
                   className="text-gray-500 hover:text-blue-500 transition-colors"
                   onClick={() => {
-                    /* Handle chat */
+                    window.location.href = `/tasks/${task.id}/chat`;
                   }}
                   title="Chat"
                 >
