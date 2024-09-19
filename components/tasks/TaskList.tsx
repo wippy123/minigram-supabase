@@ -7,8 +7,9 @@ import useDeleteTask from "./useDeleteTask";
 import { toast } from "react-hot-toast";
 import { Task } from "@/lib/types";
 import { Separator } from "@/components/ui/separator";
-import { MessageCircle, Edit, Trash2, Bell } from "lucide-react";
+import { MessageCircle, Edit, Trash2, Bell, AlertTriangle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 interface Task {
   id: number;
@@ -38,6 +39,8 @@ export default function TaskList({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { deleteTask } = useDeleteTask();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -65,6 +68,23 @@ export default function TaskList({
     fetchTasks();
   }, [teamId, refreshTrigger]); // Add refreshTrigger to the dependency array
 
+  const openDeleteModal = (taskId: number) => {
+    setTaskToDelete(taskId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setTaskToDelete(null);
+  };
+
+  const confirmDelete = () => {
+    if (taskToDelete !== null) {
+      handleDeleteTask(taskToDelete);
+      closeDeleteModal();
+    }
+  };
+
   const handleDeleteTask = async (taskId: number) => {
     const { success, error } = await deleteTask(taskId);
     if (success) {
@@ -91,109 +111,120 @@ export default function TaskList({
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-100 p-4 rounded-lg">
-      {tasks.map((task) => (
-        <Card key={task.id} className="flex flex-col">
-          <CardContent className="p-4 flex-grow flex flex-col">
-            <div className="flex-grow">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold">{task.title}</h3>
-                {task.due_date &&
-                  new Date(`${task.due_date}T${task.due_time || "00:00:00"}`) <
-                    new Date() && (
-                    <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                      Overdue
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-100 p-4 rounded-lg">
+        {tasks.map((task) => (
+          <Card key={task.id} className="flex flex-col">
+            <CardContent className="p-4 flex-grow flex flex-col">
+              <div className="flex-grow">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-lg font-semibold">{task.title}</h3>
+                  {task.due_date &&
+                    new Date(
+                      `${task.due_date}T${task.due_time || "00:00:00"}`
+                    ) < new Date() && (
+                      <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                        Overdue
+                      </span>
+                    )}
+                </div>
+                <Avatar className="h-8 w-8 mb-2">
+                  <AvatarImage
+                    src={`https://avatar.vercel.sh/${task.assigned_user_id || "user"}.png`}
+                    alt="User avatar"
+                  />
+                  <AvatarFallback>
+                    {task.assigned_user_id
+                      ? task.assigned_user_id[0].toUpperCase()
+                      : "U"}
+                  </AvatarFallback>
+                </Avatar>
+                {task.description && (
+                  <p className="text-sm text-gray-500 mb-2">
+                    {task.description}
+                  </p>
+                )}
+                <div className="flex justify-between items-center mb-2">
+                  <span
+                    className={`text-xs px-2 py-1 rounded ${getStatusColor(task.status)}`}
+                  >
+                    {task.status}
+                  </span>
+                  {!task.not_urgent && (
+                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                      Urgent
                     </span>
                   )}
+                </div>
               </div>
-              <Avatar className="h-8 w-8 mb-2">
-                <AvatarImage
-                  src={`https://avatar.vercel.sh/${task.assigned_user_id || "user"}.png`}
-                  alt="User avatar"
-                />
-                <AvatarFallback>
-                  {task.assigned_user_id
-                    ? task.assigned_user_id[0].toUpperCase()
-                    : "U"}
-                </AvatarFallback>
-              </Avatar>
-              {task.description && (
-                <p className="text-sm text-gray-500 mb-2">{task.description}</p>
-              )}
-              <div className="flex justify-between items-center mb-2">
-                <span
-                  className={`text-xs px-2 py-1 rounded ${getStatusColor(task.status)}`}
-                >
-                  {task.status}
-                </span>
-                {!task.not_urgent && (
-                  <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                    Urgent
-                  </span>
-                )}
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mb-1">
-              Due: {formatDateTime(task.due_date, task.due_time)}
-            </p>
-            {task.assigned_user_id && (
-              <p className="text-xs text-gray-500 mb-2">
-                Assigned to: {task.assigned_user_id}
+              <p className="text-xs text-gray-500 mb-1">
+                Due: {formatDateTime(task.due_date, task.due_time)}
               </p>
-            )}
-            <div className="mt-2 flex justify-between items-center">
-              {isAdmin && (
-                <button
-                  className="text-red-500 hover:text-red-700 text-xs"
-                  onClick={() => handleDeleteTask(task.id)}
-                >
-                  Delete
-                </button>
+              {task.assigned_user_id && (
+                <p className="text-xs text-gray-500 mb-2">
+                  Assigned to: {task.assigned_user_id}
+                </p>
               )}
-            </div>
-            <Separator className="my-4" />
-            <div className="flex justify-end space-x-4">
-              <button
-                className="text-gray-500 hover:text-blue-500 transition-colors"
-                onClick={() => {
-                  /* Handle chat */
-                }}
-                title="Chat"
-              >
-                <MessageCircle size={20} />
-              </button>
-              <button
-                className="text-gray-500 hover:text-green-500 transition-colors"
-                onClick={() => {
-                  /* Handle edit */
-                }}
-                title="Edit"
-              >
-                <Edit size={20} />
-              </button>
-              <button
-                className="text-gray-500 hover:text-yellow-500 transition-colors"
-                onClick={() => {
-                  /* Handle notification */
-                }}
-                title="Notify Me"
-              >
-                <Bell size={20} />
-              </button>
-              {isAdmin && (
+
+              <Separator className="my-4" />
+              <div className="flex justify-end space-x-4">
+                <button
+                  className="text-gray-500 hover:text-blue-500 transition-colors"
+                  onClick={() => {
+                    /* Handle chat */
+                  }}
+                  title="Chat"
+                >
+                  <MessageCircle size={20} />
+                </button>
+                <button
+                  className="text-gray-500 hover:text-green-500 transition-colors"
+                  onClick={() => {
+                    /* Handle edit */
+                  }}
+                  title="Edit"
+                >
+                  <Edit size={20} />
+                </button>
+                <button
+                  className="text-gray-500 hover:text-yellow-500 transition-colors"
+                  onClick={() => {
+                    /* Handle notification */
+                  }}
+                  title="Notify Me"
+                >
+                  <Bell size={20} />
+                </button>
                 <button
                   className="text-gray-500 hover:text-red-500 transition-colors"
-                  onClick={() => handleDeleteTask(task.id)}
+                  onClick={() => openDeleteModal(task.id)}
                   title="Delete"
                 >
                   <Trash2 size={20} />
                 </button>
-              )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg">
+            <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
+            <p className="mb-4">Are you sure you want to delete this task?</p>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={closeDeleteModal}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmDelete}>
+                Delete
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
