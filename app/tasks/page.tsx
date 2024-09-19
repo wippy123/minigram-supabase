@@ -1,11 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import AddTaskForm from "@/components/tasks/AddTaskForm";
 import TaskList from "@/components/tasks/TaskList";
-import { supabase } from "@/lib/supabaseClient";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -15,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 interface Team {
   id: string;
@@ -27,14 +25,18 @@ export default function TasksPage() {
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [refreshTaskList, setRefreshTaskList] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { user } = useAuth(); // Assuming useAuth provides the user object
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
-    if (user) {
-      fetchTeams();
-      checkAdminStatus();
-    }
-  }, [user]);
+    const fetchData = async () => {
+      const user = await supabase.auth.getUser();
+      if (user) {
+        fetchTeams();
+        checkAdminStatus();
+      }
+    };
+    fetchData();
+  }, []);
 
   const fetchTeams = async () => {
     try {

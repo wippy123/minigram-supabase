@@ -5,8 +5,7 @@ import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Card from "@/components/Card";
 import Modal from "@/components/Modal";
-import { useAuth } from "@/hooks/useAuth";
-
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 type Team = {
   id: string;
   name: string;
@@ -21,12 +20,20 @@ export default function TeamDetailsPage() {
   const { id } = useParams();
   const [team, setTeam] = useState<Team | null>(null);
   const [users, setUsers] = useState<User[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState("");
-
+  const supabase = createClientComponentClient();
   useEffect(() => {
+    if (!user) {
+      const fetchUser = async () => {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) console.error("Error fetching user:", error);
+        else setUser(data);
+      };
+      fetchUser();
+    }
     if (user && id) {
       fetchTeamDetails();
       fetchTeamUsers();

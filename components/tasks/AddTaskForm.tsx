@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import {
   supabase,
   insertFileUpload,
@@ -11,6 +10,7 @@ import {
 } from "@/lib/supabaseClient";
 import { UserDropdown } from "@/components/UserDropdown";
 import { toast } from "react-hot-toast"; // Add this import
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 const STORAGE_BUCKET_NAME = "task-files";
 
@@ -33,11 +33,10 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
   const [assignedUserId, setAssignedUserId] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const { user } = useAuth();
   const [status, setStatus] = useState<TaskData["status"]>("Pending");
   const [notUrgent, setNotUrgent] = useState(false);
   const [dueTime, setDueTime] = useState("");
-
+  const supabase = createClientComponentClient();
   useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
@@ -60,6 +59,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
 
   const addTask = async (e: React.FormEvent) => {
     e.preventDefault();
+    const user = await supabase.auth.getUser();
     if (!user) return;
 
     try {

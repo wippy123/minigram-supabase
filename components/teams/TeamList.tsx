@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Card from "@/components/Card";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import * as HeroIcons from "@heroicons/react/24/solid";
 import {
   UserGroupIcon,
@@ -11,6 +10,10 @@ import {
 } from "@heroicons/react/24/solid";
 import { getTeamMembers } from "@/lib/supabaseClient"; // Import the existing function
 import Modal from "@/components/Modal";
+import {
+  createClientComponentClient,
+  User,
+} from "@supabase/auth-helpers-nextjs";
 
 type Team = {
   id: string;
@@ -54,9 +57,19 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
   const [teamMembers, setTeamMembers] = useState<Record<string, TeamMember[]>>(
     {}
   );
-  const { user } = useAuth();
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [teamToDelete, setTeamToDelete] = useState<string | null>(null);
+  const supabase = createClientComponentClient();
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) console.error("Error fetching user:", error);
+      else setUser(data);
+    };
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     if (user && teams.length > 0) {
@@ -149,7 +162,6 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        title="Confirm Delete"
       >
         <p>Are you sure you want to delete this team?</p>
         <div className="mt-4 flex justify-end space-x-2">

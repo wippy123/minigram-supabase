@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { useAuth } from "@/hooks/useAuth";
+"use client";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { UserPlusIcon } from "@heroicons/react/24/outline";
 import IconSelector from "@/components/teams/IconSelector";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 type AddTeamFormProps = {
   onTeamAdded: () => void;
@@ -14,29 +15,10 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
   const [teamName, setTeamName] = useState("");
   const [users, setUsers] = useState<string[]>([""]);
   const [selectedIcon, setSelectedIcon] = useState("");
-
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (user) {
-      checkUserTeamStatus();
-    }
-  }, [user]);
-
-  const checkUserTeamStatus = async () => {
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from("team_members")
-      .select("team_id")
-      .eq("member_id", user.id);
-
-    if (error) {
-      console.error("Error checking user team status:", error);
-    }
-  };
+  const supabase = createClientComponentClient();
 
   const addTeam = async () => {
+    const user = await supabase.auth.getUser();
     if (!user) {
       console.error("User cannot create a team");
       return;
