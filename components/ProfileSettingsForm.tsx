@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -32,15 +32,14 @@ const themeOptions = [
 
 export default function ProfileSettingsForm({
   initialData,
-  userId,
 }: {
   initialData: AccountSettings;
-  userId: string;
 }) {
   const [formData, setFormData] = useState<AccountSettings>(initialData);
   const [message, setMessage] = useState<string | null>(null);
   const supabase = createClientComponentClient();
   const { setTheme } = useTheme();
+  const [userEmail, setUserEmail] = useState<string>("");
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -76,8 +75,48 @@ export default function ProfileSettingsForm({
     }
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: accountSettings, error } = await supabase
+          .from("account_settings")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (accountSettings) {
+          setFormData(accountSettings);
+        }
+
+        setUserEmail(user.email as string);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (!formData) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="email" className="block mb-2">
+          Email
+        </label>
+        <input
+          type="email"
+          id="email"
+          value={userEmail}
+          disabled
+          className="w-full p-2 border rounded bg-gray-100"
+        />
+      </div>
       <div>
         <label htmlFor="display_name" className="block mb-2">
           Display Name
