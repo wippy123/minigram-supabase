@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
       // Update the account_settings for the user
       const { error: updateError } = await supabase
-        .from('account_settings')
+        .from('profile_settings')
         .update({
           stripe_customer_id: session.customer as string,
           subscription_status: 'active', // Assuming the subscription is active upon creation
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
 
       // Fetch the user_id from account_settings using the stripe_customer_id
       const { data: userData, error: userError } = await supabase
-        .from('account_settings')
+        .from('profile_settings')
         .select('user_id')
         .eq('stripe_customer_id', deletedCustomerId)
         .single();
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
 
       // Update the account_settings for the user with deleted subscription
       const { error: deleteUpdateError } = await supabase
-        .from('account_settings')
+        .from('profile_settings')
         .update({
           subscription_status: 'canceled',
           subscription_plan: null,

@@ -16,7 +16,7 @@ export async function GET() {
   }
 
   const { data: accountSettings, error } = await supabase
-    .from('account_settings')
+    .from('profile_settings')
     .select('stripe_customer_id')
     .eq('id', user.id)
     .single();

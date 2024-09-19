@@ -23,7 +23,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       } = await supabase.auth.getUser();
       if (user) {
         const { data } = await supabase
-          .from("account_settings")
+          .from("profile_settings")
           .select("theme")
           .eq("id", user.id)
           .single();

@@ -40,13 +40,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 }
 
 export async function POST(request: Request) {
-    const { teamName, users, userId } = await request.json();
+    const { teamName, users, userId, icon } = await request.json();
 
     try {
-        // Add team
-        const { data: teamData, error: teamError } = await supabase
+        // Create the team with the new icon field
+        const { data: team, error: teamError } = await supabase
             .from("teams")
-            .insert([{ name: teamName }])
+            .insert({ name: teamName, icon: icon })
             .select()
             .single();
 
@@ -54,16 +54,16 @@ export async function POST(request: Request) {
 
         // Add creator as admin
         const { data: teamMemberData, error: teamMemberError } = await supabase.from("team_members").insert([
-            { team_id: teamData.id, member_id: userId, role: 'admin' }
+            { team_id: team.id, member_id: userId, role: 'admin' }
         ]);
         console.log('teamMemberData', teamMemberData, teamMemberError, userId)
 
         // Add users to team as contributors
         for (const email of users) {
-            await addUserToTeam(email, teamData.id, 'contributor');
+            await addUserToTeam(email, team.id, 'contributor');
         }
 
-        return NextResponse.json({ message: "Team created successfully", team: teamData });
+        return NextResponse.json({ message: "Team created successfully", team: team });
     } catch (error) {
         console.error("Error in team creation:", error);
         return NextResponse.json({ error: "Failed to create team" }, { status: 500 });
@@ -107,7 +107,6 @@ async function addUserToTeam(email: string, teamId: string, role: 'admin' | 'con
     // Check if the user already exists
     const { data: userData } = await supabase.auth.admin.listUsers();
       
-    console.log('stuff', {userData})
 
     if (userData.users.length > 0) {
         const foundUser = userData.users.find((user: any) => user.email === email);
@@ -120,7 +119,7 @@ async function addUserToTeam(email: string, teamId: string, role: 'admin' | 'con
 
     // If user does not exist, create a new user
     const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email);
-    console.log('inviteData', inviteData)
+    console.log('inviteData', {inviteData, inviteError})
     if (inviteError) throw inviteError;
     const newUserId = inviteData.user.id;
     // Use the newly created user

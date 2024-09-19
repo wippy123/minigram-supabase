@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { UserPlusIcon } from "@heroicons/react/24/outline";
+import IconSelector from "@/components/teams/IconSelector";
 
 type AddTeamFormProps = {
   onTeamAdded: () => void;
@@ -12,6 +13,7 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
   const [step, setStep] = useState(1);
   const [teamName, setTeamName] = useState("");
   const [users, setUsers] = useState<string[]>([""]);
+  const [selectedIcon, setSelectedIcon] = useState("");
 
   const { user } = useAuth();
 
@@ -50,6 +52,7 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
           teamName,
           users: users.filter((user) => user.trim() !== ""),
           userId: user.id,
+          icon: selectedIcon,
         }),
       });
 
@@ -68,6 +71,8 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
   const handleNextStep = () => {
     if (step === 1) {
       setStep(2);
+    } else if (step === 2) {
+      setStep(3);
     } else {
       addTeam();
     }
@@ -105,7 +110,21 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
 
         {step === 2 && (
           <div>
-            <h2 className="text-lg font-bold">Step 2: Add Users to Team</h2>
+            <h2 className="text-lg font-bold">Step 2: Choose Team Icon</h2>
+            <p>Select an icon to represent your team.</p>
+            <IconSelector
+              selectedIcon={selectedIcon}
+              onSelectIcon={setSelectedIcon}
+            />
+            <Button onClick={handleNextStep} className="mt-4">
+              Next
+            </Button>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div>
+            <h2 className="text-lg font-bold">Step 3: Add Users to Team</h2>
             <p>Please enter the email addresses of users to add to the team.</p>
             {users.map((user, index) => (
               <div key={index} className="flex items-center mt-2">
