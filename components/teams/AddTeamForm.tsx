@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { UserPlusIcon } from "@heroicons/react/24/outline";
 
 type AddTeamFormProps = {
   onTeamAdded: () => void;
@@ -95,12 +97,9 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
               placeholder="Team Name"
               className="border p-2 rounded w-full mt-2"
             />
-            <button
-              onClick={handleNextStep}
-              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-            >
+            <Button onClick={handleNextStep} className="mt-4">
               Next
-            </button>
+            </Button>
           </div>
         )}
 
@@ -119,15 +118,15 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
                 />
               </div>
             ))}
-            <button onClick={addUserField} className="mt-2 text-blue-500">
-              + Add Another User
-            </button>
-            <button
-              onClick={handleNextStep}
-              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-            >
+            <div className="flex justify-end mt-4 mb-4">
+              <Button onClick={addUserField} variant="outline">
+                <UserPlusIcon className="h-5 w-5 mr-2" />
+                Add Another User
+              </Button>
+            </div>
+            <Button onClick={handleNextStep} className="w-full">
               Create Team
-            </button>
+            </Button>
           </div>
         )}
       </div>

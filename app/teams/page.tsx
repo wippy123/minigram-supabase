@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import AddTeamForm from "@/components/teams/AddTeamForm";
 import TeamList from "@/components/teams/TeamList";
+import AddTeamForm from "@/components/teams/AddTeamForm";
+import Modal from "@/components/Modal";
+import { Button } from "@/components/ui/button";
+import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 // Define the Team type
 type Team = {
@@ -13,6 +16,7 @@ type Team = {
 
 export default function TeamsPage() {
   const [teams, setTeams] = useState<Team[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchTeams();
@@ -30,11 +34,35 @@ export default function TeamsPage() {
     else setTeams(teams.filter((team) => team.id !== id));
   };
 
+  const handleTeamAdded = () => {
+    fetchTeams();
+    setIsModalOpen(false);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Teams</h1>
-      <AddTeamForm onTeamAdded={fetchTeams} />
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Teams</h1>
+        <Button onClick={() => setIsModalOpen(true)}>
+          <PlusIcon className="h-5 w-5 mr-2" />
+          Add Team
+        </Button>
+      </div>
       <TeamList teams={teams} onDelete={deleteTeam} />
+
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Add New Team</h2>
+          <Button variant="ghost" onClick={closeModal}>
+            <XMarkIcon className="h-5 w-5" />
+          </Button>
+        </div>
+        <AddTeamForm onTeamAdded={handleTeamAdded} />
+      </Modal>
     </div>
   );
 }
