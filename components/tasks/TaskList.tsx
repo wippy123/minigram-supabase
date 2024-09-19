@@ -29,6 +29,7 @@ interface Task {
   due_date?: string;
   due_time?: string; // Add this line
   assigned_user_id?: string;
+  assigned_avatar_url?: string;
   status: "Pending" | "Accepted" | "In Progress" | "Completed" | "Cancelled";
   not_urgent: boolean;
 }
@@ -36,14 +37,9 @@ interface Task {
 interface TaskListProps {
   teamId: string;
   refreshTrigger: number;
-  isAdmin: boolean; // Add this prop
 }
 
-export default function TaskList({
-  teamId,
-  refreshTrigger,
-  isAdmin,
-}: TaskListProps) {
+export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +66,15 @@ export default function TaskList({
         console.error("Error fetching tasks:", error);
         setError("Failed to fetch tasks");
       } else {
-        setTasks(data as Task[]);
+        const tasksWithAvatars = await Promise.all(
+          data.map(async (task) => {
+            const avatarUrl = await getAvatarUrl(
+              task.assigned_user_id as string
+            );
+            return { ...task, assigned_avatar_url: avatarUrl };
+          })
+        );
+        setTasks(tasksWithAvatars as Task[]);
         setError(null);
       }
       setLoading(false);
@@ -147,6 +151,16 @@ export default function TaskList({
     }
   };
 
+  const getAvatarUrl = async (userId: string) => {
+    const { data: profile } = await supabase
+      .from("profile_settings")
+      .select("avatar_url")
+      .eq("id", userId)
+      .single();
+    console.log("avatar data", profile?.avatar_url);
+    return profile?.avatar_url;
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -172,13 +186,13 @@ export default function TaskList({
                     <h3 className="text-lg font-semibold">{task.title}</h3>
                     <Avatar className="h-8 w-8">
                       <AvatarImage
-                        src={`https://avatar.vercel.sh/${task.assigned_user_id || "user"}.png`}
+                        src={task.assigned_avatar_url}
                         alt="User avatar"
                       />
                       <AvatarFallback>
                         {task.assigned_user_id
                           ? task.assigned_user_id[0].toUpperCase()
-                          : "U"}
+                          : ""}
                       </AvatarFallback>
                     </Avatar>
                   </div>
@@ -212,11 +226,6 @@ export default function TaskList({
               <p className="text-xs text-gray-500 mb-1">
                 Due: {formatDateTime(task.due_date, task.due_time)}
               </p>
-              {task.assigned_user_id && (
-                <p className="text-xs text-gray-500 mb-2">
-                  Assigned to: {task.assigned_user_id}
-                </p>
-              )}
 
               <Separator className="my-4" />
               <div className="flex justify-end space-x-4">
