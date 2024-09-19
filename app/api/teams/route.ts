@@ -56,7 +56,6 @@ export async function POST(request: Request) {
         const { data: teamMemberData, error: teamMemberError } = await supabase.from("team_members").insert([
             { team_id: team.id, member_id: userId, role: 'admin' }
         ]);
-        console.log('teamMemberData', teamMemberData, teamMemberError, userId)
 
         // Add users to team as contributors
         for (const email of users) {

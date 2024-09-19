@@ -18,11 +18,13 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
   const supabase = createClientComponentClient();
 
   const addTeam = async () => {
-    const user = await supabase.auth.getUser();
-    if (!user) {
+    const data = await supabase.auth.getUser();
+    if (!data.data.user) {
       console.error("User cannot create a team");
       return;
     }
+
+    const userId = data.data.user.id;
 
     try {
       const response = await fetch("/api/teams", {
@@ -33,7 +35,7 @@ export default function AddTeamForm({ onTeamAdded }: AddTeamFormProps) {
         body: JSON.stringify({
           teamName,
           users: users.filter((user) => user.trim() !== ""),
-          userId: user.id,
+          userId: userId,
           icon: selectedIcon,
         }),
       });

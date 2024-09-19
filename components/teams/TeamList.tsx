@@ -88,7 +88,6 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
             },
             {} as Record<string, TeamMember[]>
           );
-          console.log("newTeamMembers", newTeamMembers);
           setTeamMembers(newTeamMembers);
         })
         .catch((error) => console.error("Error fetching team members:", error));
