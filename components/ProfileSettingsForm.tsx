@@ -3,14 +3,15 @@
 import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useTheme } from "@/contexts/ThemeContext";
+import { UserIcon, HeartIcon } from "@heroicons/react/24/outline";
 
 interface AccountSettings {
   display_name: string;
+  title: string;
   bio: string;
   theme: string;
   email_notifications: boolean;
-  push_notifications: boolean; // New field
-  _id: string;
+  push_notifications: boolean;
 }
 
 const themeOptions = [
@@ -58,14 +59,28 @@ export default function ProfileSettingsForm({
     e.preventDefault();
     setMessage(null);
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setMessage("Error: User not authenticated");
+      return;
+    }
+
     const updatedData = {
-      ...formData,
+      display_name: formData.display_name,
+      title: formData.title || null,
+      bio: formData.bio,
+      theme: formData.theme,
+      email_notifications: formData.email_notifications,
+      push_notifications: formData.push_notifications,
     };
 
     const { error } = await supabase
       .from("account_settings")
       .update(updatedData)
-      .eq("id", userId);
+      .eq("id", user.id);
 
     if (error) {
       setMessage(`Error updating settings: ${error.message}`);
@@ -82,7 +97,7 @@ export default function ProfileSettingsForm({
       } = await supabase.auth.getUser();
 
       if (user) {
-        const { data: accountSettings, error } = await supabase
+        const { data: accountSettings } = await supabase
           .from("account_settings")
           .select("*")
           .eq("id", user.id)
@@ -118,30 +133,59 @@ export default function ProfileSettingsForm({
         />
       </div>
       <div>
-        <label htmlFor="display_name" className="block mb-2">
-          Display Name
+        <label htmlFor="title" className="block mb-2">
+          Title
         </label>
         <input
           type="text"
-          id="display_name"
-          name="display_name"
-          value={formData.display_name || ""}
+          id="title"
+          name="title"
+          value={formData.title || ""}
           onChange={handleChange}
           className="w-full p-2 border rounded"
         />
       </div>
       <div>
-        <label htmlFor="bio" className="block mb-2">
-          Bio
+        <label htmlFor="display_name" className="block mb-2">
+          Name
         </label>
-        <textarea
-          id="bio"
-          name="bio"
-          value={formData.bio || ""}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          rows={3}
-        />
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <UserIcon
+              className="h-5 w-5 text-white stroke-black stroke-2"
+              aria-hidden="true"
+            />
+          </div>
+          <input
+            type="text"
+            id="display_name"
+            name="display_name"
+            value={formData.display_name || ""}
+            onChange={handleChange}
+            className="w-full pl-10 p-2 border rounded"
+          />
+        </div>
+      </div>
+      <div>
+        <label htmlFor="preferences" className="block mb-2">
+          Preferences
+        </label>
+        <div className="relative">
+          <div className="absolute top-0 left-0 pt-2 pl-3 pointer-events-none">
+            <HeartIcon
+              className="h-5 w-5 text-white stroke-black stroke-2"
+              aria-hidden="true"
+            />
+          </div>
+          <textarea
+            id="preferences"
+            name="bio" // Keep the name as "bio" for database consistency
+            value={formData.bio || ""}
+            onChange={handleChange}
+            className="w-full pl-10 p-2 border rounded"
+            rows={3}
+          />
+        </div>
       </div>
       <div>
         <label htmlFor="theme" className="block mb-2">
