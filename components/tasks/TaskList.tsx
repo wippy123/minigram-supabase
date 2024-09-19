@@ -135,10 +135,12 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
   const handleEditTask = async () => {
     if (!editingTask) return;
 
+    const { assigned_avatar_url, ...taskWithoutAvatar } = editingTask;
+
     const { data, error } = await supabase
       .from("tasks")
-      .update(editingTask)
-      .eq("id", editingTask.id);
+      .update(taskWithoutAvatar)
+      .eq("id", taskWithoutAvatar.id);
 
     if (error) {
       toast.error(`Failed to update task: ${error.message}`);
