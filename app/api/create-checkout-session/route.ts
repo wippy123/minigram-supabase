@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         },
       ],
       mode: 'subscription',
-      success_url: `${req.headers.get('origin')}/account-settings?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.get('origin')}/profile?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/canceled`,
       customer_email: user.email,
       metadata: {
