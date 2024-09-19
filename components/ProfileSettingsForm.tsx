@@ -187,7 +187,7 @@ export default function ProfileSettingsForm({
             </div>
           )}
         </div>
-        <label className="cursor-pointer bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+        <label className="cursor-pointer bg-black text-white py-2 px-4 rounded hover:bg-gray-800">
           <CameraIcon className="h-5 w-5 inline-block mr-2" />
           Upload Profile Picture
           <input
@@ -325,9 +325,9 @@ export default function ProfileSettingsForm({
       </div>
       <button
         type="submit"
-        className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+        className="bg-black text-white py-2 px-4 rounded-md"
       >
-        Save Settings
+        Save Changes
       </button>
     </form>
   );
