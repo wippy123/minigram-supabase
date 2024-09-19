@@ -127,7 +127,13 @@ async function addUserToTeam(email: string, teamId: string, role: 'admin' | 'con
     console.log('teamMemberError', teamMemberError)
 }
 
-function generateRandomPassword() {
-    // Implement a secure random password generation logic
-    return Math.random().toString(36).slice(-8);
+export async function deleteTeamMember(memberId: string) {
+    const { error } = await supabase
+      .from("team_members")
+      .delete()
+      .eq("member_id", memberId);
+  
+    if (error) {
+      throw new Error(error.message);
+    }
 }

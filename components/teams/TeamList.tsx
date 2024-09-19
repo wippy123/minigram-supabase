@@ -8,12 +8,16 @@ import {
   TrashIcon,
   UserPlusIcon,
 } from "@heroicons/react/24/solid";
-import { getTeamMembers } from "@/lib/supabaseClient"; // Import the existing function
+import { getTeamMembers } from "@/lib/supabaseClient"; // Import the existing function and delete function
 import Modal from "@/components/Modal";
 import {
   createClientComponentClient,
   User,
 } from "@supabase/auth-helpers-nextjs";
+
+import { TrashIcon as MemberTrashIcon } from "@heroicons/react/24/solid"; // Import the icon
+import { deleteTeamMember } from "@/app/api/teams/route";
+import { toast } from "react-hot-toast";
 
 type Team = {
   id: string;
@@ -61,6 +65,7 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [teamToDelete, setTeamToDelete] = useState<string | null>(null);
+  const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
   const supabase = createClientComponentClient();
   useEffect(() => {
     const fetchUser = async () => {
@@ -99,17 +104,50 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleMemberDeleteClick = (member: TeamMember) => {
+    setMemberToDelete(member);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
     if (teamToDelete) {
-      onDelete(teamToDelete);
-      setIsDeleteModalOpen(false);
-      setTeamToDelete(null);
+      try {
+        await onDelete(teamToDelete);
+        toast.success("Team deleted successfully");
+      } catch (error) {
+        console.error("Error deleting team:", error);
+        toast.error("Failed to delete team");
+      } finally {
+        setIsDeleteModalOpen(false);
+        setTeamToDelete(null);
+      }
+    }
+  };
+
+  const handleConfirmMemberDelete = async () => {
+    if (memberToDelete) {
+      try {
+        await deleteTeamMember(memberToDelete.id);
+        setTeamMembers((prev) => {
+          const updatedMembers = { ...prev };
+          updatedMembers[memberToDelete.team_id] = updatedMembers[
+            memberToDelete.team_id
+          ].filter((member) => member.id !== memberToDelete.id);
+          return updatedMembers;
+        });
+        toast.success("Member deleted successfully");
+        setIsDeleteModalOpen(false);
+        setMemberToDelete(null);
+      } catch (error) {
+        console.error("Error deleting member:", error);
+        toast.error("Failed to delete member");
+      }
     }
   };
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
         {teams.map((team) => (
           <Card
             key={team.id}
@@ -121,7 +159,7 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
                 <h3 className="text-xl font-semibold">{team.name}</h3>
               </div>
             </Link>
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-4 mt-8">
               <Link
                 href={`/teams/${team.id}/edit`}
                 className="flex items-center border border-gray-300 text-black px-4 py-2 rounded hover:bg-gray-100 transition-colors duration-300"
@@ -137,7 +175,7 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
                 Delete
               </button>
             </div>
-            <div className="flex justify-between items-center mt-4">
+            <div className="flex justify-between items-center mt-8">
               <h4 className="text-lg font-medium">Members</h4>
               <Link
                 href={`/teams/${team.id}/add-members`}
@@ -147,10 +185,19 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
                 Add Members
               </Link>
             </div>
-            <ul className="mt-2 space-y-1">
+            <ul className="mt-8 space-y-2">
               {teamMembers[team.id]?.map((member) => (
-                <li key={member.id} className="text-sm">
+                <li
+                  key={member.id}
+                  className="flex justify-between items-center text-sm"
+                >
                   {member.display_name}
+                  <button
+                    onClick={() => handleMemberDeleteClick(member)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <MemberTrashIcon className="w-4 h-4" />
+                  </button>
                 </li>
               )) || <li className="text-sm text-gray-500">No members found</li>}
             </ul>
@@ -162,7 +209,10 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
       >
-        <p>Are you sure you want to delete this team?</p>
+        <p>
+          Are you sure you want to delete{" "}
+          {memberToDelete ? memberToDelete.display_name : "this team"}?
+        </p>
         <div className="mt-4 flex justify-end space-x-2">
           <button
             onClick={() => setIsDeleteModalOpen(false)}
@@ -171,7 +221,9 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
             Cancel
           </button>
           <button
-            onClick={handleConfirmDelete}
+            onClick={
+              memberToDelete ? handleConfirmMemberDelete : handleConfirmDelete
+            }
             className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
           >
             Delete
