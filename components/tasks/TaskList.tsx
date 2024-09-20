@@ -1,13 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { Card, CardContent } from "@/components/ui/card";
 import useDeleteTask from "./useDeleteTask";
 import { toast } from "react-hot-toast";
-import { Separator } from "@/components/ui/separator";
-import { MessageCircle, Edit, Trash2, Bell } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,11 +14,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
 import { Modal } from "@/components/ui/modal";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import {
+  createClientComponentClient,
+  User,
+} from "@supabase/auth-helpers-nextjs";
 import { TaskCard } from "./TaskCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export interface Task {
   id: number;
@@ -37,6 +34,8 @@ export interface Task {
   assigned_avatar_url?: string;
   status: "Pending" | "Accepted" | "In Progress" | "Completed" | "Cancelled";
   not_urgent: boolean;
+  followers: string[];
+  owner_id: string;
 }
 
 interface TaskListProps {
@@ -53,13 +52,24 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
   const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const pathname = usePathname();
-
+  const [user, setUser] = useState<User | null>(null);
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
   const [notifyTaskId, setNotifyTaskId] = useState<number | null>(null);
   const [notifyMessage, setNotifyMessage] = useState("");
 
   const supabase = createClientComponentClient();
+
+  const [activeTab, setActiveTab] = useState("todo");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -204,22 +214,65 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
     }
   };
 
+  const filterTasks = (tasks: Task[]) => {
+    const currentUserId = user?.id;
+    switch (activeTab) {
+      case "delegated":
+        return tasks.filter(
+          (task) =>
+            task.assigned_user_id && task.assigned_user_id !== currentUserId
+        );
+      case "todo":
+        return tasks.filter(
+          (task) =>
+            !task.completed &&
+            (!task.assigned_user_id || task.assigned_user_id === currentUserId)
+        );
+      case "following":
+        return tasks.filter(
+          (task) =>
+            !task.completed && task.followers?.includes(currentUserId as string)
+        );
+        return tasks;
+      case "assigned":
+        return tasks.filter(
+          (task) =>
+            task.assigned_user_id === currentUserId &&
+            task.owner_id !== currentUserId
+        );
+      default:
+        return tasks;
+    }
+  };
+
+  const filteredTasks = filterTasks(tasks);
+
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-        {tasks.map((task) => (
-          <TaskCard
-            key={task.id}
-            task={task}
-            onEdit={openEditModal}
-            onDelete={openDeleteModal}
-            onNotify={openNotifyModal}
-          />
-        ))}
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="delegated">Delegated</TabsTrigger>
+          <TabsTrigger value="todo">Todo</TabsTrigger>
+          <TabsTrigger value="following">Following</TabsTrigger>
+          <TabsTrigger value="assigned">Assigned to Me</TabsTrigger>
+        </TabsList>
+        <TabsContent value={activeTab} className="mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+            {filteredTasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onEdit={openEditModal}
+                onDelete={openDeleteModal}
+                onNotify={openNotifyModal}
+              />
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
