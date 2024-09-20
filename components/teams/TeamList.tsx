@@ -12,14 +12,14 @@ import {
   addUserToTeam,
   deleteTeamMember,
   getTeamMembers,
-} from "@/lib/supabaseClient"; // Import the existing functions
+} from "@/lib/supabaseClient";
 import Modal from "@/components/Modal";
 import {
   createClientComponentClient,
   User,
 } from "@supabase/auth-helpers-nextjs";
 
-import { TrashIcon as MemberTrashIcon } from "@heroicons/react/24/solid"; // Import the icon
+import { TrashIcon as MemberTrashIcon } from "@heroicons/react/24/solid";
 import { toast } from "react-hot-toast";
 
 type Team = {
@@ -190,35 +190,39 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
         {teams.map((team) => (
           <Card
             key={team.id}
-            className="hover:shadow-lg transition-shadow duration-300"
+            className="hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-800"
           >
             <Link href={`/teams/${team.id}`} className="block">
               <div className="flex items-center mb-2">
                 {getHeroIcon(team.icon || "")}
-                <h3 className="text-xl font-semibold">{team.name}</h3>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  {team.name}
+                </h3>
               </div>
             </Link>
             <div className="flex justify-between items-center mb-4 mt-8">
               <Link
                 href={`/teams/${team.id}/edit`}
-                className="flex items-center border border-gray-300 text-black px-4 py-2 rounded hover:bg-gray-100 transition-colors duration-300"
+                className="flex items-center border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
               >
                 <PencilIcon className="w-4 h-4 mr-2" />
                 Edit
               </Link>
               <button
                 onClick={() => handleDeleteClick(team.id)}
-                className="flex items-center border border-gray-300 text-black px-4 py-2 rounded hover:bg-gray-100 transition-colors duration-300"
+                className="flex items-center border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
               >
                 <TrashIcon className="w-4 h-4 mr-2" />
                 Delete
               </button>
             </div>
             <div className="flex justify-between items-center mt-8">
-              <h4 className="text-lg font-medium">Members</h4>
+              <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                Members
+              </h4>
               <button
                 onClick={() => handleAddMemberClick(team.id)}
-                className="flex items-center border border-gray-300 text-black px-3 py-1 rounded hover:bg-gray-100 transition-colors duration-300 text-sm"
+                className="flex items-center border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-3 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 text-sm"
               >
                 <UserPlusIcon className="w-4 h-4 mr-1" />
                 Add Members
@@ -228,17 +232,21 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
               {teamMembers[team.id]?.map((member) => (
                 <li
                   key={member.id}
-                  className="flex justify-between items-center text-sm"
+                  className="flex justify-between items-center text-sm text-gray-700 dark:text-gray-300"
                 >
                   {member.display_name}
                   <button
                     onClick={() => handleMemberDeleteClick(member)}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                   >
                     <MemberTrashIcon className="w-4 h-4" />
                   </button>
                 </li>
-              )) || <li className="text-sm text-gray-500">No members found</li>}
+              )) || (
+                <li className="text-sm text-gray-500 dark:text-gray-400">
+                  No members found
+                </li>
+              )}
             </ul>
           </Card>
         ))}
@@ -248,25 +256,30 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
       >
-        <p>
-          Are you sure you want to delete{" "}
-          {memberToDelete ? memberToDelete.display_name : "this team"}?
-        </p>
-        <div className="mt-4 flex justify-end space-x-2">
-          <button
-            onClick={() => setIsDeleteModalOpen(false)}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={
-              memberToDelete ? handleConfirmMemberDelete : handleConfirmDelete
-            }
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-          >
-            Delete
-          </button>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+            Confirm Deletion
+          </h3>
+          <p className="text-gray-700 dark:text-gray-300 mb-6">
+            Are you sure you want to delete{" "}
+            {memberToDelete ? memberToDelete.display_name : "this team"}?
+          </p>
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={
+                memberToDelete ? handleConfirmMemberDelete : handleConfirmDelete
+              }
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 transition-colors duration-200"
+            >
+              Delete
+            </button>
+          </div>
         </div>
       </Modal>
 
@@ -274,26 +287,34 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
         isOpen={isAddMemberModalOpen}
         onClose={() => setIsAddMemberModalOpen(false)}
       >
-        <p>Enter the email of the member you want to add:</p>
-        <input
-          type="email"
-          value={newMemberEmail}
-          onChange={(e) => setNewMemberEmail(e.target.value)}
-          className="mt-2 p-2 border border-gray-300 rounded-md w-full"
-        />
-        <div className="mt-4 flex justify-end space-x-2">
-          <button
-            onClick={() => setIsAddMemberModalOpen(false)}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleConfirmAddMember}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Add
-          </button>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+            Add Team Member
+          </h3>
+          <p className="text-gray-700 dark:text-gray-300 mb-4">
+            Enter the email of the member you want to add:
+          </p>
+          <input
+            type="email"
+            value={newMemberEmail}
+            onChange={(e) => setNewMemberEmail(e.target.value)}
+            className="w-full p-2 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            placeholder="member@example.com"
+          />
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={() => setIsAddMemberModalOpen(false)}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmAddMember}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
+            >
+              Add
+            </button>
+          </div>
         </div>
       </Modal>
     </>
