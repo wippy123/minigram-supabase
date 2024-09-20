@@ -1,58 +1,73 @@
 "use client";
 
-import { resetPasswordAction } from "@/app/actions";
-import { SubmitButton } from "@/components/submit-button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import toast from "react-hot-toast"; // Import toast
+import React, { useState } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { toast } from "react-hot-toast";
 
 export default function ResetPasswordForm() {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const supabase = createClientComponentClient();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-    const password = formData.get("password") as string;
-    const confirmPassword = formData.get("confirmPassword") as string;
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
 
-    try {
-      await resetPasswordAction(formData);
-      toast.success("Password reset successfully");
-    } catch (error) {
-      toast.error("Error resetting password");
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) {
+      toast.error(`Error updating password: ${error.message}`);
+    } else {
+      toast.success("Password updated successfully");
+      setPassword("");
+      setConfirmPassword("");
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col w-full max-w-md p-4 gap-2 [&>input]:mb-4"
-    >
-      <h1 className="text-2xl font-medium">Reset password</h1>
-      <p className="text-sm text-foreground/60">
-        Please enter your new password below.
-      </p>
-      <Label htmlFor="password">New password</Label>
-      <Input
-        type="password"
-        name="password"
-        placeholder="New password"
-        required
-      />
-      <Label htmlFor="confirmPassword">Confirm password</Label>
-      <Input
-        type="password"
-        name="confirmPassword"
-        placeholder="Confirm password"
-        required
-      />
-      <SubmitButton formAction={resetPasswordAction}>
-        Reset password
-      </SubmitButton>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label
+          htmlFor="password"
+          className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
+          New Password
+        </label>
+        <input
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+        />
+      </div>
+      <div>
+        <label
+          htmlFor="confirmPassword"
+          className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
+          Confirm New Password
+        </label>
+        <input
+          type="password"
+          id="confirmPassword"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+          className="w-full p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+        />
+      </div>
+      <button
+        type="submit"
+        className="w-full bg-black dark:bg-gray-700 text-white py-2 px-4 rounded-md hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors duration-200"
+      >
+        Update Password
+      </button>
     </form>
   );
 }

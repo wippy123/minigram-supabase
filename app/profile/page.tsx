@@ -39,7 +39,7 @@ export default async function AccountSettingsPage() {
         </div>
         <div className="w-full md:w-1/2 border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 rounded-md shadow-sm">
           <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-            Reset Password
+            Password Management
           </h2>
           <ResetPasswordForm />
         </div>
