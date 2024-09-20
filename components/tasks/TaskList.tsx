@@ -14,8 +14,14 @@ import {
 import { TaskCard } from "./TaskCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EditTaskModal from "./EditTaskModal";
-import { ListIcon, GridIcon, CalendarIcon } from "lucide-react";
-import { isEqual } from "lodash";
+import {
+  ListIcon,
+  GridIcon,
+  CalendarIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+} from "lucide-react";
+import { parseISO, format, startOfDay, endOfDay, addDays } from "date-fns";
 
 export interface Task {
   id: number;
@@ -32,6 +38,7 @@ export interface Task {
   followers: string[];
   owner_id: string;
   file_count: number;
+  assigned_user_name?: string; // New field for display name or email
 }
 
 interface TaskListProps {
@@ -61,6 +68,8 @@ export default function TaskList({
     "card"
   );
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const supabase = createClientComponentClient();
 
@@ -93,15 +102,22 @@ export default function TaskList({
         console.error("Error fetching tasks:", error);
         setError("Failed to fetch tasks");
       } else {
-        const tasksWithAvatars = await Promise.all(
+        const tasksWithUserInfo = await Promise.all(
           data.map(async (task) => {
             const avatarUrl = await getAvatarUrl(
               task.assigned_user_id as string
             );
-            return { ...task, assigned_avatar_url: avatarUrl };
+            const userName = await getUserDisplayNameOrEmail(
+              task.assigned_user_id
+            );
+            return {
+              ...task,
+              assigned_avatar_url: avatarUrl,
+              assigned_user_name: userName,
+            };
           })
         );
-        setTasks(tasksWithAvatars as Task[]);
+        setTasks(tasksWithUserInfo as Task[]);
         setError(null);
       }
       setLoading(false);
@@ -109,6 +125,36 @@ export default function TaskList({
 
     fetchTasks();
   }, [teamId, refreshTrigger]);
+
+  const getUserDisplayNameOrEmail = async (
+    userId: string | undefined
+  ): Promise<string> => {
+    if (!userId) return "Unassigned";
+
+    // First, try to get the display name from profile_settings
+    const { data: profileData, error: profileError } = await supabase
+      .from("profile_settings")
+      .select("display_name")
+      .eq("id", userId)
+      .single();
+
+    if (profileData?.display_name) {
+      return profileData.display_name;
+    }
+
+    // If no display name, fetch email from auth.users
+    const { data: userData } = await supabase.auth.admin.listUsers();
+
+    if (userData.users.length > 0) {
+      const foundUser = userData.users.find((user: any) => user.id === userId);
+      console.log("foundUser", foundUser);
+      if (foundUser) {
+        return foundUser.email as string;
+      }
+    }
+
+    return "Unknown User";
+  };
 
   const openDeleteModal = (taskId: number) => {
     setTaskToDelete(taskId);
@@ -148,12 +194,16 @@ export default function TaskList({
   };
 
   const handleEditTask = async (updatedTask: Task) => {
-    const { assigned_avatar_url, ...taskWithoutAvatar } = updatedTask;
+    const {
+      assigned_avatar_url,
+      assigned_user_name,
+      ...taskWithoutExtraFields
+    } = updatedTask;
 
     const { data, error } = await supabase
       .from("tasks")
-      .update(taskWithoutAvatar)
-      .eq("id", taskWithoutAvatar.id);
+      .update(taskWithoutExtraFields)
+      .eq("id", taskWithoutExtraFields.id);
 
     if (error) {
       toast.error(`Failed to update task: ${error.message}`);
@@ -253,6 +303,46 @@ export default function TaskList({
     (task) => task.status === "Completed"
   );
 
+  const sortTasks = (tasks: Task[]) => {
+    if (!sortField) return tasks;
+
+    return [...tasks].sort((a, b) => {
+      if (sortField === "assigned_to") {
+        const aName = a.assigned_user_name || "";
+        const bName = b.assigned_user_name || "";
+        return sortDirection === "asc"
+          ? aName.localeCompare(bName)
+          : bName.localeCompare(aName);
+      }
+      if (sortField === "status" || sortField === "due_date") {
+        const aValue = a[sortField] || "";
+        const bValue = b[sortField] || "";
+        return sortDirection === "asc"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+      return 0;
+    });
+  };
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const renderSortIcon = (field: string) => {
+    if (sortField !== field) return null;
+    return sortDirection === "asc" ? (
+      <ChevronUpIcon className="inline w-4 h-4" />
+    ) : (
+      <ChevronDownIcon className="inline w-4 h-4" />
+    );
+  };
+
   const renderCalendar = (taskList: Task[]) => {
     const daysInMonth = new Date(
       currentMonth.getFullYear(),
@@ -279,6 +369,7 @@ export default function TaskList({
     const tasksForDay = (date: Date) => {
       return taskList.filter((task) => {
         const taskDate = new Date(task.due_date as string);
+        taskDate.setDate(taskDate.getDate() + 1); // Add a day to taskDate
         return taskDate.toDateString() === date.toDateString();
       });
     };
@@ -385,6 +476,7 @@ export default function TaskList({
           </div>
         );
       case "list":
+        const sortedTasks = sortTasks(taskList);
         return (
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-800">
@@ -392,11 +484,23 @@ export default function TaskList({
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Title
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
+                  onClick={() => handleSort("status")}
+                >
+                  Status {renderSortIcon("status")}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Due Date
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
+                  onClick={() => handleSort("due_date")}
+                >
+                  Due Date {renderSortIcon("due_date")}
+                </th>
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
+                  onClick={() => handleSort("assigned_to")}
+                >
+                  Assigned To {renderSortIcon("assigned_to")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Actions
@@ -404,7 +508,7 @@ export default function TaskList({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
-              {taskList.map((task) => (
+              {sortedTasks.map((task) => (
                 <tr key={task.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                     {task.title}
@@ -414,6 +518,9 @@ export default function TaskList({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {task.due_date}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    {task.assigned_user_name || "Unassigned"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
