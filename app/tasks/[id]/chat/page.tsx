@@ -3,8 +3,9 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import React, { useState, useEffect } from "react";
 import { StreamChat } from "stream-chat";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { getAvatarUrl } from "@/utils/utils";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Chat,
   Channel,
@@ -19,6 +20,7 @@ import "stream-chat-react/dist/css/v2/index.css";
 import { EmojiPicker } from "stream-chat-react/emojis";
 
 import { SearchIndex } from "emoji-mart";
+import { Task } from "@/components/tasks/TaskList";
 // import data from "@emoji-mart/data";
 
 export default function ChatPage() {
@@ -26,11 +28,27 @@ export default function ChatPage() {
   const [loaded, setLoaded] = useState(false);
   const client = StreamChat.getInstance("49wdm2zxn2xb");
   const [channel, setChannel] = useState<any>();
-  const [userId, setUserId] = useState<string | null>(null);
   const [chatInfo, setChatInfo] = useState<any>(null);
+  const searchParams = useSearchParams();
+  const taskDataParam = searchParams.get("taskData");
+  const task: Task | null = taskDataParam
+    ? JSON.parse(decodeURIComponent(taskDataParam))
+    : null;
   // Use the useParams hook to get the task ID from the URL
   const params = useParams();
   const taskId = params.id as string;
+
+  function formatDateTime(date?: string, time?: string) {
+    if (!date) return "No due date";
+    const dateObj = new Date(`${date}T${time || "00:00:00"}`);
+    return dateObj.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    });
+  }
 
   const getStreamToken = async (userId: string) => {
     try {
@@ -99,19 +117,38 @@ export default function ChatPage() {
   if (!loaded) return <div>Loading...</div>;
 
   return (
-    <Chat client={client}>
-      <Channel
-        channel={channel}
-        EmojiPicker={EmojiPicker}
-        emojiSearchIndex={SearchIndex}
-      >
-        <Window>
-          <ChannelHeader />
-          <MessageList />
-          <MessageInput />
-        </Window>
-        <Thread />
-      </Channel>
-    </Chat>
+    <div>
+      <div>
+        {task && (
+          <Card className="mb-4">
+            <CardContent className="p-4">
+              <h2 className="text-xl font-semibold mb-2">{task.title}</h2>
+              <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">{task.status}</span>
+                <span className="text-sm text-gray-500">
+                  Due: {formatDateTime(task.due_date, task.due_time)}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        {/* Existing chat component */}
+      </div>
+      <Chat client={client}>
+        <Channel
+          channel={channel}
+          EmojiPicker={EmojiPicker}
+          emojiSearchIndex={SearchIndex}
+        >
+          <Window>
+            <ChannelHeader />
+            <MessageList />
+            <MessageInput />
+          </Window>
+          <Thread />
+        </Channel>
+      </Chat>
+    </div>
   );
 }

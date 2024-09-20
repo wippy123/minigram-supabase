@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Task } from "./TaskList";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useRouter } from "next/navigation";
 
 interface TaskCardProps {
   task: Task;
@@ -41,6 +42,7 @@ function getStatusColor(status: Task["status"]) {
 export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
   const [hasChatMessages, setHasChatMessages] = useState(false);
   const supabase = createClientComponentClient();
+  const router = useRouter();
 
   useEffect(() => {
     async function checkChatMessages() {
@@ -70,6 +72,12 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
       hour: "numeric",
       minute: "numeric",
     });
+  };
+
+  const handleChatClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const encodedTaskData = encodeURIComponent(JSON.stringify(task));
+    router.push(`/tasks/${task.id}/chat?taskData=${encodedTaskData}`);
   };
 
   return (
@@ -144,6 +152,7 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
           {hasChatMessages && (
             <Link
               href={`/tasks/${task.id}/chat`}
+              onClick={handleChatClick}
               className="text-gray-500 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
               title="Chat"
             >
