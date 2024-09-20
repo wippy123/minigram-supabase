@@ -1,5 +1,4 @@
 "use client";
-import DeployButton from "@/components/deploy-button";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { HeaderAuth } from "@/components/header-auth";
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
@@ -8,13 +7,10 @@ import Link from "next/link";
 import NavLink from "@/components/NavLink";
 import "./globals.css";
 import { Roboto } from "next/font/google";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { PresenceProvider } from "./components/PresenceContext";
-import { useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import "@/styles/stream-chat-custom-theme.css";
-import { User, Settings } from "lucide-react";
+import { useNotifications } from "./hooks/useNotifications";
 
 const roboto = Roboto({
   weight: ["400", "700"],
@@ -22,72 +18,12 @@ const roboto = Roboto({
   display: "swap",
 });
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const showNotification = (message: string) => {
-    console.log("Showing notification", Notification, message);
-    if (Notification.permission === "granted") {
-      new Notification("New Notification", { body: message });
-    } else if (Notification.permission !== "denied") {
-      Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
-          new Notification("New Notification", { body: message });
-        }
-      });
-    }
-
-    // Add toast notification
-    toast(message, {
-      icon: "🔔",
-      duration: 5000,
-    });
-  };
-
-  useEffect(() => {
-    // Subscribe to real-time changes (e.g., new rows inserted into a table)
-    const handleInserts = (payload: any) => {
-      console.log("Change received!", payload);
-      showNotification(`New task added: ${payload.new.title}`);
-    };
-
-    const handleNotifications = async (payload: any) => {
-      const supabase = createClientComponentClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (payload.new.user_id === user?.id) {
-        showNotification(`UPDATE REQUESTED: ${payload.new.message}`);
-      }
-    };
-
-    // Listen to inserts
-    const subscription = supabase
-      .channel("tasks")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "tasks" },
-        handleInserts
-      )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications" },
-        handleNotifications
-      )
-      .subscribe();
-    console.log("Subscribed to tasks");
-
-    // Cleanup function
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+  useNotifications();
 
   return (
     <html lang="en" suppressHydrationWarning className={roboto.className}>

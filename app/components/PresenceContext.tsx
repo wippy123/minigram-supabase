@@ -26,7 +26,6 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
     channel
       .on("presence", { event: "sync" }, () => {
         const newState = channel.presenceState();
-        console.log("newState", newState);
         const onlineUsers = Object.values(newState).map((state) => ({
           id: (state[0] as unknown as { userId: string }).userId,
         }));

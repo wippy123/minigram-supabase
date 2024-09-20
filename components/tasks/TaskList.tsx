@@ -268,9 +268,7 @@ export default function TaskList({
         );
       case "todo":
         return tasks.filter(
-          (task) =>
-            !task.completed &&
-            (!task.assigned_user_id || task.assigned_user_id === currentUserId)
+          (task) => !task.completed && task.owner_id === task.assigned_user_id
         );
       case "following":
         return tasks.filter(
