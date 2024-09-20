@@ -24,22 +24,7 @@ interface AccountSettings {
   avatar_url: string | null;
 }
 
-const themeOptions = [
-  "light",
-  "dark",
-  "zinc",
-  "slate",
-  "stone",
-  "gray",
-  "neutral",
-  "red",
-  "rose",
-  "orange",
-  "green",
-  "blue",
-  "yellow",
-  "violet",
-];
+const themeOptions = ["light", "dark"];
 
 export default function ProfileSettingsForm({
   initialData,
