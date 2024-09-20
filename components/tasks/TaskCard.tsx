@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { MessageCircle, Edit, Trash2, Bell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
-import { Task } from "./TaskList"; // Assuming you'll move the Task interface to TaskList.tsx
+import { Task } from "./TaskList";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 interface TaskCardProps {
   task: Task;
@@ -31,6 +32,27 @@ function getStatusColor(status: Task["status"]) {
 }
 
 export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
+  const [hasChatMessages, setHasChatMessages] = useState(false);
+  const supabase = createClientComponentClient();
+
+  useEffect(() => {
+    async function checkChatMessages() {
+      const { data, error } = await supabase
+        .from("chats")
+        .select("id")
+        .eq("task_id", task.id)
+        .limit(1);
+
+      if (error) {
+        console.error("Error checking chat messages:", error);
+      } else {
+        setHasChatMessages(data.length > 0);
+      }
+    }
+
+    checkChatMessages();
+  }, [task.id, supabase]);
+
   const formatDateTime = (date?: string, time?: string) => {
     if (!date) return "No due date";
     const dateObj = new Date(`${date}T${time || "00:00:00"}`);
@@ -91,13 +113,15 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
 
         <Separator className="my-4" />
         <div className="flex justify-end space-x-4">
-          <Link
-            href={`/tasks/${task.id}/chat`}
-            className="text-gray-500 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-            title="Chat"
-          >
-            <MessageCircle size={20} />
-          </Link>
+          {hasChatMessages && (
+            <Link
+              href={`/tasks/${task.id}/chat`}
+              className="text-gray-500 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              title="Chat"
+            >
+              <MessageCircle size={20} />
+            </Link>
+          )}
           <button
             className="text-gray-500 dark:text-gray-300 hover:text-green-500 dark:hover:text-green-400 transition-colors"
             onClick={() => onEdit(task)}
