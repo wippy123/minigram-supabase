@@ -81,7 +81,7 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
   };
 
   return (
-    <Card className="flex flex-col bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <Card className="flex flex-col bg-white dark:bg-gray-700 shadow-lg border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow duration-200">
       <CardContent className="p-4 flex-grow flex flex-col">
         <div className="flex-grow">
           <div className="flex justify-between items-start mb-2">

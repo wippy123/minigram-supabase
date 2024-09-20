@@ -13,6 +13,7 @@ import { PresenceProvider } from "./components/PresenceContext";
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import "@/styles/stream-chat-custom-theme.css";
 
 const roboto = Roboto({
   weight: ["400", "700"],

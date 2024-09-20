@@ -18,10 +18,10 @@ import {
 import { toast } from "react-hot-toast";
 import "stream-chat-react/dist/css/v2/index.css";
 import { EmojiPicker } from "stream-chat-react/emojis";
-
 import { SearchIndex } from "emoji-mart";
 import { Task } from "@/components/tasks/TaskList";
-// import data from "@emoji-mart/data";
+import "@/styles/stream-chat-custom-theme.css";
+import { useTheme } from "next-themes";
 
 export default function ChatPage() {
   const supabase = createClientComponentClient();
@@ -77,27 +77,51 @@ export default function ChatPage() {
       if (!taskId) return;
 
       try {
-        const { data, error } = await supabase
+        const { data: chatData, error: chatError } = await supabase
           .from("chats")
           .select("*")
           .eq("task_id", taskId)
           .single();
 
-        if (data) {
-          setChatInfo(data);
+        if (chatError) throw chatError;
+
+        if (chatData) {
+          // Fetch display names for participants
+          const { data: participantsData, error: participantsError } =
+            await supabase
+              .from("profile_settings")
+              .select("id, display_name")
+              .in("id", chatData.participants);
+
+          if (participantsError) throw participantsError;
+
+          const participantsMap = new Map(
+            participantsData.map((p) => [p.id, p.display_name])
+          );
+
+          setChatInfo({
+            ...chatData,
+            participants: chatData.participants.map((userId: string) => ({
+              id: userId,
+              displayName: participantsMap.get(userId) || userId,
+            })),
+          });
+
           const user = await supabase.auth.getUser();
           const token = await getStreamToken(user.data.user?.id as string);
           await client.connectUser(
             {
               id: user.data.user?.id ?? "",
-              name: "Todd Storm",
+              name:
+                participantsMap.get(user.data.user?.id as string) ||
+                "Unknown User",
               image: getAvatarUrl(user.data.user?.id as string),
             },
             token
           );
-          console.log("participants", data.participants);
-          const channel = client.channel("messaging", data.channel_id, {
-            members: data.participants,
+
+          const channel = client.channel("messaging", chatData.channel_id, {
+            members: chatData.participants,
             name: `Task ${taskId}`,
           });
           setLoaded(true);
@@ -107,7 +131,7 @@ export default function ChatPage() {
         }
       } catch (error) {
         toast("An unexpected error occurred.");
-        console.log("error", error);
+        console.error("error", error);
       }
     };
 
@@ -116,39 +140,42 @@ export default function ChatPage() {
 
   if (!loaded)
     return (
-      <div className="text-center p-4 text-gray-600 dark:text-gray-300">
-        Loading...
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
 
+  const { theme } = useTheme();
+
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-8">
         {task && (
-          <Card className="bg-white dark:bg-gray-800 shadow-md">
+          <Card className="bg-white dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700 rounded-lg">
             <CardContent className="p-6">
-              <h2 className="text-2xl font-semibold mb-3 text-gray-800 dark:text-gray-100">
-                {task.title}
+              <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100 border-b pb-2">
+                Task Details
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                {task.description}
-              </p>
-              <div className="flex justify-between items-center text-sm">
-                <span className="font-medium text-gray-700 dark:text-gray-200">
-                  {task.status}
-                </span>
-                <span className="text-gray-500 dark:text-gray-400">
-                  Due: {formatDateTime(task.due_date, task.due_time)}
-                </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <TaskDetail label="Title" value={task.title} />
+                <TaskDetail label="Status" value={task.status} />
+                <TaskDetail
+                  label="Due"
+                  value={formatDateTime(task.due_date, task.due_time)}
+                />
+                <TaskDetail
+                  label="Description"
+                  value={task.description || "No description"}
+                />
               </div>
             </CardContent>
           </Card>
         )}
       </div>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden h-[600px]">
         <Chat
           client={client}
-          theme="str-chat__theme-light dark:str-chat__theme-dark"
+          theme={theme === "dark" ? "str-chat__theme-dark" : "light"}
         >
           <Channel
             channel={channel}
@@ -164,6 +191,17 @@ export default function ChatPage() {
           </Channel>
         </Chat>
       </div>
+    </div>
+  );
+}
+
+function TaskDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+        {label}
+      </p>
+      <p className="mt-1 text-lg text-gray-900 dark:text-gray-100">{value}</p>
     </div>
   );
 }

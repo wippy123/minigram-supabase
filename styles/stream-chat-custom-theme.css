@@ -1,1 +1,143 @@
- 
+/* Light theme */
+.str-chat__theme-light {
+  --str-chat__primary-color: #005fff;
+  --str-chat__active-primary-color: #0047cc;
+  --str-chat__surface-color: #ffffff;
+  --str-chat__secondary-surface-color: #f5f5f5;
+  --str-chat__primary-surface-color: #e6f2ff;
+  --str-chat__primary-text-color: #000000;
+  --str-chat__secondary-text-color: #72767e;
+  --str-chat__border-color: #e0e0e0;
+}
+
+/* Dark theme */
+.str-chat__theme-dark {
+  --str-chat__primary-color: var(--str-chat__primary-color);
+  --str-chat__active-primary-color: var(--str-chat__active-primary-color);
+  --str-chat__disabled-color: #a4a4a4;
+
+  --str-chat__surface-color: var(--str-chat__surface-color);
+  --str-chat__secondary-surface-color: var(--str-chat__surface-color);
+
+  --str-chat__border-color: var(--str-chat__border-color);
+
+  --str-chat__message-bubble-color: var(--str-chat__message-bubble-color);
+  --str-chat__own-message-bubble-color: var(--str-chat__own-message-bubble-color);
+
+  --str-chat__avatar-background-color: #3f3f3f;
+  --str-chat__avatar-text-color: #ffffff;
+
+  color: var(--str-chat__text-color);
+}
+
+/* Common styles for both themes */
+.str-chat__theme-light,
+.str-chat__theme-dark {
+  --str-chat__message-bubble-color: var(--str-chat__primary-surface-color);
+  --str-chat__message-bubble-text-color: var(--str-chat__primary-text-color);
+  --str-chat__message-bubble-me-color: var(--str-chat__primary-color);
+  --str-chat__message-bubble-me-text-color: #ffffff;
+}
+
+/* Override specific Stream Chat components */
+.str-chat__theme-light .str-chat__message-list,
+.str-chat__theme-dark .str-chat__message-list {
+  background: var(--str-chat__surface-color);
+}
+
+.str-chat__theme-light .str-chat__message-input,
+.str-chat__theme-dark .str-chat__message-input {
+  background: var(--str-chat__secondary-surface-color);
+}
+
+.str-chat__theme-light .str-chat__message-input-inner,
+.str-chat__theme-dark .str-chat__message-input-inner {
+  background: var(--str-chat__surface-color);
+}
+
+.str-chat__theme-light .str-chat__message--me .str-chat__message-bubble,
+.str-chat__theme-dark .str-chat__message--me .str-chat__message-bubble {
+  background: var(--str-chat__message-bubble-me-color);
+  color: var(--str-chat__message-bubble-me-text-color);
+}
+
+.str-chat__theme-light .str-chat__message-bubble,
+.str-chat__theme-dark .str-chat__message-bubble {
+  background: var(--str-chat__message-bubble-color);
+  color: var(--str-chat__message-bubble-text-color);
+}
+
+.str-chat__theme-dark .str-chat__message-simple-text-inner {
+  background: var(--str-chat__message-bubble-color);
+  border-color: var(--str-chat__border-color);
+}
+
+.str-chat__theme-dark .str-chat__message--me .str-chat__message-simple-text-inner {
+  background: var(--str-chat__own-message-bubble-color);
+}
+
+.str-chat__theme-dark .str-chat__message-input {
+  background: var(--str-chat__surface-color);
+  border-color: var(--str-chat__border-color);
+}
+
+.str-chat__theme-dark .str-chat__input-flat {
+  background: var(--str-chat__surface-color);
+}
+
+.str-chat__theme-dark .str-chat__message-input-inner {
+  background: var(--str-chat__surface-color);
+}
+
+.str-chat__theme-dark .str-chat__message-input-inner textarea {
+  color: var(--str-chat__text-color);
+}
+
+.str-chat__theme-dark .str-chat__message-input-inner::placeholder {
+  color: #a4a4a4;
+}
+
+.str-chat__theme-dark .str-chat__message-attachment-card {
+  background: var(--str-chat__surface-color);
+  border-color: var(--str-chat__border-color);
+}
+
+.str-chat__theme-dark .str-chat__message-attachment-card--title {
+  color: var(--str-chat__text-color);
+}
+
+.str-chat__theme-dark .str-chat__message-attachment-card--text {
+  color: var(--str-chat__text-color);
+}
+
+.str-chat__theme-dark .str-chat__thread {
+  background: var(--str-chat__surface-color);
+  border-left-color: var(--str-chat__border-color);
+}
+
+.str-chat__theme-dark .str-chat__thread-header {
+  background: var(--str-chat__surface-color);
+  border-bottom-color: var(--str-chat__border-color);
+}
+
+.str-chat__theme-dark .str-chat__thread-start-date {
+  color: var(--str-chat__text-color);
+}
+
+.str-chat__theme-dark .str-chat__date-separator-date {
+  color: var(--str-chat__text-color);
+}
+
+.str-chat__theme-dark .str-chat__date-separator-line {
+  border-bottom-color: var(--str-chat__border-color);
+}
+
+.str-chat__theme-dark .str-chat__channel-header {
+  background: var(--str-chat__surface-color);
+  border-bottom-color: var(--str-chat__border-color);
+}
+
+.str-chat__theme-dark .str-chat__avatar {
+  background-color: var(--str-chat__avatar-background-color);
+  color: var(--str-chat__avatar-text-color);
+}
