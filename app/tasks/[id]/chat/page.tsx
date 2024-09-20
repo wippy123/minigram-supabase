@@ -138,6 +138,8 @@ export default function ChatPage() {
     fetchChatInfo();
   }, [taskId, supabase, toast]);
 
+  const { theme } = useTheme();
+
   if (!loaded)
     return (
       <div className="flex items-center justify-center h-screen">
@@ -145,13 +147,9 @@ export default function ChatPage() {
       </div>
     );
 
-  const { theme } = useTheme();
-
-  console.log("theme", theme);
-
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
+    <div className="max-w-7xl mx-auto px-4 pt-20 pb-8 h-screen flex flex-col">
+      <div className="mb-4">
         {task && (
           <Card className="bg-white dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700 rounded-lg">
             <CardContent className="p-6">
@@ -174,7 +172,7 @@ export default function ChatPage() {
           </Card>
         )}
       </div>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden h-[600px]">
+      <div className="flex-grow overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
         <Chat
           client={client}
           theme={
