@@ -45,36 +45,36 @@ export default function HomePage() {
 
   // New sample data for Overdue Tasks by Team Member
   const overdueTasksData = [
-    { name: "Alice (Design)", overdueTasks: 3 },
-    { name: "Bob (Development)", overdueTasks: 5 },
-    { name: "Charlie (Sales)", overdueTasks: 2 },
-    { name: "Diana (Design)", overdueTasks: 4 },
-    { name: "Eva (Development)", overdueTasks: 1 },
+    { name: "Alice", overdueTasks: 3 },
+    { name: "Bob", overdueTasks: 5 },
+    { name: "Charlie", overdueTasks: 2 },
+    { name: "Diana", overdueTasks: 4 },
+    { name: "Eva", overdueTasks: 1 },
   ];
 
   // Custom color palette
   const COLORS = [
-    "#FF6B6B",
-    "#4ECDC4",
-    "#45B7D1",
-    "#4CAF50",
-    "#FFC107",
-    "#FF5252",
-    "#F06292",
-    "#AED581",
-    "#7986CB",
-    "#4DB6AC",
-    "#FFD54F",
-    "#9575CD",
-    "#4DD0E1",
-    "#81C784",
-    "#DCE775",
-    "#64B5F6",
-    "#FFB74D",
-    "#A1887F",
-    "#90A4AE",
-    "#BA68C8",
-    "#4FC3F7",
+    "#E6F3FF", // Lightest blue
+    "#CCE7FF",
+    "#B3DBFF",
+    "#99CFFF",
+    "#80C3FF",
+    "#66B7FF", // Medium blue
+    "#4DABFF",
+    "#339FFF",
+    "#1A93FF",
+    "#0087FF", // Darkest blue
+    "#007AE6",
+    "#FF8C00", // Dark orange instead of red
+    "#4B0082", // Indigo instead of green
+    "#FFA500", // Keeping warning (orange)
+    "#00BFFF", // Keeping info (light blue)
+    "#E6F3FF", // Light blue foreground
+    "#0087FF", // Dark blue foreground
+    "#CCE7FF", // Light accent foreground
+    "#1A93FF", // Dark muted foreground
+    "#E6F3FF", // Light popover foreground
+    "#0087FF", // Dark card foreground
   ];
 
   return (
@@ -89,18 +89,14 @@ export default function HomePage() {
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={tasksCompletedData}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="7 7" />
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="Design" stroke={COLORS[0]} />
-                <Line
-                  type="monotone"
-                  dataKey="Development"
-                  stroke={COLORS[1]}
-                />
-                <Line type="monotone" dataKey="Sales" stroke={COLORS[2]} />
+                <Line type="monotone" dataKey="Design" stroke={COLORS[7]} />
+                <Line type="basis" dataKey="Development" stroke={"#000000"} />
+                <Line type="monotone" dataKey="Sales" stroke={"#006400"} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -161,9 +157,9 @@ export default function HomePage() {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="overdueTasks" fill={COLORS[11]}>
+                <Bar dataKey="overdueTasks" fill={COLORS[6]}>
                   {overdueTasksData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index + 11]} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index + 5]} />
                   ))}
                 </Bar>
               </BarChart>
