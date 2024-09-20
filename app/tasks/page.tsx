@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { OnlineUsers } from "../components/OnlineUsers";
 
 interface Team {
   id: string;
@@ -104,12 +105,9 @@ export default function TasksPage() {
           </Button>
         </div>
       </div>
+      <OnlineUsers />
       {selectedTeamId && (
-        <TaskList
-          teamId={selectedTeamId}
-          refreshTrigger={refreshTaskList}
-          isAdmin={isAdmin}
-        />
+        <TaskList teamId={selectedTeamId} refreshTrigger={refreshTaskList} />
       )}
       <Modal
         isOpen={isAddTaskModalOpen}

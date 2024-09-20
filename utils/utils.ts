@@ -23,7 +23,6 @@ const getAvatarUrl = async (userId: string) => {
       .select("avatar_url")
       .eq("id", userId)
       .single();
-    console.log("avatar data", profile?.avatar_url);
     return profile?.avatar_url;
   };
 

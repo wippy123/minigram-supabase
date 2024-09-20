@@ -50,24 +50,6 @@ async function insertChat(chatData: {
   return data;
 }
 
-const getStreamToken = async (userId: string) => {
-  try {
-    const serverClient = StreamChat.getInstance(
-      streamApiKey,
-      streamApiSecret
-    )
-
-    if (!serverClient.secret){
-      serverClient.secret=streamApiSecret
-  }
-
-    const token = serverClient.createToken(userId)
-    return token
-  } catch (error) {
-    console.error("Error generating Stream Chat token:", error);
-    throw error;
-  }
-};
 
 export async function POST(request: NextRequest) {
   const { newTaskData, files } = await request.json();
