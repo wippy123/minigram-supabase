@@ -17,11 +17,11 @@ import {
 } from "stream-chat-react";
 import { toast } from "react-hot-toast";
 import "stream-chat-react/dist/css/v2/index.css";
+import "@/styles/stream-chat-custom-theme.css";
 import { EmojiPicker } from "stream-chat-react/emojis";
 import { SearchIndex } from "emoji-mart";
 import { Task } from "@/components/tasks/TaskList";
-import "@/styles/stream-chat-custom-theme.css";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function ChatPage() {
   const supabase = createClientComponentClient();
@@ -147,6 +147,8 @@ export default function ChatPage() {
 
   const { theme } = useTheme();
 
+  console.log("theme", theme);
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-8">
@@ -175,7 +177,9 @@ export default function ChatPage() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden h-[600px]">
         <Chat
           client={client}
-          theme={theme === "dark" ? "str-chat__theme-dark" : "light"}
+          theme={
+            theme === "dark" ? "str-chat__theme-dark" : "str-chat__theme-light"
+          }
         >
           <Channel
             channel={channel}
