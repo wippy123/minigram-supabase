@@ -1,7 +1,7 @@
 import React from 'npm:react@18.3.1'
 import { Resend } from 'npm:resend@4.0.0'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
-import { TaskInsertEmail } from './_templates/magic-link.tsx'
+import { TaskDeleteEmail } from './_templates/magic-link.tsx'
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
@@ -17,19 +17,19 @@ Deno.serve(async (req) => {
   console.log('inside hook', old_record, record, event)
 
   const supabase = createClient(supabaseUrl, supabaseKey);
-  const { data, error } = await supabase.auth.admin.getUserById(record?.assigned_user_id ? record?.assigned_user_id : record?.owner_id)
+  const { data, error } = await supabase.auth.admin.getUserById(old_record?.assigned_user_id ? old_record?.assigned_user_id : old_record?.owner_id)
 
   console.log('supabase data', {data, error})
   if (data && data?.user?.email) {
   try {
     const html = await renderAsync(
-      React.createElement(TaskInsertEmail, {taskId: record?.id, taskName: record?.title, taskDescription: record?.description, taskDueDate: record?.due_date})
+      React.createElement(TaskDeleteEmail, {taskId: old_record?.id, taskName: old_record?.title, taskDescription: old_record?.description, taskDueDate: old_record?.due_date})
     )
 
     const { error } = await resend.emails.send({
       from: 'welcome <onboarding@resend.dev>',
       to: 'todd.w.storm@gmail.com', //data?.user?.email,
-      subject: 'You have a new task!',
+      subject: 'A task you are involved with has been deleted!',
       html,
     })
     if (error) {

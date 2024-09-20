@@ -18,29 +18,25 @@ interface TaskInsertEmailProps {
   taskDueDate: string;
 }
 
-export const TaskInsertEmail = ({
+export const TaskDeleteEmail = ({
   taskName,
   taskDescription,
   taskDueDate,
 }: TaskInsertEmailProps) => (
   <Html>
     <Head />
-    <Preview>A task has been assigned to you!</Preview>
+    <Preview>A task you are involved with has been deleted!</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>A task has been assigned to you!</Heading>
+        <Heading style={h1}>You are off the hook!</Heading>
         <Heading style={h2}>Task Name: {taskName}</Heading>
         <Text>Task Description: {taskDescription}</Text>
         <Text>Task Due Date: {taskDueDate}</Text>
         <Text>
-          We've added a new task to your list. Please review the details above
-          and take action as needed.
+          You're task has been deleted. Hooray! Now go to Minigram to find
+          another task to work on.
         </Text>
-        <Text>
-          Remember to update the task status as you make progress. If you have
-          any questions or need clarification, don't hesitate to reach out to
-          the task creator or your team lead.
-        </Text>
+
         <Link
           href="https://minigram-supabase-git-master-toddwstorm-gmailcoms-projects.vercel.app/tasks"
           target="_blank"
@@ -70,7 +66,7 @@ export const TaskInsertEmail = ({
   </Html>
 );
 
-export default TaskInsertEmail;
+export default TaskDeleteEmail;
 
 const main = {
   backgroundColor: "#ffffff",

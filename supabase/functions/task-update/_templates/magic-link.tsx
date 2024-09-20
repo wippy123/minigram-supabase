@@ -16,31 +16,26 @@ interface TaskInsertEmailProps {
   taskName: string;
   taskDescription: string;
   taskDueDate: string;
+  changeDescription: string;
 }
 
-export const TaskInsertEmail = ({
+export const TaskUpdateEmail = ({
   taskName,
   taskDescription,
   taskDueDate,
+  changeDescription,
 }: TaskInsertEmailProps) => (
   <Html>
     <Head />
-    <Preview>A task has been assigned to you!</Preview>
+    <Preview>A task you are involved with has been updated!</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>A task has been assigned to you!</Heading>
+        <Heading style={h1}>See what has changed!</Heading>
         <Heading style={h2}>Task Name: {taskName}</Heading>
         <Text>Task Description: {taskDescription}</Text>
         <Text>Task Due Date: {taskDueDate}</Text>
-        <Text>
-          We've added a new task to your list. Please review the details above
-          and take action as needed.
-        </Text>
-        <Text>
-          Remember to update the task status as you make progress. If you have
-          any questions or need clarification, don't hesitate to reach out to
-          the task creator or your team lead.
-        </Text>
+        <Text>The following changes were made:</Text>
+        <Text dangerouslySetInnerHTML={{ __html: changeDescription }} />
         <Link
           href="https://minigram-supabase-git-master-toddwstorm-gmailcoms-projects.vercel.app/tasks"
           target="_blank"
@@ -70,7 +65,7 @@ export const TaskInsertEmail = ({
   </Html>
 );
 
-export default TaskInsertEmail;
+export default TaskUpdateEmail;
 
 const main = {
   backgroundColor: "#ffffff",
