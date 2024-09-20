@@ -5,7 +5,8 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-hot-toast";
-import { Metadata } from "next";
+import SubscriptionSection from "@/components/SubscriptionSection";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface AppSettings {
   id: string;
@@ -64,43 +65,74 @@ export default function AppSettingsPage() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen text-gray-800 dark:text-gray-200">
+        Loading...
+      </div>
+    );
   }
 
   if (!settings) {
-    return <div>No settings found</div>;
+    return (
+      <div className="flex justify-center items-center h-screen text-gray-800 dark:text-gray-200">
+        No settings found
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">App Settings</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="company_name" className="block mb-1">
-            Company Name
-          </label>
-          <Input
-            id="company_name"
-            name="company_name"
-            value={settings.company_name}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="company_address" className="block mb-1">
-            Company Address
-          </label>
-          <Input
-            id="company_address"
-            name="company_address"
-            value={settings.company_address}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <Button type="submit">Save Settings</Button>
-      </form>
+    <div className="w-full px-4 pt-2 text-gray-800 dark:text-gray-200">
+      <h1 className="text-3xl font-bold mb-6">App Settings</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="bg-white dark:bg-gray-800">
+          <CardHeader>
+            <CardTitle className="text-gray-900 dark:text-gray-100">
+              Company Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="company_name"
+                  className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300"
+                >
+                  Company Name
+                </label>
+                <Input
+                  id="company_name"
+                  name="company_name"
+                  value={settings.company_name}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="company_address"
+                  className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300"
+                >
+                  Company Address
+                </label>
+                <Input
+                  id="company_address"
+                  name="company_address"
+                  value={settings.company_address}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                Save Settings
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <SubscriptionSection />
+      </div>
     </div>
   );
 }

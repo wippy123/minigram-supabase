@@ -1,6 +1,5 @@
 import React from "react";
 import ProfileSettingsForm from "@/components/ProfileSettingsForm";
-import SubscriptionSection from "@/components/SubscriptionSection";
 import ResetPasswordForm from "@/components/ResetPasswordForm";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
@@ -43,12 +42,6 @@ export default async function AccountSettingsPage() {
           </h2>
           <ResetPasswordForm />
         </div>
-      </div>
-      <div className="mt-10 border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 rounded-md shadow-sm">
-        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-          Subscription
-        </h2>
-        <SubscriptionSection />
       </div>
     </div>
   );
