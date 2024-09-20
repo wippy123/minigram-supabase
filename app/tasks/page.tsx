@@ -120,7 +120,15 @@ export default function TasksPage() {
       </div>
       {selectedTeamId && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700">
-          <TaskList teamId={selectedTeamId} refreshTrigger={refreshTaskList} />
+          <TaskList
+            teamId={selectedTeamId}
+            refreshTrigger={refreshTaskList}
+            teamName={
+              selectedTeamId === "all"
+                ? "All Teams"
+                : teams.find((team) => team.id === selectedTeamId)?.name || ""
+            }
+          />
         </div>
       )}
       <Modal

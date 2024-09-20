@@ -37,9 +37,14 @@ export interface Task {
 interface TaskListProps {
   teamId: string;
   refreshTrigger: number;
+  teamName: string; // Add this new prop
 }
 
-export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
+export default function TaskList({
+  teamId,
+  refreshTrigger,
+  teamName,
+}: TaskListProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -161,16 +166,6 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
     }
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    if (editingTask) {
-      setEditingTask({ ...editingTask, [e.target.name]: e.target.value });
-    }
-  };
-
   const openNotifyModal = (taskId: number) => {
     setNotifyTaskId(taskId);
     setIsNotifyModalOpen(true);
@@ -196,9 +191,9 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
       }
 
       const taskInfo = tasks.find((task) => task.id === notifyTaskId);
-
+      console.log("taskInfo:", taskInfo);
       const { data, error } = await supabase.from("notifications").insert({
-        user_id: taskInfo?.assigned_user_id,
+        user_id: taskInfo?.assigned_user_id || taskInfo?.owner_id,
         message: notifyMessage,
       });
 
@@ -488,6 +483,12 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
           Calendar View
         </Button>
       </div>
+
+      {/* Add the team name title here */}
+      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+        {teamName}
+      </h2>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="delegated">Delegated</TabsTrigger>
