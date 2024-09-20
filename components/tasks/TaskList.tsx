@@ -22,7 +22,7 @@ import {
 import { TaskCard } from "./TaskCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EditTaskModal from "./EditTaskModal";
-import { ListIcon, GridIcon } from "lucide-react";
+import { ListIcon, GridIcon, CalendarIcon } from "lucide-react";
 
 export interface Task {
   id: number;
@@ -59,7 +59,10 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
   const [notifyTaskId, setNotifyTaskId] = useState<number | null>(null);
   const [notifyMessage, setNotifyMessage] = useState("");
-  const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [viewMode, setViewMode] = useState<"card" | "list" | "calendar">(
+    "card"
+  );
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const supabase = createClientComponentClient();
 
@@ -262,77 +265,179 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
     (task) => task.status === "Completed"
   );
 
-  const renderTasks = (taskList: Task[]) => {
-    if (viewMode === "card") {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-          {taskList.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onEdit={openEditModal}
-              onDelete={openDeleteModal}
-              onNotify={openNotifyModal}
-            />
+  const renderCalendar = (taskList: Task[]) => {
+    const daysInMonth = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + 1,
+      0
+    ).getDate();
+    const firstDayOfMonth = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth(),
+      1
+    ).getDay();
+    const weeks = Math.ceil((daysInMonth + firstDayOfMonth) / 7);
+
+    const calendarDays = Array.from({ length: weeks * 7 }, (_, i) => {
+      const day = i - firstDayOfMonth + 1;
+      const date = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth(),
+        day
+      );
+      return { date, day };
+    });
+
+    const tasksForDay = (date: Date) => {
+      return taskList.filter((task) => {
+        const taskDate = new Date(task.due_date as string);
+        return taskDate.toDateString() === date.toDateString();
+      });
+    };
+
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="flex justify-between items-center p-4 bg-gray-100 dark:bg-gray-700">
+          <button
+            onClick={() =>
+              setCurrentMonth(
+                new Date(
+                  currentMonth.getFullYear(),
+                  currentMonth.getMonth() - 1,
+                  1
+                )
+              )
+            }
+          >
+            &lt;
+          </button>
+          <h2 className="text-lg font-semibold">
+            {currentMonth.toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+            })}
+          </h2>
+          <button
+            onClick={() =>
+              setCurrentMonth(
+                new Date(
+                  currentMonth.getFullYear(),
+                  currentMonth.getMonth() + 1,
+                  1
+                )
+              )
+            }
+          >
+            &gt;
+          </button>
+        </div>
+        <div className="grid grid-cols-7 gap-1 p-2">
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            <div key={day} className="text-center font-semibold p-2">
+              {day}
+            </div>
+          ))}
+          {calendarDays.map(({ date, day }, index) => (
+            <div
+              key={index}
+              className={`p-2 ${day > 0 && day <= daysInMonth ? "bg-gray-50 dark:bg-gray-700" : "bg-gray-200 dark:bg-gray-600"} min-h-[100px] overflow-y-auto`}
+            >
+              {day > 0 && day <= daysInMonth && (
+                <>
+                  <div className="font-semibold">{day}</div>
+                  {tasksForDay(date).map((task) => (
+                    <div
+                      key={task.id}
+                      className="text-xs p-1 mb-1 bg-blue-100 dark:bg-blue-800 rounded"
+                    >
+                      {task.title}
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
           ))}
         </div>
-      );
-    } else {
-      return (
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-800">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Title
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Due Date
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+      </div>
+    );
+  };
+
+  const renderTasks = (taskList: Task[]) => {
+    switch (viewMode) {
+      case "card":
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
             {taskList.map((task) => (
-              <tr key={task.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {task.title}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {task.status}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {task.due_date}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    onClick={() => openEditModal(task)}
-                    className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => openDeleteModal(task.id)}
-                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-2"
-                  >
-                    Delete
-                  </button>
-                  <button
-                    onClick={() => openNotifyModal(task.id)}
-                    className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
-                  >
-                    Notify
-                  </button>
-                </td>
-              </tr>
+              <TaskCard
+                key={task.id}
+                task={task}
+                onEdit={openEditModal}
+                onDelete={openDeleteModal}
+                onNotify={openNotifyModal}
+              />
             ))}
-          </tbody>
-        </table>
-      );
+          </div>
+        );
+      case "list":
+        return (
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Title
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Due Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+              {taskList.map((task) => (
+                <tr key={task.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {task.title}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    {task.status}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    {task.due_date}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => openEditModal(task)}
+                      className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => openDeleteModal(task.id)}
+                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-2"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => openNotifyModal(task.id)}
+                      className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
+                    >
+                      Notify
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+      case "calendar":
+        return renderCalendar(taskList);
+      default:
+        return null;
     }
   };
 
@@ -341,18 +446,35 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
 
   return (
     <>
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-4 space-x-2">
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setViewMode(viewMode === "card" ? "list" : "card")}
+          onClick={() => setViewMode("card")}
+          className={viewMode === "card" ? "bg-gray-200 dark:bg-gray-700" : ""}
         >
-          {viewMode === "card" ? (
-            <ListIcon className="mr-2 h-4 w-4" />
-          ) : (
-            <GridIcon className="mr-2 h-4 w-4" />
-          )}
-          {viewMode === "card" ? "List View" : "Card View"}
+          <GridIcon className="mr-2 h-4 w-4" />
+          Card View
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setViewMode("list")}
+          className={viewMode === "list" ? "bg-gray-200 dark:bg-gray-700" : ""}
+        >
+          <ListIcon className="mr-2 h-4 w-4" />
+          List View
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setViewMode("calendar")}
+          className={
+            viewMode === "calendar" ? "bg-gray-200 dark:bg-gray-700" : ""
+          }
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          Calendar View
         </Button>
       </div>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
