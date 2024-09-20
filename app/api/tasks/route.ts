@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import { FileUploadData } from "@/lib/supabaseClient";
+import { FileUploadData, TaskData } from "@/lib/supabaseClient";
 import { StreamChat } from "stream-chat";
 const streamApiKey = process.env.NEXT_PUBLIC_GETSTREAM_API_KEY as string;
 const streamApiSecret = process.env.GETSTREAM_API_SECRET as string;
@@ -50,6 +50,65 @@ async function insertChat(chatData: {
   return data;
 }
 
+const createChatChannel = async (newTaskData: TaskData, insertedTaskId: string) => {
+  
+  // NOW CREATE CHAT CHANNEL
+  const client = StreamChat.getInstance(streamApiKey, streamApiSecret);
+  if (!client.secret){
+    client.secret=streamApiSecret
+}
+
+  // Ensure owner exists
+  await ensureUserExists(client, newTaskData.owner_id);
+
+  // Ensure assignee exists if assigned
+  if (newTaskData.assigned_user_id) {
+    await ensureUserExists(client, newTaskData.assigned_user_id);
+  }
+
+  const channelId = `Chat-${insertedTaskId}`;
+
+  // Create the channel
+  const channel = client.channel("messaging", channelId, {
+    members: [
+      newTaskData.owner_id,
+      ...(newTaskData.assigned_user_id ? [newTaskData.assigned_user_id] : []),
+    ],
+    name: newTaskData.title,
+    created_by_id: newTaskData.owner_id, // Add this line
+  });
+
+  // Create the channel
+  await channel.create();
+
+  // Insert chat record
+  const chatData = {
+    task_id: insertedTaskId,
+    channel_id: channelId,
+    participants: [newTaskData.owner_id, newTaskData.assigned_user_id],
+  };
+  try {
+    await insertChat({
+      ...chatData,
+      participants: chatData.participants.filter((participant): participant is string => participant !== null)
+    });
+  } catch (error) {
+    console.error("Error inserting chat record:", error);
+    throw new Error("Failed to create chat record");
+  }
+};
+
+  // Create or update users in GetStream
+  async function ensureUserExists(client: StreamChat, userId: string) {
+    try {
+      await client.upsertUser({ id: userId });
+    } catch (error) {
+      console.error(`Error creating/updating user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
@@ -94,58 +153,11 @@ export async function POST(request: NextRequest) {
     console.log("fileUploadResponse", fileUploadResponse);
   
 }
-  
-  // NOW CREATE CHAT CHANNEL
-  const client = StreamChat.getInstance(streamApiKey, streamApiSecret);
-  if (!client.secret){
-    client.secret=streamApiSecret
+ 
+// cant create chat channel if no assigned user.  need two participants
+if (newTaskData.assigned_user_id && newTaskData.owner_id !== newTaskData.assigned_user_id) {
+  await createChatChannel(newTaskData, insertedTask.id);
 }
-  // Create or update users in GetStream
-  async function ensureUserExists(userId: string) {
-    try {
-      await client.upsertUser({ id: userId });
-    } catch (error) {
-      console.error(`Error creating/updating user ${userId}:`, error);
-      throw error;
-    }
-  }
-
-  // Ensure owner exists
-  await ensureUserExists(newTaskData.owner_id);
-
-  // Ensure assignee exists if assigned
-  if (newTaskData.assigned_user_id) {
-    await ensureUserExists(newTaskData.assigned_user_id);
-  }
-
-  const channelId = `Chat-${insertedTask.id}`;
-
-  // Create the channel
-  const channel = client.channel("messaging", channelId, {
-    members: [
-      newTaskData.owner_id,
-      ...(newTaskData.assigned_user_id ? [newTaskData.assigned_user_id] : []),
-    ],
-    name: newTaskData.title,
-    created_by_id: newTaskData.owner_id, // Add this line
-  });
-
-  // Create the channel
-  await channel.create();
-
-  // Insert chat record
-  const chatData = {
-    task_id: insertedTask.id,
-    channel_id: channelId,
-    participants: [newTaskData.owner_id, newTaskData.assigned_user_id ? newTaskData.assigned_user_id : null],
-  };
-
-  try {
-    await insertChat(chatData);
-  } catch (error) {
-    console.error("Error inserting chat record:", error);
-    return NextResponse.json({ error: "Failed to create chat record" }, { status: 500 });
-  }
 
   return NextResponse.json({ task: insertedTask, channel: newTaskData.title }, { status: 201 })
 }
