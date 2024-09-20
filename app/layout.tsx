@@ -77,17 +77,18 @@ export default function RootLayout({
                         title="Profile"
                       />
                     </li>
-                    {/* New Settings link */}
-                    <li>
-                      <NavLink
-                        href="/settings"
-                        iconName="Settings"
-                        title="Settings"
-                      />
-                    </li>
                   </ul>
                   <div className="w-full mt-auto">
                     <hr className="border-t border-border mx-2 mb-4" />
+                    <ul className="flex flex-col items-center pb-4">
+                      <li>
+                        <NavLink
+                          href="/settings"
+                          iconName="Settings"
+                          title="Settings"
+                        />
+                      </li>
+                    </ul>
                   </div>
                 </nav>
                 {/* Main Content */}
