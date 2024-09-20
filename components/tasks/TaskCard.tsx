@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { MessageCircle, Edit, Trash2, Bell } from "lucide-react";
+import { MessageCircle, Edit, Trash2, Bell, FileIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Task } from "./TaskList";
@@ -110,6 +110,16 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
           Due: {formatDateTime(task.due_date, task.due_time)}
         </p>
+
+        {/* New section for file count */}
+        {task.file_count > 0 && (
+          <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
+            <FileIcon size={12} />
+            <span>
+              {task.file_count} file{task.file_count > 1 ? "s" : ""} attached
+            </span>
+          </div>
+        )}
 
         <Separator className="my-4" />
         <div className="flex justify-end space-x-4">

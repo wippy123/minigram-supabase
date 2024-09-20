@@ -37,6 +37,7 @@ export interface Task {
   not_urgent: boolean;
   followers: string[];
   owner_id: string;
+  file_count: number;
 }
 
 interface TaskListProps {
