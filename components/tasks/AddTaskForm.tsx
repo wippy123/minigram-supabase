@@ -26,7 +26,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [status, setStatus] = useState<TaskData["status"]>("Pending");
-  const [notUrgent, setNotUrgent] = useState(false);
+  const [urgent, setUrgent] = useState(false);
   const [dueTime, setDueTime] = useState("");
   const supabase = createClientComponentClient();
   useEffect(() => {
@@ -64,19 +64,8 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         due_time: dueTime || null,
         assigned_user_id: assignedUserId,
         status,
-        not_urgent: notUrgent,
+        not_urgent: !urgent,
       };
-
-      // const formData = new FormData();
-      // formData.append("taskData", JSON.stringify(newTaskData));
-      // files.forEach((file, index) => {
-      //   formData.append(`file${index}`, file);
-      // });
-
-      // const response = await fetch("/api/tasks", {
-      //   method: "POST",
-      //   body: formData,
-      // });
 
       const response = await fetch("/api/tasks", {
         method: "POST",
@@ -94,7 +83,6 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
       }
 
       const result = await response.json();
-      console.log("result", result);
 
       // Reset form fields
       setTitle("");
@@ -168,10 +156,10 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
       <label className="flex items-center space-x-2">
         <input
           type="checkbox"
-          checked={notUrgent}
-          onChange={(e) => setNotUrgent(e.target.checked)}
+          checked={urgent}
+          onChange={(e) => setUrgent(e.target.checked)}
         />
-        <span>Not Urgent</span>
+        <span>Urgent</span>
       </label>
       <button
         type="submit"

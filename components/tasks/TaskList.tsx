@@ -377,10 +377,13 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                     id="not_urgent"
                     name="not_urgent"
                     type="checkbox"
-                    checked={editingTask.not_urgent}
+                    checked={!editingTask.not_urgent}
                     onChange={(e) =>
                       handleInputChange({
-                        target: { name: "not_urgent", value: e.target.checked },
+                        target: {
+                          name: "not_urgent",
+                          value: !e.target.checked,
+                        },
                       } as any)
                     }
                     className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
@@ -389,7 +392,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                     htmlFor="not_urgent"
                     className="ml-2 block text-sm text-gray-900"
                   >
-                    Not Urgent
+                    Urgent
                   </label>
                 </div>
               </div>
