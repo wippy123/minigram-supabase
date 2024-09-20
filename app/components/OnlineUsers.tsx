@@ -38,7 +38,7 @@ export function OnlineUsers() {
 
   return (
     <div className="flex items-center rounded-md bg-gray-100 dark:bg-gray-800">
-      <h2 className="mr-4 text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+      <h2 className="p-2 mr-4 text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
         Online Users:
       </h2>
       <ul className="flex flex-wrap items-center mt-1">
