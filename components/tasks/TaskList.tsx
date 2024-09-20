@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import useDeleteTask from "./useDeleteTask";
 import { toast } from "react-hot-toast";
 import { Separator } from "@/components/ui/separator";
-import { MessageCircle, Edit, Trash2, Bell, AlertTriangle } from "lucide-react";
+import { MessageCircle, Edit, Trash2, Bell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { Modal } from "@/components/ui/modal";
 
 interface Task {
   id: number;
@@ -29,7 +30,7 @@ interface Task {
   completed: boolean;
   created_at: string;
   due_date?: string;
-  due_time?: string; // Add this line
+  due_time?: string;
   assigned_user_id?: string;
   assigned_avatar_url?: string;
   status: "Pending" | "Accepted" | "In Progress" | "Completed" | "Cancelled";
@@ -51,6 +52,10 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const pathname = usePathname();
+
+  const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
+  const [notifyTaskId, setNotifyTaskId] = useState<number | null>(null);
+  const [notifyMessage, setNotifyMessage] = useState("");
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -84,7 +89,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
     };
 
     fetchTasks();
-  }, [teamId, refreshTrigger]); // Add refreshTrigger to the dependency array
+  }, [teamId, refreshTrigger]);
 
   const openDeleteModal = (taskId: number) => {
     setTaskToDelete(taskId);
@@ -166,25 +171,52 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
     }
   };
 
+  const openNotifyModal = (taskId: number) => {
+    setNotifyTaskId(taskId);
+    setIsNotifyModalOpen(true);
+  };
+
+  const closeNotifyModal = () => {
+    setIsNotifyModalOpen(false);
+    setNotifyTaskId(null);
+    setNotifyMessage("");
+  };
+
+  const handleNotify = async () => {
+    // Here you would implement the logic to send the notification
+    console.log(
+      `Sending notification for task ${notifyTaskId}: ${notifyMessage}`
+    );
+    toast.success("Notification sent successfully");
+    closeNotifyModal();
+  };
+
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-gray-100 p-4 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
         {tasks.map((task) => (
-          <Card key={task.id} className="flex flex-col">
+          <Card
+            key={task.id}
+            className="flex flex-col bg-white dark:bg-gray-700"
+          >
             <CardContent className="p-4 flex-grow flex flex-col">
               <div className="flex-grow">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center justify-between w-full">
-                    <h3 className="text-lg font-semibold">{task.title}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      {task.title}
+                    </h3>
                     <Avatar className="h-8 w-8">
                       <AvatarImage
                         src={task.assigned_avatar_url}
                         alt="User avatar"
                       />
-                      <AvatarFallback>{""}</AvatarFallback>
+                      <AvatarFallback className="bg-gray-200 dark:bg-gray-700">
+                        {""}
+                      </AvatarFallback>
                     </Avatar>
                   </div>
                   {task.due_date &&
@@ -197,7 +229,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                     )}
                 </div>
                 {task.description && (
-                  <p className="text-sm text-gray-500 mb-2">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                     {task.description}
                   </p>
                 )}
@@ -214,7 +246,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                   )}
                 </div>
               </div>
-              <p className="text-xs text-gray-500 mb-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                 Due: {formatDateTime(task.due_date, task.due_time)}
               </p>
 
@@ -222,29 +254,27 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
               <div className="flex justify-end space-x-4">
                 <Link
                   href={`/tasks/${task.id}/chat`}
-                  className="text-gray-500 hover:text-blue-500 transition-colors"
+                  className="text-gray-500 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
                   title="Chat"
                 >
                   <MessageCircle size={20} />
                 </Link>
                 <button
-                  className="text-gray-500 hover:text-green-500 transition-colors"
+                  className="text-gray-500 dark:text-gray-300 hover:text-green-500 dark:hover:text-green-400 transition-colors"
                   onClick={() => openEditModal(task)}
                   title="Edit"
                 >
                   <Edit size={20} />
                 </button>
                 <button
-                  className="text-gray-500 hover:text-yellow-500 transition-colors"
-                  onClick={() => {
-                    /* Handle notification */
-                  }}
+                  className="text-gray-500 dark:text-gray-300 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors"
+                  onClick={() => openNotifyModal(task.id)}
                   title="Notify Me"
                 >
                   <Bell size={20} />
                 </button>
                 <button
-                  className="text-gray-500 hover:text-red-500 transition-colors"
+                  className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                   onClick={() => openDeleteModal(task.id)}
                   title="Delete"
                 >
@@ -258,9 +288,13 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
 
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg">
-            <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
-            <p className="mb-4">Are you sure you want to delete this task?</p>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+              Confirm Deletion
+            </h2>
+            <p className="mb-4 text-gray-700 dark:text-gray-300">
+              Are you sure you want to delete this task?
+            </p>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={closeDeleteModal}>
                 Cancel
@@ -275,8 +309,10 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
 
       {isEditModalOpen && editingTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-4">Edit Task</h2>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+              Edit Task
+            </h2>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -287,7 +323,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                 <div>
                   <label
                     htmlFor="title"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Title
                   </label>
@@ -297,12 +333,13 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                     value={editingTask.title}
                     onChange={handleInputChange}
                     required
+                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="description"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Description
                   </label>
@@ -311,12 +348,13 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                     name="description"
                     value={editingTask.description || ""}
                     onChange={handleInputChange}
+                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="status"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Status
                   </label>
@@ -329,7 +367,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                       } as any)
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -344,7 +382,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                 <div>
                   <label
                     htmlFor="due_date"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Due Date
                   </label>
@@ -354,12 +392,13 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                     type="date"
                     value={editingTask.due_date || ""}
                     onChange={handleInputChange}
+                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="due_time"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Due Time
                   </label>
@@ -369,6 +408,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                     type="time"
                     value={editingTask.due_time || ""}
                     onChange={handleInputChange}
+                    className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
                 <div className="flex items-center">
@@ -385,11 +425,11 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                         },
                       } as any)
                     }
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-blue-600 dark:text-blue-400 form-checkbox"
                   />
                   <label
                     htmlFor="not_urgent"
-                    className="ml-2 block text-sm text-gray-900"
+                    className="ml-2 block text-sm text-gray-900 dark:text-gray-100"
                   >
                     Urgent
                   </label>
@@ -405,6 +445,31 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={isNotifyModalOpen}
+        onClose={closeNotifyModal}
+        title="Request an Update"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600 dark:text-gray-300">
+            Enter your message to request an update for this task:
+          </p>
+          <Textarea
+            value={notifyMessage}
+            onChange={(e) => setNotifyMessage(e.target.value)}
+            placeholder="Type your message here..."
+            rows={4}
+            className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          />
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={closeNotifyModal}>
+              Cancel
+            </Button>
+            <Button onClick={handleNotify}>Send Notification</Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }
