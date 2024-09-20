@@ -14,6 +14,7 @@ import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import "@/styles/stream-chat-custom-theme.css";
+import { User, Settings } from "lucide-react";
 
 const roboto = Roboto({
   weight: ["400", "700"],
@@ -138,6 +139,14 @@ export default function RootLayout({
                         href="/profile"
                         iconName="User"
                         title="Profile"
+                      />
+                    </li>
+                    {/* New Settings link */}
+                    <li>
+                      <NavLink
+                        href="/settings"
+                        iconName="Settings"
+                        title="Settings"
                       />
                     </li>
                   </ul>

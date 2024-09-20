@@ -102,23 +102,23 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
               {task.description}
             </p>
           )}
-          <div className="flex justify-between items-center mb-2">
-            <span
-              className={`text-xs px-2 py-1 rounded ${getStatusColor(task.status)}`}
-            >
-              {task.status}
-            </span>
-            {!task.not_urgent && (
-              <span className="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 px-2 py-1 rounded">
-                Urgent
+          <div className="flex flex-col space-y-2 mb-2">
+            <div className="flex justify-between items-center">
+              <span
+                className={`text-xs px-2 py-1 rounded ${getStatusColor(task.status)}`}
+              >
+                {task.status}
               </span>
-            )}
-          </div>
-          <div className="flex items-center mb-2">
+              {!task.not_urgent && (
+                <span className="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 px-2 py-1 rounded">
+                  Urgent
+                </span>
+              )}
+            </div>
             {task.due_date &&
               new Date(`${task.due_date}T${task.due_time || "00:00:00"}`) <
                 new Date() && (
-                <span className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs font-medium px-2.5 py-0.5 rounded mr-2">
+                <span className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs font-medium px-2.5 py-0.5 rounded self-start">
                   Overdue
                 </span>
               )}
