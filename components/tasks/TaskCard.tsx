@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { MessageCircle, Edit, Trash2, Bell, FileIcon } from "lucide-react";
+import {
+  MessageCircle,
+  Edit,
+  Trash2,
+  Bell,
+  FileIcon,
+  Users,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Task } from "./TaskList";
@@ -111,12 +118,23 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
           Due: {formatDateTime(task.due_date, task.due_time)}
         </p>
 
-        {/* New section for file count */}
+        {/* File count section */}
         {task.file_count > 0 && (
           <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
             <FileIcon size={12} />
             <span>
               {task.file_count} file{task.file_count > 1 ? "s" : ""} attached
+            </span>
+          </div>
+        )}
+
+        {/* New follower count section */}
+        {task.followers && task.followers.length > 0 && (
+          <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
+            <Users size={12} />
+            <span>
+              {task.followers.length} follower
+              {task.followers.length > 1 ? "s" : ""}
             </span>
           </div>
         )}

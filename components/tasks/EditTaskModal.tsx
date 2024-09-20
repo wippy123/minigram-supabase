@@ -10,7 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Task } from "./TaskList";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import {
+  createClientComponentClient,
+  User,
+} from "@supabase/auth-helpers-nextjs";
 
 interface EditTaskModalProps {
   isOpen: boolean;
@@ -33,14 +36,29 @@ export default function EditTaskModal({
 }: EditTaskModalProps) {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [files, setFiles] = useState<FileUpload[]>([]);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const supabase = createClientComponentClient();
 
   useEffect(() => {
-    if (task) {
+    const fetchUser = async () => {
+      const { data: userData, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error("Error fetching user:", error);
+      } else {
+        setUser(userData.user);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    if (task && user) {
       setEditingTask({ ...task });
       fetchFiles(task.id);
+      setIsFollowing(task.followers?.includes(user.id) || false);
     }
-  }, [task]);
+  }, [task, user]);
 
   const fetchFiles = async (taskId: number) => {
     const { data, error } = await supabase
@@ -58,8 +76,8 @@ export default function EditTaskModal({
   const handleFileClick = async (filePath: string) => {
     try {
       const { data, error } = await supabase.storage
-        .from("task-files") // Replace with your actual bucket name
-        .createSignedUrl(filePath, 60); // URL valid for 60 seconds
+        .from("task-files")
+        .createSignedUrl(filePath, 60);
 
       if (error) throw error;
 
@@ -72,20 +90,33 @@ export default function EditTaskModal({
     }
   };
 
-  if (!isOpen || !editingTask) return null;
+  const handleFollowToggle = () => {
+    if (!editingTask || !user) return;
+
+    const updatedFollowers = isFollowing
+      ? editingTask.followers?.filter((id) => id !== user.id) || []
+      : [...(editingTask.followers || []), user.id];
+
+    setEditingTask({ ...editingTask, followers: updatedFollowers });
+    setIsFollowing(!isFollowing);
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    setEditingTask({ ...editingTask, [e.target.name]: e.target.value });
+    setEditingTask((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(editingTask);
+    if (editingTask) {
+      onSave(editingTask);
+    }
   };
+
+  if (!isOpen || !editingTask) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -229,6 +260,21 @@ export default function EditTaskModal({
                   No files associated with this task.
                 </p>
               )}
+            </div>
+
+            {/* Follow button */}
+            <div className="flex items-center">
+              <Button
+                type="button"
+                onClick={handleFollowToggle}
+                variant={isFollowing ? "default" : "outline"}
+                className="mr-2"
+              >
+                {isFollowing ? "Following" : "Follow"}
+              </Button>
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {editingTask?.followers?.length || 0} followers
+              </span>
             </div>
           </div>
           <div className="mt-6 flex justify-end space-x-2">
