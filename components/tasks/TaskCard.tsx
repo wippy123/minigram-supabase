@@ -97,13 +97,6 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
               </Avatar>
             </div>
           </div>
-          {task.due_date &&
-            new Date(`${task.due_date}T${task.due_time || "00:00:00"}`) <
-              new Date() && (
-              <span className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs font-medium px-2.5 py-0.5 rounded ml-2">
-                Overdue
-              </span>
-            )}
           {task.description && (
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
               {task.description}
@@ -121,10 +114,19 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
               </span>
             )}
           </div>
+          <div className="flex items-center mb-2">
+            {task.due_date &&
+              new Date(`${task.due_date}T${task.due_time || "00:00:00"}`) <
+                new Date() && (
+                <span className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs font-medium px-2.5 py-0.5 rounded mr-2">
+                  Overdue
+                </span>
+              )}
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Due: {formatDateTime(task.due_date, task.due_time)}
+            </p>
+          </div>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-          Due: {formatDateTime(task.due_date, task.due_time)}
-        </p>
 
         {task.file_count > 0 && (
           <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
