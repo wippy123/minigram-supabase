@@ -21,6 +21,7 @@ import {
 
 import { TrashIcon as MemberTrashIcon } from "@heroicons/react/24/solid";
 import { toast } from "react-hot-toast";
+import IconSelector from "@/components/teams/IconSelector";
 
 type Team = {
   id: string;
@@ -31,6 +32,7 @@ type Team = {
 type TeamListProps = {
   teams: Team[];
   onDelete: (id: string) => void;
+  onTeamUpdate: () => Promise<void>; // Add this new prop
 };
 
 type TeamMember = {
@@ -38,6 +40,11 @@ type TeamMember = {
   team_id: string;
   display_name: string;
   role: string;
+};
+
+type EditTeamData = {
+  name: string;
+  icon: string;
 };
 
 const getHeroIcon = (iconName: string) => {
@@ -60,18 +67,29 @@ const getHeroIcon = (iconName: string) => {
   }
 };
 
-export default function TeamList({ teams, onDelete }: TeamListProps) {
+export default function TeamList({
+  teams,
+  onDelete,
+  onTeamUpdate,
+}: TeamListProps) {
   const [teamMembers, setTeamMembers] = useState<Record<string, TeamMember[]>>(
     {}
   );
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [teamToDelete, setTeamToDelete] = useState<string | null>(null);
   const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
   const [teamToAddMember, setTeamToAddMember] = useState<string | null>(null);
   const [newMemberEmail, setNewMemberEmail] = useState<string>("");
+  const [teamToEdit, setTeamToEdit] = useState<Team | null>(null);
+  const [editTeamData, setEditTeamData] = useState<EditTeamData>({
+    name: "",
+    icon: "",
+  });
+  const [selectedIcon, setSelectedIcon] = useState<string>("");
   const supabase = createClientComponentClient();
 
   useEffect(() => {
@@ -119,6 +137,13 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
   const handleAddMemberClick = (teamId: string) => {
     setTeamToAddMember(teamId);
     setIsAddMemberModalOpen(true);
+  };
+
+  const handleEditClick = (team: Team) => {
+    setTeamToEdit(team);
+    setEditTeamData({ name: team.name, icon: team.icon || "" });
+    setSelectedIcon(team.icon || "");
+    setIsEditModalOpen(true);
   };
 
   const handleConfirmDelete = async () => {
@@ -184,6 +209,29 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
     }
   };
 
+  const handleConfirmEdit = async () => {
+    if (teamToEdit && editTeamData.name) {
+      try {
+        const { data, error } = await supabase
+          .from("teams")
+          .update({ name: editTeamData.name, icon: selectedIcon })
+          .eq("id", teamToEdit.id);
+
+        if (error) throw error;
+
+        toast.success("Team updated successfully");
+        setIsEditModalOpen(false);
+        setTeamToEdit(null);
+
+        // Call the onTeamUpdate function to refetch teams
+        await onTeamUpdate();
+      } catch (error) {
+        console.error("Error updating team:", error);
+        toast.error("Failed to update team");
+      }
+    }
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
@@ -201,13 +249,13 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
               </div>
             </Link>
             <div className="flex justify-between items-center mb-4 mt-8">
-              <Link
-                href={`/teams/${team.id}/edit`}
+              <button
+                onClick={() => handleEditClick(team)}
                 className="flex items-center border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
               >
                 <PencilIcon className="w-4 h-4 mr-2" />
                 Edit
-              </Link>
+              </button>
               <button
                 onClick={() => handleDeleteClick(team.id)}
                 className="flex items-center border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
@@ -313,6 +361,41 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
             >
               Add
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+            Edit Team
+          </h3>
+          <input
+            type="text"
+            value={editTeamData.name}
+            onChange={(e) =>
+              setEditTeamData({ ...editTeamData, name: e.target.value })
+            }
+            className="w-full p-2 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            placeholder="Team Name"
+          />
+          <IconSelector
+            selectedIcon={selectedIcon}
+            onSelectIcon={setSelectedIcon}
+          />
+          <div className="flex justify-end space-x-2 mt-4">
+            <button
+              onClick={() => setIsEditModalOpen(false)}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmEdit}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
+            >
+              Save
             </button>
           </div>
         </div>

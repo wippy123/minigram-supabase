@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import TeamList from "@/components/teams/TeamList";
 import AddTeamForm from "@/components/teams/AddTeamForm";
 import Modal from "@/components/Modal";
@@ -17,6 +17,7 @@ type Team = {
 export default function TeamsPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     fetchTeams();
@@ -32,6 +33,7 @@ export default function TeamsPage() {
     const { error } = await supabase.from("teams").delete().eq("id", id);
     if (error) console.error("Error deleting team:", error);
     else setTeams(teams.filter((team) => team.id !== id));
+    await fetchTeams(); // Refetch teams after deletion
   };
 
   const handleTeamAdded = () => {
@@ -43,6 +45,10 @@ export default function TeamsPage() {
     setIsModalOpen(false);
   };
 
+  const handleTeamUpdate = async () => {
+    await fetchTeams(); // Refetch teams after update
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
@@ -52,7 +58,11 @@ export default function TeamsPage() {
           Add Team
         </Button>
       </div>
-      <TeamList teams={teams} onDelete={deleteTeam} />
+      <TeamList
+        teams={teams}
+        onDelete={deleteTeam}
+        onTeamUpdate={handleTeamUpdate}
+      />
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <div className="flex justify-between items-center mb-4">
