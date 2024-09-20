@@ -12,7 +12,7 @@ import {
   CameraIcon,
 } from "@heroicons/react/24/outline";
 import { v4 as uuidv4 } from "uuid";
-import toast from "react-hot-toast"; // Import toast
+import toast from "react-hot-toast";
 
 interface AccountSettings {
   display_name: string;
@@ -155,7 +155,10 @@ export default function ProfileSettingsForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-lg"
+    >
       <div className="flex flex-col items-center mb-8">
         <div className="w-32 h-32 rounded-full overflow-hidden mb-4">
           {formData.avatar_url ? (
@@ -167,12 +170,12 @@ export default function ProfileSettingsForm({
               className="object-cover w-full h-full"
             />
           ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <UserIcon className="h-16 w-16 text-gray-400" />
+            <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              <UserIcon className="h-16 w-16 text-gray-400 dark:text-gray-500" />
             </div>
           )}
         </div>
-        <label className="cursor-pointer bg-black text-white py-2 px-4 rounded hover:bg-gray-800">
+        <label className="cursor-pointer bg-black dark:bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors duration-200">
           <CameraIcon className="h-5 w-5 inline-block mr-2" />
           Upload Profile Picture
           <input
@@ -184,13 +187,16 @@ export default function ProfileSettingsForm({
         </label>
       </div>
       <div>
-        <label htmlFor="email" className="block mb-2">
+        <label
+          htmlFor="email"
+          className="block mb-2 text-gray-700 dark:text-gray-300"
+        >
           Email
         </label>
         <div className="relative">
           <div className="absolute left-3 top-3 pointer-events-none">
             <EnvelopeIcon
-              className="h-5 w-5 text-white stroke-black stroke-2"
+              className="h-5 w-5 text-gray-400 dark:text-gray-500"
               aria-hidden="true"
             />
           </div>
@@ -199,18 +205,21 @@ export default function ProfileSettingsForm({
             id="email"
             value={userEmail}
             disabled
-            className="w-full pl-10 pt-2.5 pb-2 pr-2 border rounded bg-gray-100"
+            className="w-full pl-10 pt-2.5 pb-2 pr-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           />
         </div>
       </div>
       <div>
-        <label htmlFor="title" className="block mb-2">
+        <label
+          htmlFor="title"
+          className="block mb-2 text-gray-700 dark:text-gray-300"
+        >
           Title
         </label>
         <div className="relative">
           <div className="absolute left-3 top-3 pointer-events-none">
             <AcademicCapIcon
-              className="h-5 w-5 text-white stroke-black stroke-2"
+              className="h-5 w-5 text-gray-400 dark:text-gray-500"
               aria-hidden="true"
             />
           </div>
@@ -220,18 +229,21 @@ export default function ProfileSettingsForm({
             name="title"
             value={formData.title || ""}
             onChange={handleChange}
-            className="w-full pl-10 pt-2.5 pb-2 pr-2 border rounded"
+            className="w-full pl-10 pt-2.5 pb-2 pr-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           />
         </div>
       </div>
       <div>
-        <label htmlFor="display_name" className="block mb-2">
+        <label
+          htmlFor="display_name"
+          className="block mb-2 text-gray-700 dark:text-gray-300"
+        >
           Name
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <UserIcon
-              className="h-5 w-5 text-white stroke-black stroke-2"
+              className="h-5 w-5 text-gray-400 dark:text-gray-500"
               aria-hidden="true"
             />
           </div>
@@ -241,18 +253,21 @@ export default function ProfileSettingsForm({
             name="display_name"
             value={formData.display_name || ""}
             onChange={handleChange}
-            className="w-full pl-10 p-2 border rounded"
+            className="w-full pl-10 p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           />
         </div>
       </div>
       <div>
-        <label htmlFor="preferences" className="block mb-2">
+        <label
+          htmlFor="preferences"
+          className="block mb-2 text-gray-700 dark:text-gray-300"
+        >
           Preferences
         </label>
         <div className="relative">
           <div className="absolute left-3 top-3 pointer-events-none">
             <HeartIcon
-              className="h-5 w-5 text-white stroke-black stroke-2"
+              className="h-5 w-5 text-gray-400 dark:text-gray-500"
               aria-hidden="true"
             />
           </div>
@@ -261,13 +276,16 @@ export default function ProfileSettingsForm({
             name="preferences"
             value={formData.preferences || ""}
             onChange={handleChange}
-            className="w-full pl-10 pt-2.5 pb-2 pr-2 border rounded"
+            className="w-full pl-10 pt-2.5 pb-2 pr-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             rows={3}
           />
         </div>
       </div>
       <div>
-        <label htmlFor="theme" className="block mb-2">
+        <label
+          htmlFor="theme"
+          className="block mb-2 text-gray-700 dark:text-gray-300"
+        >
           Theme
         </label>
         <select
@@ -275,7 +293,7 @@ export default function ProfileSettingsForm({
           name="theme"
           value={formData.theme}
           onChange={handleChange}
-          className="w-full p-2 border rounded"
+          className="w-full p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         >
           {themeOptions.map((theme) => (
             <option key={theme} value={theme}>
@@ -285,32 +303,32 @@ export default function ProfileSettingsForm({
         </select>
       </div>
       <div>
-        <label className="flex items-center">
+        <label className="flex items-center text-gray-700 dark:text-gray-300">
           <input
             type="checkbox"
             name="email_notifications"
             checked={formData.email_notifications}
             onChange={handleChange}
-            className="mr-2"
+            className="mr-2 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
           />
           Receive Email Notifications
         </label>
       </div>
       <div>
-        <label className="flex items-center">
+        <label className="flex items-center text-gray-700 dark:text-gray-300">
           <input
             type="checkbox"
             name="push_notifications"
             checked={formData.push_notifications}
             onChange={handleChange}
-            className="mr-2"
+            className="mr-2 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
           />
           Receive Push Notifications
         </label>
       </div>
       <button
         type="submit"
-        className="bg-black text-white py-2 px-4 rounded-md"
+        className="bg-black dark:bg-gray-700 text-white py-2 px-4 rounded-md hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors duration-200"
       >
         Save Changes
       </button>
