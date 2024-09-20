@@ -114,41 +114,56 @@ export default function ChatPage() {
     fetchChatInfo();
   }, [taskId, supabase, toast]);
 
-  if (!loaded) return <div>Loading...</div>;
+  if (!loaded)
+    return (
+      <div className="text-center p-4 text-gray-600 dark:text-gray-300">
+        Loading...
+      </div>
+    );
 
   return (
-    <div>
-      <div>
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="mb-8">
         {task && (
-          <Card className="mb-4">
-            <CardContent className="p-4">
-              <h2 className="text-xl font-semibold mb-2">{task.title}</h2>
-              <p className="text-sm text-gray-600 mb-2">{task.description}</p>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">{task.status}</span>
-                <span className="text-sm text-gray-500">
+          <Card className="bg-white dark:bg-gray-800 shadow-md">
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-semibold mb-3 text-gray-800 dark:text-gray-100">
+                {task.title}
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                {task.description}
+              </p>
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-medium text-gray-700 dark:text-gray-200">
+                  {task.status}
+                </span>
+                <span className="text-gray-500 dark:text-gray-400">
                   Due: {formatDateTime(task.due_date, task.due_time)}
                 </span>
               </div>
             </CardContent>
           </Card>
         )}
-        {/* Existing chat component */}
       </div>
-      <Chat client={client}>
-        <Channel
-          channel={channel}
-          EmojiPicker={EmojiPicker}
-          emojiSearchIndex={SearchIndex}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <Chat
+          client={client}
+          theme="str-chat__theme-light dark:str-chat__theme-dark"
         >
-          <Window>
-            <ChannelHeader />
-            <MessageList />
-            <MessageInput />
-          </Window>
-          <Thread />
-        </Channel>
-      </Chat>
+          <Channel
+            channel={channel}
+            EmojiPicker={EmojiPicker}
+            emojiSearchIndex={SearchIndex}
+          >
+            <Window>
+              <ChannelHeader />
+              <MessageList />
+              <MessageInput />
+            </Window>
+            <Thread />
+          </Channel>
+        </Chat>
+      </div>
     </div>
   );
 }

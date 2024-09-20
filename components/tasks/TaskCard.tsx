@@ -81,7 +81,7 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
   };
 
   return (
-    <Card className="flex flex-col bg-white dark:bg-gray-700">
+    <Card className="flex flex-col bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow duration-200">
       <CardContent className="p-4 flex-grow flex flex-col">
         <div className="flex-grow">
           <div className="flex justify-between items-start mb-2">
@@ -96,16 +96,16 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
                 </AvatarFallback>
               </Avatar>
             </div>
-            {task.due_date &&
-              new Date(`${task.due_date}T${task.due_time || "00:00:00"}`) <
-                new Date() && (
-                <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded ml-2">
-                  Overdue
-                </span>
-              )}
           </div>
+          {task.due_date &&
+            new Date(`${task.due_date}T${task.due_time || "00:00:00"}`) <
+              new Date() && (
+              <span className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-xs font-medium px-2.5 py-0.5 rounded ml-2">
+                Overdue
+              </span>
+            )}
           {task.description && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
               {task.description}
             </p>
           )}
@@ -116,7 +116,7 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
               {task.status}
             </span>
             {!task.not_urgent && (
-              <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+              <span className="text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 px-2 py-1 rounded">
                 Urgent
               </span>
             )}
@@ -126,7 +126,6 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
           Due: {formatDateTime(task.due_date, task.due_time)}
         </p>
 
-        {/* File count section */}
         {task.file_count > 0 && (
           <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
             <FileIcon size={12} />
@@ -136,7 +135,6 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
           </div>
         )}
 
-        {/* New follower count section */}
         {task.followers && task.followers.length > 0 && (
           <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
             <Users size={12} />
@@ -147,34 +145,34 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
           </div>
         )}
 
-        <Separator className="my-4" />
+        <Separator className="my-4 bg-gray-200 dark:bg-gray-600" />
         <div className="flex justify-end space-x-4">
           {hasChatMessages && (
             <Link
               href={`/tasks/${task.id}/chat`}
               onClick={handleChatClick}
-              className="text-gray-500 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              className="text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
               title="Chat"
             >
               <MessageCircle size={20} />
             </Link>
           )}
           <button
-            className="text-gray-500 dark:text-gray-300 hover:text-green-500 dark:hover:text-green-400 transition-colors"
+            className="text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
             onClick={() => onEdit(task)}
             title="Edit"
           >
             <Edit size={20} />
           </button>
           <button
-            className="text-gray-500 dark:text-gray-300 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors"
+            className="text-gray-500 dark:text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors"
             onClick={() => onNotify(task.id)}
             title="Notify Me"
           >
             <Bell size={20} />
           </button>
           <button
-            className="text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+            className="text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
             onClick={() => onDelete(task.id)}
             title="Delete"
           >
