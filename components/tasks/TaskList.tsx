@@ -4,16 +4,8 @@ import { useEffect, useState } from "react";
 import useDeleteTask from "./useDeleteTask";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getAvatarUrl } from "@/utils/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Modal } from "@/components/ui/modal";
 import {
   createClientComponentClient,
@@ -23,6 +15,7 @@ import { TaskCard } from "./TaskCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EditTaskModal from "./EditTaskModal";
 import { ListIcon, GridIcon, CalendarIcon } from "lucide-react";
+import { isEqual } from "lodash";
 
 export interface Task {
   id: number;
@@ -295,6 +288,19 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
       });
     };
 
+    const getTaskColor = (task: Task) => {
+      const today = new Date();
+      const dueDate = new Date(task.due_date as string);
+
+      if (task.status === "Completed") {
+        return "bg-green-200 dark:bg-green-800 hover:bg-green-300 dark:hover:bg-green-700";
+      } else if (dueDate < today) {
+        return "bg-red-200 dark:bg-red-800 hover:bg-red-300 dark:hover:bg-red-700";
+      } else {
+        return "bg-yellow-500 dark:bg-yellow-500 hover:bg-yellow-300 dark:hover:bg-yellow-700";
+      }
+    };
+
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
         <div className="flex justify-between items-center p-4 bg-gray-100 dark:bg-gray-700">
@@ -353,7 +359,7 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                     <div
                       key={task.id}
                       onClick={() => openEditModal(task)}
-                      className="text-xs p-1 mb-1 bg-blue-100 dark:bg-blue-800 rounded cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-700 transition-colors duration-200"
+                      className={`text-xs p-1 mb-1 rounded cursor-pointer transition-colors duration-200 ${getTaskColor(task)}`}
                     >
                       {task.title}
                     </div>
