@@ -29,6 +29,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
   const [urgent, setUrgent] = useState(false);
   const [dueTime, setDueTime] = useState("");
   const supabase = createClientComponentClient();
+
   useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
@@ -103,33 +104,36 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
   };
 
   return (
-    <form onSubmit={addTask} className="space-y-4">
+    <form
+      onSubmit={addTask}
+      className="space-y-4 bg-white dark:bg-gray-800 p-4 rounded-lg"
+    >
       <input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Task Title"
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         required
       />
       <textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         placeholder="Task Description"
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
         rows={3}
       />
       <input
         type="date"
         value={dueDate}
         onChange={(e) => setDueDate(e.target.value)}
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
       />
       <input
         type="time"
         value={dueTime}
         onChange={(e) => setDueTime(e.target.value)}
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
       />
       <UserDropdown
         users={teamMembers}
@@ -140,12 +144,12 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         type="file"
         onChange={handleFileChange}
         multiple
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
       />
       <select
         value={status}
         onChange={(e) => setStatus(e.target.value as TaskData["status"])}
-        className="w-full p-2 border rounded"
+        className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
       >
         <option value="Pending">Pending</option>
         <option value="Accepted">Accepted</option>
@@ -153,17 +157,18 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         <option value="Completed">Completed</option>
         <option value="Cancelled">Cancelled</option>
       </select>
-      <label className="flex items-center space-x-2">
+      <label className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
         <input
           type="checkbox"
           checked={urgent}
           onChange={(e) => setUrgent(e.target.checked)}
+          className="form-checkbox h-5 w-5 text-blue-600 dark:text-blue-400"
         />
         <span>Urgent</span>
       </label>
       <button
         type="submit"
-        className="w-full p-2 bg-blue-500 text-white rounded"
+        className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
       >
         Add Task
       </button>

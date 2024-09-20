@@ -78,9 +78,12 @@ export default function RootLayout({
           <PresenceProvider>
             <div className="flex flex-col min-h-screen bg-background">
               {/* Top Navigation */}
-              <header className="border-b border-border h-16 w-full fixed top-0 left-0 z-10 bg-background">
+              <header className="border-b border-border h-16 w-full fixed top-0 left-0 z-10 bg-background dark:bg-gray-900">
                 <div className="h-full flex items-center justify-between px-4">
-                  <Link href="/" className="text-2xl font-bold font-display">
+                  <Link
+                    href="/"
+                    className="text-2xl font-bold font-display text-gray-900 dark:text-white"
+                  >
                     Minigram
                   </Link>
                   <div className="flex items-center gap-4">
@@ -126,7 +129,7 @@ export default function RootLayout({
                   </div>
                 </nav>
                 {/* Main Content */}
-                <main className="flex-1 flex flex-col ml-16 p-4 bg-gray-100">
+                <main className="flex-1 flex flex-col ml-16 p-4 bg-gray-100 dark:bg-gray-900">
                   {/* Page Content */}
                   <div className="flex-1">
                     <div className="max-w-5xl mx-auto">{children}</div>

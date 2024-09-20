@@ -77,20 +77,26 @@ export default function TasksPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Tasks</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+          Tasks
+        </h1>
         <div className="flex items-center space-x-4">
           <Select
             onValueChange={handleTeamChange}
             value={selectedTeamId || undefined}
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-48 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700">
               <SelectValue placeholder="Select a team" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               {teams.map((team) => (
-                <SelectItem key={team.id} value={team.id}>
+                <SelectItem
+                  key={team.id}
+                  value={team.id}
+                  className="text-gray-900 dark:text-white"
+                >
                   {team.name}
                 </SelectItem>
               ))}
@@ -99,15 +105,23 @@ export default function TasksPage() {
           <Button
             onClick={() => setIsAddTaskModalOpen(true)}
             disabled={selectedTeamId === "all"}
-            className={selectedTeamId === "all" ? "bg-gray-400" : ""}
+            className={`${
+              selectedTeamId === "all"
+                ? "bg-gray-400 dark:bg-gray-600"
+                : "bg-blue-500 dark:bg-blue-600"
+            } text-white hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors`}
           >
             Add Task
           </Button>
         </div>
       </div>
-      <OnlineUsers />
+      <div className="mb-4">
+        <OnlineUsers />
+      </div>
       {selectedTeamId && (
-        <TaskList teamId={selectedTeamId} refreshTrigger={refreshTaskList} />
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700">
+          <TaskList teamId={selectedTeamId} refreshTrigger={refreshTaskList} />
+        </div>
       )}
       <Modal
         isOpen={isAddTaskModalOpen}

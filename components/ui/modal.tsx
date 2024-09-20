@@ -14,20 +14,25 @@ export const Modal: React.FC<ModalProps> = ({
   children,
 }) => {
   if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg max-w-md w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">{title}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            &times;
-          </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none">
+      <div className="relative w-auto max-w-3xl mx-auto my-6">
+        <div className="relative flex flex-col w-full bg-white dark:bg-gray-800 border-0 rounded-lg shadow-lg outline-none focus:outline-none">
+          <div className="flex items-start justify-between p-5 border-b border-solid rounded-t border-slate-200">
+            <h3 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
+              {title}
+            </h3>
+            <button
+              className="float-right p-1 ml-auto text-3xl font-semibold leading-none text-gray-900 dark:text-gray-100 bg-transparent border-0 outline-none focus:outline-none"
+              onClick={onClose}
+            >
+              <span className="block w-6 h-6 text-2xl text-gray-900 dark:text-gray-100 bg-transparent outline-none focus:outline-none">
+                ×
+              </span>
+            </button>
+          </div>
+          <div className="relative flex-auto p-6">{children}</div>
         </div>
-        {children}
       </div>
     </div>
   );
