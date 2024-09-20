@@ -106,7 +106,15 @@ export default function EditTaskModal({
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    setEditingTask((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value, type } = e.target;
+    setEditingTask((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [name]:
+          type === "checkbox" ? !(e.target as HTMLInputElement).checked : value,
+      };
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
