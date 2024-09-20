@@ -10,14 +10,18 @@ export async function middleware(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // If the user is not logged in and trying to access a protected route, redirect to login
-  if (!user && (req.nextUrl.pathname.startsWith('/tasks') || req.nextUrl.pathname.startsWith('/notifications'))) {
-    return NextResponse.redirect(new URL('/login', req.url))
+  // If the user is not logged in, redirect to login
+  if (!user) {
+    const redirectUrl = req.nextUrl.clone()
+    redirectUrl.pathname = '/login'
+    redirectUrl.searchParams.set(`redirectedFrom`, req.nextUrl.pathname)
+    return NextResponse.redirect(redirectUrl)
   }
 
   return res
 }
 
+// Update the matcher to include all routes except login and other public routes
 export const config = {
-  matcher: ['/tasks/:path*', '/notifications/:path*'],
+  matcher: ['/((?!login|register|api|_next/static|_next/image|favicon.ico).*)'],
 }
