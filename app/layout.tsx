@@ -12,6 +12,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { PresenceProvider } from "./components/PresenceContext";
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 const roboto = Roboto({
   weight: ["400", "700"],
@@ -54,6 +55,16 @@ export default function RootLayout({
       showNotification(`New task added: ${payload.new.title}`);
     };
 
+    const handleNotifications = async (payload: any) => {
+      const supabase = createClientComponentClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (payload.new.user_id === user?.id) {
+        showNotification(`UPDATE REQUESTED: ${payload.new.message}`);
+      }
+    };
+
     // Listen to inserts
     const subscription = supabase
       .channel("tasks")
@@ -61,6 +72,11 @@ export default function RootLayout({
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "tasks" },
         handleInserts
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications" },
+        handleNotifications
       )
       .subscribe();
     console.log("Subscribed to tasks");

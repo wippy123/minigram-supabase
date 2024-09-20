@@ -22,6 +22,7 @@ import {
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Modal } from "@/components/ui/modal";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 interface Task {
   id: number;
@@ -56,6 +57,8 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
   const [notifyTaskId, setNotifyTaskId] = useState<number | null>(null);
   const [notifyMessage, setNotifyMessage] = useState("");
+
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -183,12 +186,33 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
   };
 
   const handleNotify = async () => {
-    // Here you would implement the logic to send the notification
-    console.log(
-      `Sending notification for task ${notifyTaskId}: ${notifyMessage}`
-    );
-    toast.success("Notification sent successfully");
-    closeNotifyModal();
+    if (!notifyTaskId) return;
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        toast.error("User not authenticated");
+        return;
+      }
+
+      const taskInfo = tasks.find((task) => task.id === notifyTaskId);
+
+      const { data, error } = await supabase.from("notifications").insert({
+        user_id: taskInfo?.assigned_user_id,
+        message: notifyMessage,
+      });
+
+      if (error) throw error;
+
+      toast.success("Notification sent successfully");
+      closeNotifyModal();
+    } catch (error) {
+      console.error("Error sending notification:", error);
+      toast.error("Failed to send notification. Please try again.");
+    }
   };
 
   if (loading) return <p>Loading tasks...</p>;
