@@ -52,7 +52,18 @@ async function insertChat(chatData: {
 
 
 export async function POST(request: NextRequest) {
-  const { newTaskData, files } = await request.json();
+  const formData = await request.formData();
+  const newTaskDataString = formData.get('newTaskData') as string;
+  const newTaskData = JSON.parse(newTaskDataString);
+
+  const files: File[] = [];
+  formData.forEach((value, key) => {
+    if (key.startsWith('file') && value instanceof File) {
+      files.push(value);
+    }
+  });
+
+
   const supabase = createClient();
   const { data: insertedTask, error: taskError } = await supabase
   .from("tasks")

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TaskData, getTeamMembers } from "@/lib/supabaseClient";
 import { UserDropdown } from "@/components/UserDropdown";
 import { toast } from "react-hot-toast";
@@ -29,6 +29,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
   const [urgent, setUrgent] = useState(false);
   const [dueTime, setDueTime] = useState("");
   const supabase = createClientComponentClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -68,15 +69,16 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         not_urgent: !urgent,
       };
 
+      const formData = new FormData();
+      formData.append("newTaskData", JSON.stringify(newTaskData));
+
+      files.forEach((file, index) => {
+        formData.append(`file${index}`, file);
+      });
+
       const response = await fetch("/api/tasks", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          newTaskData,
-          files,
-        }),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -92,6 +94,9 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
       setDueTime("");
       setAssignedUserId(null);
       setFiles([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
 
       // Show success toast
       toast.success("Task added successfully!");
@@ -145,6 +150,7 @@ export default function AddTaskForm({ teamId, onTaskAdded }: AddTaskFormProps) {
         onChange={handleFileChange}
         multiple
         className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        ref={fileInputRef}
       />
       <select
         value={status}
