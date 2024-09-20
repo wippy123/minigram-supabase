@@ -6,5 +6,5 @@ export default async function ResetPassword({
 }: {
   searchParams: Message;
 }) {
-  return <ResetPasswordForm message={searchParams} />;
+  return <ResetPasswordForm />;
 }

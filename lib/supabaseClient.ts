@@ -29,14 +29,41 @@ export interface TaskData {
   not_urgent: boolean;
 }
 
-export async function insertFileUpload(fileData: FileUploadData) {
-  const { data, error } = await supabase
-    .from('file_uploads')
-    .insert(fileData)
-    .select();
+export async function addUserToTeam(email: string, teamId: string, role: 'admin' | 'contributor') {
+  // Check if the user already exists
+  const { data: userData } = await supabase.auth.admin.listUsers();
 
-  if (error) throw error;
-  return data;
+  if (userData.users.length > 0) {
+      const foundUser = userData.users.find((user: any) => user.email === email);
+      console.log('foundUser', foundUser)
+      if (foundUser) {
+          const { data: teamMemberData, error: teamMemberError } = await supabase.from("team_members").insert([{ team_id: teamId, member_id: foundUser.id, role }]);
+          console.log('teamMemberData', teamMemberData)
+          console.log('teamMemberError', teamMemberError)
+          return
+      }
+  }
+
+  // If user does not exist, create a new user
+  const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email);
+  console.log('inviteData', {inviteData, inviteError})
+  if (inviteError) throw inviteError;
+  const newUserId = inviteData.user.id;
+  // Use the newly created user
+  const { data: teamMemberData, error: teamMemberError } = await supabase.from("team_members").insert([{ team_id: teamId, member_id: newUserId, role }]);
+  console.log('teamMemberData', teamMemberData)
+  console.log('teamMemberError', teamMemberError)
+}
+
+export async function deleteTeamMember(memberId: string) {
+  const { error } = await supabase
+    .from("team_members")
+    .delete()
+    .eq("member_id", memberId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export async function getTeamMembers(teamId: string) {

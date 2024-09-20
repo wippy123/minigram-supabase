@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabaseClient";
 import { Card, CardContent } from "@/components/ui/card";
 import useDeleteTask from "./useDeleteTask";
 import { toast } from "react-hot-toast";
-import { Task } from "@/lib/types";
 import { Separator } from "@/components/ui/separator";
 import { MessageCircle, Edit, Trash2, Bell, AlertTriangle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ tasks });
 }
 
-export async function insertFileUpload(fileData: FileUploadData) {
+ async function insertFileUpload(fileData: FileUploadData) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('file_uploads')

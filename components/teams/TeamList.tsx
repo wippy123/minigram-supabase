@@ -8,7 +8,11 @@ import {
   TrashIcon,
   UserPlusIcon,
 } from "@heroicons/react/24/solid";
-import { getTeamMembers } from "@/lib/supabaseClient"; // Import the existing functions
+import {
+  addUserToTeam,
+  deleteTeamMember,
+  getTeamMembers,
+} from "@/lib/supabaseClient"; // Import the existing functions
 import Modal from "@/components/Modal";
 import {
   createClientComponentClient,
@@ -16,7 +20,6 @@ import {
 } from "@supabase/auth-helpers-nextjs";
 
 import { TrashIcon as MemberTrashIcon } from "@heroicons/react/24/solid"; // Import the icon
-import { addUserToTeam, deleteTeamMember } from "@/app/api/teams/route";
 import { toast } from "react-hot-toast";
 
 type Team = {
@@ -75,7 +78,7 @@ export default function TeamList({ teams, onDelete }: TeamListProps) {
     const fetchUser = async () => {
       const { data, error } = await supabase.auth.getUser();
       if (error) console.error("Error fetching user:", error);
-      else setUser(data);
+      else setUser(data as unknown as User);
     };
     fetchUser();
   }, []);

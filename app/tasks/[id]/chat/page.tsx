@@ -2,7 +2,7 @@
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import React, { useState, useEffect } from "react";
-import { StreamChat, StreamChannel } from "stream-chat";
+import { StreamChat } from "stream-chat";
 import { useParams } from "next/navigation";
 import { getAvatarUrl } from "@/utils/utils";
 import {
@@ -25,7 +25,7 @@ export default function ChatPage() {
   const supabase = createClientComponentClient();
   const [loaded, setLoaded] = useState(false);
   const client = StreamChat.getInstance("49wdm2zxn2xb");
-  const [channel, setChannel] = useState<StreamChannel>();
+  const [channel, setChannel] = useState<any>();
   const [userId, setUserId] = useState<string | null>(null);
   const [chatInfo, setChatInfo] = useState<any>(null);
   // Use the useParams hook to get the task ID from the URL

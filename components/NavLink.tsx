@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as Icons from "lucide-react";
+import { LucideProps } from "lucide-react";
 
 interface NavLinkProps {
   href: string;
-  iconName: string;
+  iconName: keyof typeof Icons;
   title: string;
 }
 
@@ -14,7 +15,7 @@ export default function NavLink({ href, iconName, title }: NavLinkProps) {
   const pathname = usePathname();
   const isActive = pathname === href;
 
-  const Icon = Icons[iconName as keyof typeof Icons];
+  const Icon = Icons[iconName] as React.ComponentType<LucideProps>;
 
   return (
     <Link
@@ -26,7 +27,7 @@ export default function NavLink({ href, iconName, title }: NavLinkProps) {
       }`}
       title={title}
     >
-      {Icon && <Icon size={24} />}
+      <Icon size={24} />
     </Link>
   );
 }

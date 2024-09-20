@@ -30,7 +30,7 @@ export default function TeamDetailsPage() {
       const fetchUser = async () => {
         const { data, error } = await supabase.auth.getUser();
         if (error) console.error("Error fetching user:", error);
-        else setUser(data);
+        else setUser(data as unknown as User);
       };
       fetchUser();
     }
