@@ -263,7 +263,8 @@ export default function TaskList({
       case "delegated":
         return tasks.filter(
           (task) =>
-            task.assigned_user_id && task.assigned_user_id !== currentUserId
+            task.owner_id === currentUserId &&
+            task.assigned_user_id !== currentUserId
         );
       case "todo":
         return tasks.filter(
