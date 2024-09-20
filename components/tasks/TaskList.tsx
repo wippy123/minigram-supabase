@@ -340,7 +340,11 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
           {calendarDays.map(({ date, day }, index) => (
             <div
               key={index}
-              className={`p-2 ${day > 0 && day <= daysInMonth ? "bg-gray-50 dark:bg-gray-700" : "bg-gray-200 dark:bg-gray-600"} min-h-[100px] overflow-y-auto`}
+              className={`p-2 ${
+                day > 0 && day <= daysInMonth
+                  ? "bg-gray-50 dark:bg-gray-700"
+                  : "bg-gray-200 dark:bg-gray-600"
+              } min-h-[100px] overflow-y-auto`}
             >
               {day > 0 && day <= daysInMonth && (
                 <>
@@ -348,7 +352,8 @@ export default function TaskList({ teamId, refreshTrigger }: TaskListProps) {
                   {tasksForDay(date).map((task) => (
                     <div
                       key={task.id}
-                      className="text-xs p-1 mb-1 bg-blue-100 dark:bg-blue-800 rounded"
+                      onClick={() => openEditModal(task)}
+                      className="text-xs p-1 mb-1 bg-blue-100 dark:bg-blue-800 rounded cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-700 transition-colors duration-200"
                     >
                       {task.title}
                     </div>
