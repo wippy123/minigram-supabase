@@ -77,17 +77,17 @@ export default function TasksPage() {
   };
 
   return (
-    <div className="container mx-auto p-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <div className="flex justify-between items-center mb-4">
+    <div className="container mx-auto px-4 py-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           Tasks
         </h1>
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
           <Select
             onValueChange={handleTeamChange}
             value={selectedTeamId || undefined}
           >
-            <SelectTrigger className="w-48 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700">
+            <SelectTrigger className="w-full sm:w-48 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700">
               <SelectValue placeholder="Select a team" />
             </SelectTrigger>
             <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
@@ -105,7 +105,7 @@ export default function TasksPage() {
           <Button
             onClick={() => setIsAddTaskModalOpen(true)}
             disabled={selectedTeamId === "all"}
-            className={`${
+            className={`w-full sm:w-auto ${
               selectedTeamId === "all"
                 ? "bg-gray-400 dark:bg-gray-600"
                 : "bg-blue-500 dark:bg-blue-600"
@@ -115,11 +115,11 @@ export default function TasksPage() {
           </Button>
         </div>
       </div>
-      <div className="mb-4">
+      <div className="mb-6">
         <OnlineUsers />
       </div>
       {selectedTeamId && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700 overflow-x-auto">
           <TaskList
             teamId={selectedTeamId}
             refreshTrigger={refreshTaskList}

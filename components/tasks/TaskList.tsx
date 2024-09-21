@@ -590,15 +590,17 @@ export default function TaskList({
           <ListIcon className="mr-2 h-4 w-4" />
           List View
         </Button>
-        <Button
-          variant="outline"
-          size={isLargeScreen ? "default" : "sm"}
-          onClick={() => setViewMode("calendar")}
-          className={`w-full sm:w-auto ${viewMode === "calendar" ? "bg-gray-200 dark:bg-gray-700" : ""}`}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          Calendar View
-        </Button>
+        {isLargeScreen && (
+          <Button
+            variant="outline"
+            size="default"
+            onClick={() => setViewMode("calendar")}
+            className={`w-full sm:w-auto ${viewMode === "calendar" ? "bg-gray-200 dark:bg-gray-700" : ""}`}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            Calendar View
+          </Button>
+        )}
       </div>
 
       <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-gray-100">
@@ -606,7 +608,7 @@ export default function TaskList({
       </h2>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-4 sm:mb-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-4 sm:mb-6 min-h-[70px] md:min-h-0">
           <TabsTrigger value="delegated">Delegated</TabsTrigger>
           <TabsTrigger value="todo">Todo</TabsTrigger>
           <TabsTrigger value="following">Following</TabsTrigger>
