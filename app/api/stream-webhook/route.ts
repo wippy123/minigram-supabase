@@ -6,7 +6,6 @@ export async function POST(req: NextRequest) {
   try {
     // Parse the JSON body
     const body = await req.json();
-console.log('body from webhook', body);
     // Extract relevant data from the webhook payload
     const { type, user } = body;
 
@@ -20,11 +19,32 @@ console.log('body from webhook', body);
         // If you need just the numeric part, you can further process it
         const chatId = channelId.split('-')[1];
         console.log('Extracted chat ID:', chatId);
+
+        const { data: chatData, error: chatError } = await supabase
+        .from('chats')
+        .select('*')
+        .eq('channel_id', channelId)
+        .single();
+
+
+        let taskName = ''
+        if ( chatData) {
+            console.log('Chat data:', chatData);
+            const { data: taskData, error: taskError } = await supabase
+            .from('tasks')
+            .select('*')
+            .eq('id', chatData.task_id)
+            .single();
+            if (taskData) {
+                taskName = taskData.title;
+            }
+        }
+
         const { data, error } = await supabase
             .from('notifications')
             .insert({
                 user_id: user.id,
-                message: `You have unread messages in chat ${chatId}`,
+                message: `You have unread messages in chat ${chatId} for task ${taskName}`,
                 read: false
             });
 
