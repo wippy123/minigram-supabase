@@ -34,6 +34,7 @@ export default function ProfileSettingsForm({
   const [formData, setFormData] = useState<AccountSettings>(initialData);
   const [message, setMessage] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const supabase = createClientComponentClient();
   const { setTheme } = useTheme();
   const [userEmail, setUserEmail] = useState<string>("");
@@ -53,9 +54,23 @@ export default function ProfileSettingsForm({
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
-      setAvatarFile(event.target.files[0]);
+      const file = event.target.files[0];
+      setAvatarFile(file);
+
+      // Create a preview URL for the selected image
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
     }
   };
+
+  // Clean up the preview URL when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const uploadAvatar = async (userId: string) => {
     if (!avatarFile) return null;
@@ -161,9 +176,9 @@ export default function ProfileSettingsForm({
     >
       <div className="flex flex-col items-center mb-8">
         <div className="w-32 h-32 rounded-full overflow-hidden mb-4">
-          {formData.avatar_url ? (
+          {previewUrl || formData.avatar_url ? (
             <Image
-              src={formData.avatar_url}
+              src={previewUrl || formData.avatar_url || ""}
               alt="Avatar"
               width={128}
               height={128}
