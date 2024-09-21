@@ -8,23 +8,17 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 console.log('body from webhook', body);
     // Extract relevant data from the webhook payload
-    const { type, user } = body;
+    const { type, user, channel } = body;
 
-    if (type === 'user.unread_message_reminder') {
+    if (type === 'message.new') {
         const supabase = createServerComponentClient({ cookies });
         
-        // Extract the channel ID from the webhook payload
-        const channelId = Object.keys(body.channels)[0];
-        console.log('Extracted channel ID:', channelId);
 
-        // If you need just the numeric part, you can further process it
-        const chatId = channelId.split('-')[1];
-        console.log('Extracted chat ID:', chatId);
         const { data, error } = await supabase
             .from('notifications')
             .insert({
                 user_id: user.id,
-                message: `You have unread messages in chat ${chatId}`,
+                message: `You have unread messages in chat ${channel.name}`,
                 read: false
             });
 
