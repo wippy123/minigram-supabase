@@ -480,36 +480,36 @@ export default function TaskList({
       case "list":
         const sortedTasks = sortTasks(taskList);
         return (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-3 py-3 md:px-6 md:py-4 text-left text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-2 py-3 sm:px-6 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Title
                   </th>
                   {!isMobile && (
                     <>
                       <th
-                        className="px-3 py-3 md:px-6 md:py-4 text-left text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
+                        className="px-2 py-3 sm:px-6 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
                         onClick={() => handleSort("status")}
                       >
                         Status {renderSortIcon("status")}
                       </th>
                       <th
-                        className="px-3 py-3 md:px-6 md:py-4 text-left text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
+                        className="px-2 py-3 sm:px-6 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
                         onClick={() => handleSort("due_date")}
                       >
                         Due Date {renderSortIcon("due_date")}
                       </th>
                       <th
-                        className="px-3 py-3 md:px-6 md:py-4 text-left text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
+                        className="px-2 py-3 sm:px-6 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
                         onClick={() => handleSort("assigned_to")}
                       >
                         Assigned To {renderSortIcon("assigned_to")}
                       </th>
                     </>
                   )}
-                  <th className="px-3 py-3 md:px-6 md:py-4 text-left text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-2 py-3 sm:px-6 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -517,32 +517,32 @@ export default function TaskList({
               <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
                 {sortedTasks.map((task) => (
                   <tr key={task.id}>
-                    <td className="px-3 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm md:text-base font-medium text-gray-900 dark:text-gray-100">
+                    <td className="px-2 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100">
                       {task.title}
                     </td>
                     {!isMobile && (
                       <>
-                        <td className="px-3 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm md:text-base text-gray-500 dark:text-gray-400">
+                        <td className="px-2 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base text-gray-500 dark:text-gray-400">
                           {task.status}
                         </td>
-                        <td className="px-3 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm md:text-base text-gray-500 dark:text-gray-400">
+                        <td className="px-2 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base text-gray-500 dark:text-gray-400">
                           {task.due_date}
                         </td>
-                        <td className="px-3 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm md:text-base text-gray-500 dark:text-gray-400">
+                        <td className="px-2 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base text-gray-500 dark:text-gray-400">
                           {task.assigned_user_name || "Unassigned"}
                         </td>
                       </>
                     )}
-                    <td className="px-3 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm md:text-base font-medium">
+                    <td className="px-2 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-sm sm:text-base font-medium">
                       <button
                         onClick={() => openEditModal(task)}
-                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2 md:mr-4"
+                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2 sm:mr-4"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => openDeleteModal(task.id)}
-                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-2 md:mr-4"
+                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-2 sm:mr-4"
                       >
                         Delete
                       </button>
@@ -570,7 +570,7 @@ export default function TaskList({
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-full sm:max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
       <div className="flex flex-wrap justify-end mb-4 space-x-2 space-y-2 sm:space-y-0">
         <Button
           variant="outline"
@@ -601,19 +601,19 @@ export default function TaskList({
         </Button>
       </div>
 
-      <h2 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-gray-100">
         {teamName}
       </h2>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-4 sm:mb-6">
           <TabsTrigger value="delegated">Delegated</TabsTrigger>
           <TabsTrigger value="todo">Todo</TabsTrigger>
           <TabsTrigger value="following">Following</TabsTrigger>
           <TabsTrigger value="assigned">Assigned to Me</TabsTrigger>
         </TabsList>
-        <TabsContent value={activeTab} className="mt-6">
-          <div className="w-full bg-gray-100 dark:bg-gray-800 p-4 md:p-6 rounded-lg">
+        <TabsContent value={activeTab} className="mt-4 sm:mt-6">
+          <div className="w-full bg-gray-100 dark:bg-gray-800 p-2 sm:p-4 md:p-6 rounded-lg">
             {renderTasks(filteredTasks)}
           </div>
         </TabsContent>
