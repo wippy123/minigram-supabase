@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   try {
     // Parse the JSON body
     const body = await req.json();
-// console.log('body from webhook', body);
+console.log('body from webhook', body);
     // Extract relevant data from the webhook payload
     const { type, user } = body;
 
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
             .insert({
                 user_id: user.id,
                 message: `You have unread messages in chat ${chatId}`,
-                is_read: false
+                read: false
             });
 
         if (error) {
