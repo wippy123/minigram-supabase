@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
     )
 
     const { error } = await resend.emails.send({
-      from: 'welcome <assistant@minigram.ca>',
+      from: 'Minigram Assistant <assistant@minigram.ca>',
       to: data?.user?.email,
       subject: 'A task you are involved with has been UPDATED!',
       html,
