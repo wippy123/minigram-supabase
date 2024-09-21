@@ -27,8 +27,8 @@ Deno.serve(async (req) => {
     )
 
     const { error } = await resend.emails.send({
-      from: 'welcome <onboarding@resend.dev>',
-      to: 'todd.w.storm@gmail.com', //data?.user?.email,
+      from: 'welcome <assistant@minigram.ca>',
+      to: data?.user?.email,
       subject: 'A task you are involved with has been deleted!',
       html,
     })

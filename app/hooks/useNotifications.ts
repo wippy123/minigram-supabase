@@ -51,7 +51,7 @@ export function useNotifications() {
     const handleTaskDeletes = async (payload: any) => {
       const { data: { user } } = await supabase.auth.getUser();
       console.log("handleTaskDeletes", {payload, user});
-      showNotification(`Task deleted: ${payload.old.title}`);
+      showNotification(`Task deleted: ${payload.old.id}`);
       
     };
 
