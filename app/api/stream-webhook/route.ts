@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
 
         let taskName = ''
-        if ( chatData) {
+        if (chatData) {
             console.log('Chat data:', chatData);
             const { data: taskData, error: taskError } = await supabase
             .from('tasks')

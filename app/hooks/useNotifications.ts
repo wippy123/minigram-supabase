@@ -17,7 +17,7 @@ export function useNotifications() {
 
     toast(message, {
       icon: "🔔",
-      duration: 5000,
+      duration: 7000,
     });
   };
 
@@ -34,6 +34,7 @@ export function useNotifications() {
 
     const handleNotifications = async (payload: any) => {
       const { data: { user } } = await supabase.auth.getUser();
+      console.log("handleNotifications", {payload, user});
       if (payload.new.user_id === user?.id) {
         showNotification(`UPDATE REQUESTED OF YOU: ${payload.new.message}`);
       }

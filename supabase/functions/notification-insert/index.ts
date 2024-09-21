@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
   console.log('inside hook', old_record, record, event)
 
   const supabase = createClient(supabaseUrl, supabaseKey);
-  const { data, error } = await supabase.auth.admin.getUserById(record?.assigned_user_id ? record?.assigned_user_id : record?.owner_id)
+  const { data, error } = await supabase.auth.admin.getUserById(record?.user_id)
 
   console.log('supabase data', {data, error})
   if (data && data?.user?.email) {
