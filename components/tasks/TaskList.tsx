@@ -22,6 +22,7 @@ import {
   ChevronDownIcon,
 } from "lucide-react";
 import { parseISO, format, startOfDay, endOfDay, addDays } from "date-fns";
+import { useMediaQuery } from "@/hooks/useMediaQuery"; // Add this import
 
 export interface Task {
   id: number;
@@ -74,6 +75,8 @@ export default function TaskList({
   const supabase = createClientComponentClient();
 
   const [activeTab, setActiveTab] = useState("todo");
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -462,7 +465,7 @@ export default function TaskList({
     switch (viewMode) {
       case "card":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full">
             {taskList.map((task) => (
               <TaskCard
                 key={task.id}
@@ -477,74 +480,84 @@ export default function TaskList({
       case "list":
         const sortedTasks = sortTasks(taskList);
         return (
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Title
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort("status")}
-                >
-                  Status {renderSortIcon("status")}
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort("due_date")}
-                >
-                  Due Date {renderSortIcon("due_date")}
-                </th>
-                <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort("assigned_to")}
-                >
-                  Assigned To {renderSortIcon("assigned_to")}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
-              {sortedTasks.map((task) => (
-                <tr key={task.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {task.title}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {task.status}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {task.due_date}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {task.assigned_user_name || "Unassigned"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => openEditModal(task)}
-                      className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(task.id)}
-                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-2"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => openNotifyModal(task.id)}
-                      className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
-                    >
-                      Notify
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                  <th className="px-3 py-3 md:px-6 md:py-4 text-left text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Title
+                  </th>
+                  {!isMobile && (
+                    <>
+                      <th
+                        className="px-3 py-3 md:px-6 md:py-4 text-left text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
+                        onClick={() => handleSort("status")}
+                      >
+                        Status {renderSortIcon("status")}
+                      </th>
+                      <th
+                        className="px-3 py-3 md:px-6 md:py-4 text-left text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
+                        onClick={() => handleSort("due_date")}
+                      >
+                        Due Date {renderSortIcon("due_date")}
+                      </th>
+                      <th
+                        className="px-3 py-3 md:px-6 md:py-4 text-left text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer"
+                        onClick={() => handleSort("assigned_to")}
+                      >
+                        Assigned To {renderSortIcon("assigned_to")}
+                      </th>
+                    </>
+                  )}
+                  <th className="px-3 py-3 md:px-6 md:py-4 text-left text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+                {sortedTasks.map((task) => (
+                  <tr key={task.id}>
+                    <td className="px-3 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm md:text-base font-medium text-gray-900 dark:text-gray-100">
+                      {task.title}
+                    </td>
+                    {!isMobile && (
+                      <>
+                        <td className="px-3 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm md:text-base text-gray-500 dark:text-gray-400">
+                          {task.status}
+                        </td>
+                        <td className="px-3 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm md:text-base text-gray-500 dark:text-gray-400">
+                          {task.due_date}
+                        </td>
+                        <td className="px-3 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm md:text-base text-gray-500 dark:text-gray-400">
+                          {task.assigned_user_name || "Unassigned"}
+                        </td>
+                      </>
+                    )}
+                    <td className="px-3 py-3 md:px-6 md:py-4 whitespace-nowrap text-sm md:text-base font-medium">
+                      <button
+                        onClick={() => openEditModal(task)}
+                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2 md:mr-4"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(task.id)}
+                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-2 md:mr-4"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        onClick={() => openNotifyModal(task.id)}
+                        className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
+                      >
+                        Notify
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         );
       case "calendar":
         return renderCalendar(taskList);
@@ -557,53 +570,50 @@ export default function TaskList({
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <>
-      <div className="flex justify-end mb-4 space-x-2">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap justify-end mb-4 space-x-2 space-y-2 sm:space-y-0">
         <Button
           variant="outline"
-          size="sm"
+          size={isLargeScreen ? "default" : "sm"}
           onClick={() => setViewMode("card")}
-          className={viewMode === "card" ? "bg-gray-200 dark:bg-gray-700" : ""}
+          className={`w-full sm:w-auto ${viewMode === "card" ? "bg-gray-200 dark:bg-gray-700" : ""}`}
         >
           <GridIcon className="mr-2 h-4 w-4" />
           Card View
         </Button>
         <Button
           variant="outline"
-          size="sm"
+          size={isLargeScreen ? "default" : "sm"}
           onClick={() => setViewMode("list")}
-          className={viewMode === "list" ? "bg-gray-200 dark:bg-gray-700" : ""}
+          className={`w-full sm:w-auto ${viewMode === "list" ? "bg-gray-200 dark:bg-gray-700" : ""}`}
         >
           <ListIcon className="mr-2 h-4 w-4" />
           List View
         </Button>
         <Button
           variant="outline"
-          size="sm"
+          size={isLargeScreen ? "default" : "sm"}
           onClick={() => setViewMode("calendar")}
-          className={
-            viewMode === "calendar" ? "bg-gray-200 dark:bg-gray-700" : ""
-          }
+          className={`w-full sm:w-auto ${viewMode === "calendar" ? "bg-gray-200 dark:bg-gray-700" : ""}`}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           Calendar View
         </Button>
       </div>
 
-      {/* Add the team name title here */}
-      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+      <h2 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
         {teamName}
       </h2>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6">
           <TabsTrigger value="delegated">Delegated</TabsTrigger>
           <TabsTrigger value="todo">Todo</TabsTrigger>
           <TabsTrigger value="following">Following</TabsTrigger>
           <TabsTrigger value="assigned">Assigned to Me</TabsTrigger>
         </TabsList>
-        <TabsContent value={activeTab} className="mt-4">
-          <div className="w-full bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+        <TabsContent value={activeTab} className="mt-6">
+          <div className="w-full bg-gray-100 dark:bg-gray-800 p-4 md:p-6 rounded-lg">
             {renderTasks(filteredTasks)}
           </div>
         </TabsContent>
@@ -661,6 +671,6 @@ export default function TaskList({
           </div>
         </div>
       </Modal>
-    </>
+    </div>
   );
 }

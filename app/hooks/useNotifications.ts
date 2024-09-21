@@ -44,7 +44,7 @@ export function useNotifications() {
       console.log("handleTaskUpdates", {payload, user});
       if (payload.old.assigned_user_id === user?.id || payload.new.owner_id === user?.id) {
         const action = payload.old.assigned_user_id !== payload.new.assigned_user_id ? 'reassigned' : 'updated';
-        showNotification(`Task ${action}: ${payload.new.title}`);
+        showNotification(`Task updated: ${payload.new.title}`);
       }
     };
 
