@@ -13,6 +13,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { v4 as uuidv4 } from "uuid";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface AccountSettings {
   display_name: string;
@@ -32,12 +33,13 @@ export default function ProfileSettingsForm({
   initialData: AccountSettings;
 }) {
   const [formData, setFormData] = useState<AccountSettings>(initialData);
-  const [message, setMessage] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const supabase = createClientComponentClient();
   const { setTheme } = useTheme();
   const [userEmail, setUserEmail] = useState<string>("");
+
+  const router = useRouter();
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -138,6 +140,14 @@ export default function ProfileSettingsForm({
       toast.success("Settings updated successfully!");
       setTheme(formData.theme);
       setFormData((prev) => ({ ...prev, avatar_url: avatarUrl }));
+
+      // Dispatch custom event
+      window.dispatchEvent(
+        new CustomEvent("profileUpdated", { detail: { avatarUrl } })
+      );
+
+      // Refresh the page to update the header
+      router.refresh();
     }
   };
 

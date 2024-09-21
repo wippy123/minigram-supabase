@@ -15,10 +15,19 @@ export function HeaderAuth() {
 
   const fetchUserAndAvatar = async (userId: string) => {
     console.log("fetching user and avatar for", userId);
+
+    let id = userId;
+    if (!userId) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      id = user?.id as string;
+    }
+
     const { data, error } = await supabase
       .from("profile_settings")
       .select("avatar_url")
-      .eq("id", userId)
+      .eq("id", id)
       .single();
 
     if (data && !error) {
@@ -56,6 +65,24 @@ export function HeaderAuth() {
       .join("");
     return initials.toUpperCase();
   };
+
+  useEffect(() => {
+    const handleProfileUpdate = (event: CustomEvent) => {
+      fetchUserAndAvatar(user?.id as string);
+    };
+
+    window.addEventListener(
+      "profileUpdated",
+      handleProfileUpdate as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "profileUpdated",
+        handleProfileUpdate as EventListener
+      );
+    };
+  }, [supabase]);
 
   return (
     <div className="flex items-center gap-4">
