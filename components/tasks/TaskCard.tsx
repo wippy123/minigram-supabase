@@ -14,6 +14,7 @@ import Link from "next/link";
 import { Task } from "./TaskList";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface TaskCardProps {
   task: Task;
@@ -43,6 +44,7 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
   const [hasChatMessages, setHasChatMessages] = useState(false);
   const supabase = createClientComponentClient();
   const router = useRouter();
+  const isMobile = useMediaQuery("(max-width: 640px)");
 
   useEffect(() => {
     async function checkChatMessages() {
@@ -80,8 +82,15 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
     router.push(`/tasks/${task.id}/chat?taskData=${encodedTaskData}`);
   };
 
+  const handleDelete = (taskId: number) => {
+    if (isMobile && "vibrate" in navigator) {
+      navigator.vibrate(200); // Vibrate for 200ms
+    }
+    onDelete(taskId);
+  };
+
   return (
-    <Card className="flex flex-col bg-white dark:bg-gray-700 shadow-lg border border-gray-200 dark:border-gray-600 hover:shadow-md transition-shadow duration-200">
+    <Card className="flex flex-col bg-white dark:bg-gray-700 shadow-lg border border-gray-200 dark:border-gray-600 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-[1.02] hover:-translate-y-1">
       <CardContent className="p-4 flex-grow flex flex-col">
         <div className="flex-grow">
           <div className="flex justify-between items-start mb-2">
@@ -175,7 +184,7 @@ export function TaskCard({ task, onEdit, onDelete, onNotify }: TaskCardProps) {
           </button>
           <button
             className="text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-            onClick={() => onDelete(task.id)}
+            onClick={() => handleDelete(task.id)}
             title="Delete"
           >
             <Trash2 size={20} />
