@@ -21,19 +21,36 @@ export async function GET() {
     .eq('id', user.id)
     .single();
 
-  if (error || !accountSettings?.stripe_customer_id) {
-    return NextResponse.json({ error: 'No subscription found' }, { status: 404 });
+  let stripeCustomerId = accountSettings?.stripe_customer_id;
+
+  if (!stripeCustomerId) {
+    try {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        metadata: { supabase_user_id: user.id },
+      });
+      stripeCustomerId = customer.id;
+
+      await supabase
+        .from('profile_settings')
+        .update({ stripe_customer_id: stripeCustomerId })
+        .eq('id', user.id);
+    } catch (err) {
+      console.error('Error creating Stripe customer:', err);
+      return NextResponse.json({ error: 'Error creating Stripe customer' }, { status: 500 });
+    }
   }
 
   try {
     const subscriptions = await stripe.subscriptions.list({
-      customer: accountSettings.stripe_customer_id,
+      customer: stripeCustomerId,
       status: 'all',
       expand: ['data.default_payment_method'],
     });
 
+
     if (subscriptions.data.length === 0) {
-      return NextResponse.json({ error: 'No subscription found' }, { status: 404 });
+      return NextResponse.json({ message: 'No active subscription found' }, { status: 200 });
     }
 
     const subscription = subscriptions.data[0];

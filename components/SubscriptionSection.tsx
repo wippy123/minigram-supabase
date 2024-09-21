@@ -81,7 +81,7 @@ export default function SubscriptionSection() {
     }
   };
 
-  if (subscription && subscription.plan) {
+  if (subscription && subscription.plan && subscription.status !== "canceled") {
     return (
       <Card className="bg-white dark:bg-gray-800 shadow-lg">
         <CardContent className="p-6">
