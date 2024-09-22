@@ -19,37 +19,33 @@ import {
 
 export default function HomePage() {
   const tasksCompletedData = [
-    { name: "Jan", Design: 4, Development: 3, Sales: 2 },
-    { name: "Feb", Design: 3, Development: 4, Sales: 4 },
-    { name: "Mar", Design: 5, Development: 3, Sales: 3 },
-    { name: "Apr", Design: 6, Development: 5, Sales: 4 },
-    { name: "May", Design: 4, Development: 4, Sales: 5 },
-    { name: "Jun", Design: 7, Development: 6, Sales: 5 },
+    { name: "Jan", Marketing: 4, Development: 3, Sales: 2 },
+    { name: "Feb", Marketing: 3, Development: 4, Sales: 4 },
+    { name: "Mar", Marketing: 5, Development: 3, Sales: 3 },
+    { name: "Apr", Marketing: 6, Development: 5, Sales: 4 },
+    { name: "May", Marketing: 4, Development: 4, Sales: 5 },
+    { name: "Jun", Marketing: 7, Development: 6, Sales: 5 },
   ];
 
   // Updated sample data for Percentage of Tasks by State for each team
   const taskStateData = [
-    { name: "Design", Completed: 55, Pending: 30, Overdue: 15 },
+    { name: "Marketing", Completed: 55, Pending: 30, Overdue: 15 },
     { name: "Development", Completed: 65, Pending: 25, Overdue: 10 },
     { name: "Sales", Completed: 45, Pending: 35, Overdue: 20 },
   ];
 
   // Updated sample data for Highest Performing Team Members
   const teamMemberPerformanceData = [
-    { name: "Alice (Design)", avgCompletionTime: 2.5 },
-    { name: "Bob (Development)", avgCompletionTime: 3.2 },
-    { name: "Charlie (Sales)", avgCompletionTime: 2.1 },
-    { name: "Diana (Design)", avgCompletionTime: 2.8 },
-    { name: "Eva (Development)", avgCompletionTime: 1.9 },
+    { name: "Sandra (Marketing)", avgCompletionTime: 2.5 },
+    { name: "Todd (Development)", avgCompletionTime: 3.2 },
+    { name: "Mark (Sales)", avgCompletionTime: 2.1 },
   ];
 
   // New sample data for Overdue Tasks by Team Member
   const overdueTasksData = [
-    { name: "Alice", overdueTasks: 3 },
-    { name: "Bob", overdueTasks: 5 },
-    { name: "Charlie", overdueTasks: 2 },
-    { name: "Diana", overdueTasks: 4 },
-    { name: "Eva", overdueTasks: 1 },
+    { name: "Sandra", overdueTasks: 3 },
+    { name: "Todd", overdueTasks: 5 },
+    { name: "Mark", overdueTasks: 2 },
   ];
 
   // Custom color palette
