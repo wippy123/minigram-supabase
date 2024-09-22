@@ -74,7 +74,7 @@ export default function TaskList({
 
   const supabase = createClientComponentClient();
 
-  const [activeTab, setActiveTab] = useState("todo");
+  const [activeTab, setActiveTab] = useState("delegated");
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
@@ -271,12 +271,18 @@ export default function TaskList({
         );
       case "todo":
         return tasks.filter(
-          (task) => !task.completed && task.owner_id === task.assigned_user_id
+          (task) =>
+            task.status !== "Completed" &&
+            ((task.owner_id === currentUserId &&
+              task.owner_id === task.assigned_user_id) ||
+              (task.assigned_user_id === "Unassigned" &&
+                task.owner_id === currentUserId))
         );
       case "following":
         return tasks.filter(
           (task) =>
-            !task.completed && task.followers?.includes(currentUserId as string)
+            task.status !== "Completed" &&
+            task.followers?.includes(currentUserId as string)
         );
         return tasks;
       case "assigned":
