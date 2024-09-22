@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
         const supabase = createServerComponentClient({ cookies });
         
         // Extract the channel ID from the webhook payload
-        const channelId = Object.keys(body.channels)[0];
+        const channelId = Object.keys(body.channels)[0].replace("messaging:", "");
         console.log('Extracted channel ID:', channelId);
 
         // If you need just the numeric part, you can further process it
