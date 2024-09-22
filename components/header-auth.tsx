@@ -94,6 +94,7 @@ export function HeaderAuth() {
           <div className="relative">
             {avatarUrl ? (
               <Image
+                style={{ maxWidth: "40px", maxHeight: "40px" }}
                 src={avatarUrl}
                 alt="User avatar"
                 width={40}

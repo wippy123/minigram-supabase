@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
         .eq('channel_id', channelId)
         .single();
 
+        console.log('Chat data:', {channelId, chatData, chatId});
 
         let taskName = ''
         if (chatData) {
