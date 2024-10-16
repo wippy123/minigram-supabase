@@ -9,18 +9,21 @@ export async function POST(request: Request) {
   }
 
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      headless: false,
+      args: ['--disable-http2', '--ignore-certificate-errors']
+    });
     const page = await browser.newPage();
 
     // Wait for navigation and network idle
     await page.goto(url, {
-      waitUntil: ['networkidle0', 'load', 'domcontentloaded'],
-      timeout: 60000, // 60 seconds timeout
+      // waitUntil: ['networkidle0', 'load', 'domcontentloaded'],
+      timeout: 6000, // 60 seconds timeout
     });
 
     // Additional wait to ensure dynamic content is loaded
     await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 2000)));
-
+    console.log("Page loaded", page);
     const screenshot = await page.screenshot({ encoding: 'base64' });
     await browser.close();
 

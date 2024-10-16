@@ -61,13 +61,17 @@ export default function RootLayout({
                   <ul className="flex-1 flex flex-col space-y-1 pt-4 px-2">
                     <li>
                       <NavLink
-                        href="/minigraphs"
+                        href="/HomePage"
                         title="Dashboard"
                         icon={LayoutDashboard}
                       />
                     </li>
                     <li>
-                      <NavLink href="/content" title="Content" icon={Video} />
+                      <NavLink
+                        href="/minigraphs"
+                        title="Content"
+                        icon={Video}
+                      />
                     </li>
                     <li>
                       <NavLink
