@@ -20,7 +20,6 @@ import {
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   purpose: z.string().min(2, "Purpose must be at least 2 characters"),
-  imageUrl: z.string().url("Please enter a valid URL"),
   url: z.string().url("Please enter a valid URL"),
   facebook: z.boolean().default(false),
   instagram: z.boolean().default(false),
@@ -31,18 +30,21 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function MinigraphForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingScreenshot, setIsGeneratingScreenshot] = useState(false);
+  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
+    trigger,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       purpose: "",
-      imageUrl: "",
       url: "",
       facebook: false,
       instagram: false,
@@ -50,15 +52,50 @@ export default function MinigraphForm() {
     },
   });
 
+  const url = watch("url");
+
+  const generateScreenshot = async (urlToCapture: string) => {
+    if (!urlToCapture) return;
+
+    setIsGeneratingScreenshot(true);
+    try {
+      const response = await fetch("/api/screenshot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: urlToCapture }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate screenshot");
+      }
+
+      const data = await response.json();
+      setScreenshotUrl(data.screenshot);
+    } catch (error) {
+      console.error("Error generating screenshot:", error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsGeneratingScreenshot(false);
+    }
+  };
+
+  const handleUrlBlur = async () => {
+    const isValid = await trigger("url");
+    if (isValid && url) {
+      generateScreenshot(url);
+    }
+  };
+
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     // Here you would typically send the data to your backend
-    console.log(data);
+    console.log({ ...data, screenshot: screenshotUrl });
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsSubmitting(false);
     // Reset form after successful submission
     reset();
+    setScreenshotUrl(null);
   };
 
   return (
@@ -96,25 +133,6 @@ export default function MinigraphForm() {
       />
 
       <FormField
-        name="imageUrl"
-        register={register}
-        errors={errors}
-        render={({ field }: { field: FieldValues }) => (
-          <>
-            <FormLabel htmlFor="imageUrl">Image URL</FormLabel>
-            <FormControl>
-              <Input
-                id="imageUrl"
-                placeholder="https://example.com/image.jpg"
-                {...field}
-              />
-            </FormControl>
-            <FormDescription>Enter the URL of your image</FormDescription>
-          </>
-        )}
-      />
-
-      <FormField
         name="url"
         register={register}
         errors={errors}
@@ -126,11 +144,33 @@ export default function MinigraphForm() {
                 id="url"
                 placeholder="https://yourwebsite.com"
                 {...field}
+                onBlur={handleUrlBlur}
               />
             </FormControl>
           </>
         )}
       />
+
+      <div className="mt-4">
+        <FormLabel>Screenshot Preview</FormLabel>
+        <div className="mt-2 border rounded-lg overflow-hidden w-48 h-36 relative">
+          {isGeneratingScreenshot ? (
+            <div className="flex items-center justify-center w-full h-full bg-gray-100">
+              <p className="text-sm text-gray-500">Generating...</p>
+            </div>
+          ) : screenshotUrl ? (
+            <img
+              src={screenshotUrl}
+              alt="Website Screenshot"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full h-full bg-gray-100">
+              <p className="text-sm text-gray-500">Enter a URL</p>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="space-y-4 mt-4">
         <FormLabel>Social Media Platforms</FormLabel>
