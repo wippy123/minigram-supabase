@@ -16,6 +16,9 @@ import {
   FormField,
   FormLabel,
 } from "@/components/ui/form";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -32,6 +35,8 @@ export default function MinigraphForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingScreenshot, setIsGeneratingScreenshot] = useState(false);
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
+  const supabase = createClientComponentClient();
+  const router = useRouter();
 
   const {
     register,
@@ -73,7 +78,7 @@ export default function MinigraphForm() {
       setScreenshotUrl(data.screenshot);
     } catch (error) {
       console.error("Error generating screenshot:", error);
-      // You might want to show an error message to the user here
+      toast.error("Failed to generate screenshot");
     } finally {
       setIsGeneratingScreenshot(false);
     }
@@ -88,14 +93,34 @@ export default function MinigraphForm() {
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-    // Here you would typically send the data to your backend
-    console.log({ ...data, screenshot: screenshotUrl });
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSubmitting(false);
-    // Reset form after successful submission
-    reset();
-    setScreenshotUrl(null);
+    try {
+      const { data: userData, error: userError } =
+        await supabase.auth.getUser();
+      if (userError) throw userError;
+
+      const { error } = await supabase.from("minigraphs").insert({
+        user_id: userData.user.id,
+        name: data.name,
+        purpose: data.purpose,
+        url: data.url,
+        screenshot_url: screenshotUrl,
+        facebook: data.facebook,
+        instagram: data.instagram,
+        twitter: data.twitter,
+      });
+
+      if (error) throw error;
+
+      toast.success("Minigraph created successfully!");
+      reset();
+      setScreenshotUrl(null);
+      router.push("/minigraphs"); // Assuming you have a page to list minigraphs
+    } catch (error) {
+      console.error("Error saving minigraph:", error);
+      toast.error("Failed to create minigraph");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
