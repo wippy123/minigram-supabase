@@ -4,13 +4,22 @@ import { HeaderAuth } from "@/components/header-auth";
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Link from "next/link";
-import NavLink from "@/components/NavLink";
+import { NavLink } from "@/components/NavLink";
 import "./globals.css";
 import { Roboto } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { PresenceProvider } from "./components/PresenceContext";
 import "@/styles/stream-chat-custom-theme.css";
 import { useNotifications } from "./hooks/useNotifications";
+import {
+  LayoutDashboard,
+  Video,
+  BarChart2,
+  Bell,
+  Users,
+  User,
+  Settings,
+} from "lucide-react";
 
 const roboto = Roboto({
   weight: ["400", "700"],
@@ -48,44 +57,34 @@ export default function RootLayout({
 
               <div className="flex flex-1 pt-16">
                 {/* Left Navigation */}
-                <nav className="w-16 border-r border-border fixed left-0 top-16 h-[calc(100vh-4rem)] bg-background flex flex-col">
-                  <ul className="flex-1 flex flex-col items-center space-y-4 pt-4">
-                    <li>
-                      <NavLink href="/" iconName="Home" title="Home" />
-                    </li>
+                <nav className="w-64 border-r border-border fixed left-0 top-16 h-[calc(100vh-4rem)] bg-background flex flex-col">
+                  <ul className="flex-1 flex flex-col space-y-1 pt-4 px-2">
                     <li>
                       <NavLink
-                        href="/tasks"
-                        iconName="CheckSquare"
-                        title="Tasks"
+                        href="/minigraphs"
+                        title="Dashboard"
+                        icon={LayoutDashboard}
                       />
                     </li>
                     <li>
-                      <NavLink
-                        href="/notifications"
-                        iconName="Bell"
-                        title="Notifications"
-                      />
-                    </li>
-                    <li>
-                      <NavLink href="/teams" iconName="Users" title="Teams" />
+                      <NavLink href="/content" title="Content" icon={Video} />
                     </li>
                     <li>
                       <NavLink
-                        href="/profile"
-                        iconName="User"
-                        title="Profile"
+                        href="/analytics"
+                        title="Analytics"
+                        icon={BarChart2}
                       />
                     </li>
                   </ul>
                   <div className="w-full mt-auto">
                     <hr className="border-t border-border mx-2 mb-4" />
-                    <ul className="flex flex-col items-center pb-4">
+                    <ul className="flex flex-col px-2 pb-4">
                       <li>
                         <NavLink
                           href="/settings"
-                          iconName="Settings"
                           title="Settings"
+                          icon={Settings}
                         />
                       </li>
                     </ul>

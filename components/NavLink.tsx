@@ -1,33 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import * as Icons from "lucide-react";
-import { LucideProps } from "lucide-react";
+import { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface NavLinkProps {
   href: string;
-  iconName: keyof typeof Icons;
   title: string;
+  icon: LucideIcon;
+  className?: string;
 }
 
-export default function NavLink({ href, iconName, title }: NavLinkProps) {
-  const pathname = usePathname();
-  const isActive = pathname === href;
-
-  const Icon = Icons[iconName] as React.ComponentType<LucideProps>;
-
+export function NavLink({ href, title, icon: Icon, className }: NavLinkProps) {
   return (
     <Link
       href={href}
-      className={`text-primary hover:text-primary-hover flex justify-center items-center w-12 h-12 rounded-md transition-all duration-200 ${
-        isActive
-          ? "border-2 border-primary"
-          : "border-2 border-transparent hover:border-primary hover:border-opacity-50"
-      }`}
-      title={title}
+      className={cn(
+        "flex items-center w-full px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors",
+        className
+      )}
     >
-      <Icon size={24} />
+      <span className="flex-grow">{title}</span>
+      <Icon className="w-5 h-5 ml-2" />
     </Link>
   );
 }
