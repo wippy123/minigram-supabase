@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,15 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Facebook, Instagram, Twitter } from "lucide-react";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormLabel,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormLabel } from "@/components/ui/form";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 const formSchema = z.object({
@@ -31,12 +25,15 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function MinigraphForm() {
+interface MinigraphFormProps {
+  onSubmit: () => Promise<void>;
+}
+
+export default function MinigraphForm({ onSubmit }: MinigraphFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingScreenshot, setIsGeneratingScreenshot] = useState(false);
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   const supabase = createClientComponentClient();
-  const router = useRouter();
 
   const {
     register,
@@ -91,7 +88,7 @@ export default function MinigraphForm() {
     }
   };
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmitHandler = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
       const { data: userData, error: userError } =
@@ -114,7 +111,7 @@ export default function MinigraphForm() {
       toast.success("Minigraph created successfully!");
       reset();
       setScreenshotUrl(null);
-      router.push("/minigraphs"); // Assuming you have a page to list minigraphs
+      onSubmit();
     } catch (error) {
       console.error("Error saving minigraph:", error);
       toast.error("Failed to create minigraph");
@@ -124,7 +121,7 @@ export default function MinigraphForm() {
   };
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit(onSubmitHandler)}>
       <FormField
         name="name"
         register={register}

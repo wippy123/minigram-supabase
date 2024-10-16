@@ -10,7 +10,7 @@ export async function POST(request: Request) {
 
   try {
     const browser = await puppeteer.launch({
-      headless: false,
+      headless: true,
       args: ['--disable-http2', '--ignore-certificate-errors']
     });
     const page = await browser.newPage();

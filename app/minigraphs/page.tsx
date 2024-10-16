@@ -44,6 +44,7 @@ export default function MinigraphsContent() {
   }, [supabase]);
 
   const handleCreateSuccess = () => {
+    console.log("here");
     setIsDialogOpen(false);
     fetchMinigraphs();
   };
