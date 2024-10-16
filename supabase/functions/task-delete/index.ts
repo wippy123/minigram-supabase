@@ -19,7 +19,6 @@ Deno.serve(async (req) => {
   const supabase = createClient(supabaseUrl, supabaseKey);
   const { data, error } = await supabase.auth.admin.getUserById(old_record?.assigned_user_id ? old_record?.assigned_user_id : old_record?.owner_id)
 
-  console.log('supabase data', {data, error})
   if (data && data?.user?.email) {
   try {
     const html = await renderAsync(
