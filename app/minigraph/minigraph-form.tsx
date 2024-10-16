@@ -177,7 +177,7 @@ export default function MinigraphForm() {
       />
 
       <div className="mt-4">
-        <FormLabel>Screenshot Preview</FormLabel>
+        <FormLabel htmlFor="">Screenshot Preview</FormLabel>
         <div className="mt-2 border rounded-lg overflow-hidden w-48 h-36 relative">
           {isGeneratingScreenshot ? (
             <div className="flex items-center justify-center w-full h-full bg-gray-100">
@@ -198,7 +198,7 @@ export default function MinigraphForm() {
       </div>
 
       <div className="space-y-4 mt-4">
-        <FormLabel>Social Media Platforms</FormLabel>
+        <FormLabel htmlFor="">Social Media Platforms</FormLabel>
         <div className="flex space-x-4">
           <FormField
             name="facebook"
@@ -209,7 +209,7 @@ export default function MinigraphForm() {
                 <Checkbox id="facebook" {...field} />
                 <FormLabel
                   htmlFor="facebook"
-                  className="flex items-center space-x-2 cursor-pointer"
+                  // className="flex items-center space-x-2 cursor-pointer"
                 >
                   <Facebook size={20} />
                 </FormLabel>
@@ -226,7 +226,7 @@ export default function MinigraphForm() {
                 <Checkbox id="instagram" {...field} />
                 <FormLabel
                   htmlFor="instagram"
-                  className="flex items-center space-x-2 cursor-pointer"
+                  // className="flex items-center space-x-2 cursor-pointer"
                 >
                   <Instagram size={20} />
                 </FormLabel>
@@ -243,7 +243,7 @@ export default function MinigraphForm() {
                 <Checkbox id="twitter" {...field} />
                 <FormLabel
                   htmlFor="twitter"
-                  className="flex items-center space-x-2 cursor-pointer"
+                  // className="flex items-center space-x-2 cursor-pointer"
                 >
                   <Twitter size={20} />
                 </FormLabel>
