@@ -1,5 +1,10 @@
 import React, { forwardRef } from "react";
-import { FieldValues, UseFormRegister, FieldErrors } from "react-hook-form";
+import {
+  FieldValues,
+  UseFormRegister,
+  FieldErrors,
+  Path,
+} from "react-hook-form";
 
 interface FormProps {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -59,7 +64,7 @@ export function FormMessage({ children }: FormMessageProps) {
 }
 
 interface FormFieldProps<TFieldValues extends FieldValues> {
-  name: string;
+  name: Path<TFieldValues>;
   register: UseFormRegister<TFieldValues>;
   errors: FieldErrors<TFieldValues>;
   render: (props: {
