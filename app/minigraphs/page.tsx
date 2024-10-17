@@ -12,6 +12,7 @@ import EditMinigraphModal from "@/components/EditMinigraphModal";
 import DeleteMinigraphModal from "@/components/DeleteMinigraphModal";
 import { Minigraph } from "@/types/minigraph";
 import { toast } from "react-hot-toast";
+import { Facebook, Instagram, Twitter } from "lucide-react";
 
 export default function MinigraphsContent() {
   const [minigraphs, setMinigraphs] = useState<Minigraph[]>([]);
@@ -158,9 +159,15 @@ function MinigraphItem({
           </div>
           <div className="flex-grow">
             <h2 className="text-lg font-semibold mb-1">{minigraph.name}</h2>
+            <p className="text-sm text-gray-600 mb-2">{minigraph.purpose}</p>
             <p className="text-sm text-gray-500 mb-2">
               Created on {new Date(minigraph.created_at).toLocaleDateString()}
             </p>
+            <div className="flex space-x-2 mb-2">
+              {minigraph.facebook && <Facebook size={16} />}
+              {minigraph.instagram && <Instagram size={16} />}
+              {minigraph.twitter && <Twitter size={16} />}
+            </div>
             <p className="text-sm text-gray-500">
               {minigraph.views || 0} views
             </p>
