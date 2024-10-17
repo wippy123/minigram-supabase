@@ -9,13 +9,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import CreateMinigraphModal from "@/components/CreateMinigraphModal";
 import EditMinigraphModal from "@/components/EditMinigraphModal";
+import DeleteMinigraphModal from "@/components/DeleteMinigraphModal";
 import { Minigraph } from "@/types/minigraph";
+import { toast } from "react-hot-toast";
 
 export default function MinigraphsContent() {
   const [minigraphs, setMinigraphs] = useState<Minigraph[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedMinigraph, setSelectedMinigraph] = useState<Minigraph | null>(
     null
   );
@@ -55,6 +58,29 @@ export default function MinigraphsContent() {
     fetchMinigraphs();
   };
 
+  const handleDeleteClick = (minigraph: Minigraph) => {
+    setSelectedMinigraph(minigraph);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (selectedMinigraph) {
+      const { error } = await supabase
+        .from("minigraphs")
+        .delete()
+        .eq("id", selectedMinigraph.id);
+
+      if (error) {
+        console.error("Error deleting minigraph:", error);
+        toast.error("Failed to delete minigraph");
+      } else {
+        toast.success("Minigraph deleted successfully");
+        fetchMinigraphs();
+      }
+      setIsDeleteModalOpen(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
@@ -78,6 +104,7 @@ export default function MinigraphsContent() {
               key={minigraph.id}
               minigraph={minigraph}
               onEditClick={handleEditClick}
+              onDeleteClick={handleDeleteClick}
             />
           ))}
         </div>
@@ -88,12 +115,20 @@ export default function MinigraphsContent() {
       )}
 
       {selectedMinigraph && (
-        <EditMinigraphModal
-          minigraph={selectedMinigraph}
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onSuccess={handleEditSuccess}
-        />
+        <>
+          <EditMinigraphModal
+            minigraph={selectedMinigraph}
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            onSuccess={handleEditSuccess}
+          />
+          <DeleteMinigraphModal
+            minigraph={selectedMinigraph}
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            onConfirm={handleDeleteConfirm}
+          />
+        </>
       )}
     </div>
   );
@@ -102,9 +137,11 @@ export default function MinigraphsContent() {
 function MinigraphItem({
   minigraph,
   onEditClick,
+  onDeleteClick,
 }: {
   minigraph: Minigraph;
   onEditClick: (minigraph: Minigraph) => void;
+  onDeleteClick: (minigraph: Minigraph) => void;
 }) {
   return (
     <Card>
@@ -128,9 +165,15 @@ function MinigraphItem({
               {minigraph.views || 0} views
             </p>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center space-x-2">
             <Button variant="outline" onClick={() => onEditClick(minigraph)}>
               Edit
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => onDeleteClick(minigraph)}
+            >
+              Delete
             </Button>
           </div>
         </div>
