@@ -11,15 +11,7 @@ import { Toaster } from "react-hot-toast";
 import { PresenceProvider } from "./components/PresenceContext";
 import "@/styles/stream-chat-custom-theme.css";
 import { useNotifications } from "./hooks/useNotifications";
-import {
-  LayoutDashboard,
-  Video,
-  BarChart2,
-  Bell,
-  Users,
-  User,
-  Settings,
-} from "lucide-react";
+import { LayoutDashboard, Video, BarChart2, Settings } from "lucide-react";
 
 const roboto = Roboto({
   weight: ["400", "700"],
