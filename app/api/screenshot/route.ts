@@ -72,7 +72,7 @@ export async function POST(request: Request) {
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
+        headless: true,
       });
     }
 
@@ -116,11 +116,5 @@ export async function POST(request: Request) {
     console.error('Screenshot generation failed:', error);
     return NextResponse.json({ error: 'Failed to generate screenshot' }, { status: 500 });
   } finally {
-    // if (page) {
-    //   await page.close();
-    // }
-    // if (browser) {
-    //   await browser.close();
-    // }
   }
 }
