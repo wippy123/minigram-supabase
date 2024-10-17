@@ -116,7 +116,6 @@ export default function EditMinigraphModal({
         }
 
         const data = await response.json();
-        console.log("data", data);
         form.setValue("screenshot_url", data.screenshot);
       } catch (error) {
         console.error("Error capturing screenshot:", error);
