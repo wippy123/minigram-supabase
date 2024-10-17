@@ -8,27 +8,24 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import CreateMinigraphModal from "@/components/CreateMinigraphModal";
-import Link from "next/link";
-
-type Minigraph = {
-  id: string;
-  name: string;
-  screenshot_url: string;
-  created_at: string;
-  views?: number;
-};
+import EditMinigraphModal from "@/components/EditMinigraphModal";
+import { Minigraph } from "@/types/minigraph";
 
 export default function MinigraphsContent() {
   const [minigraphs, setMinigraphs] = useState<Minigraph[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedMinigraph, setSelectedMinigraph] = useState<Minigraph | null>(
+    null
+  );
   const supabase = createClientComponentClient();
 
   const fetchMinigraphs = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("minigraphs")
-      .select("id, name, screenshot_url, created_at")
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -44,8 +41,17 @@ export default function MinigraphsContent() {
   }, [supabase]);
 
   const handleCreateSuccess = () => {
-    console.log("here");
-    setIsDialogOpen(false);
+    setIsCreateDialogOpen(false);
+    fetchMinigraphs();
+  };
+
+  const handleEditClick = (minigraph: Minigraph) => {
+    setSelectedMinigraph(minigraph);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    setIsEditModalOpen(false);
     fetchMinigraphs();
   };
 
@@ -53,7 +59,7 @@ export default function MinigraphsContent() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Your Minigraphs</h1>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>Create New Minigraph</Button>
           </DialogTrigger>
@@ -68,7 +74,11 @@ export default function MinigraphsContent() {
       ) : minigraphs.length > 0 ? (
         <div className="space-y-4">
           {minigraphs.map((minigraph) => (
-            <MinigraphItem key={minigraph.id} minigraph={minigraph} />
+            <MinigraphItem
+              key={minigraph.id}
+              minigraph={minigraph}
+              onEditClick={handleEditClick}
+            />
           ))}
         </div>
       ) : (
@@ -76,11 +86,26 @@ export default function MinigraphsContent() {
           No minigraphs found. Create your first one!
         </p>
       )}
+
+      {selectedMinigraph && (
+        <EditMinigraphModal
+          minigraph={selectedMinigraph}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 }
 
-function MinigraphItem({ minigraph }: { minigraph: Minigraph }) {
+function MinigraphItem({
+  minigraph,
+  onEditClick,
+}: {
+  minigraph: Minigraph;
+  onEditClick: (minigraph: Minigraph) => void;
+}) {
   return (
     <Card>
       <CardContent className="p-4">
@@ -100,12 +125,12 @@ function MinigraphItem({ minigraph }: { minigraph: Minigraph }) {
               Created on {new Date(minigraph.created_at).toLocaleDateString()}
             </p>
             <p className="text-sm text-gray-500">
-              {minigraph.views || Math.floor(Math.random() * 1000)} views
+              {minigraph.views || 0} views
             </p>
           </div>
           <div className="flex items-center">
-            <Button variant="outline" asChild>
-              <Link href={`/minigraph/${minigraph.id}`}>Edit</Link>
+            <Button variant="outline" onClick={() => onEditClick(minigraph)}>
+              Edit
             </Button>
           </div>
         </div>

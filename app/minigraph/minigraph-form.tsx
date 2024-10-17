@@ -204,10 +204,7 @@ export default function MinigraphForm({ onSubmit }: MinigraphFormProps) {
             render={({ field }: { field: FieldValues }) => (
               <div className="flex items-center space-x-2">
                 <Checkbox id="facebook" {...field} />
-                <FormLabel
-                  htmlFor="facebook"
-                  // className="flex items-center space-x-2 cursor-pointer"
-                >
+                <FormLabel htmlFor="facebook">
                   <Facebook size={20} />
                 </FormLabel>
               </div>
@@ -221,10 +218,7 @@ export default function MinigraphForm({ onSubmit }: MinigraphFormProps) {
             render={({ field }: { field: FieldValues }) => (
               <div className="flex items-center space-x-2">
                 <Checkbox id="instagram" {...field} />
-                <FormLabel
-                  htmlFor="instagram"
-                  // className="flex items-center space-x-2 cursor-pointer"
-                >
+                <FormLabel htmlFor="instagram">
                   <Instagram size={20} />
                 </FormLabel>
               </div>
@@ -238,10 +232,7 @@ export default function MinigraphForm({ onSubmit }: MinigraphFormProps) {
             render={({ field }: { field: FieldValues }) => (
               <div className="flex items-center space-x-2">
                 <Checkbox id="twitter" {...field} />
-                <FormLabel
-                  htmlFor="twitter"
-                  // className="flex items-center space-x-2 cursor-pointer"
-                >
+                <FormLabel htmlFor="twitter">
                   <Twitter size={20} />
                 </FormLabel>
               </div>
