@@ -2,19 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Overview } from "@/components/analytics/overview";
 import { RecentVideos } from "@/components/analytics/recent-videos";
 import { TopVideos } from "@/components/analytics/top-videos";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <Button asChild>
-          <Link href="/minigraphs">Create New Minigraph</Link>
-        </Button>
-      </div>
-
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

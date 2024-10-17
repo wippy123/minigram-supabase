@@ -24,6 +24,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { toast } from "react-hot-toast";
 import { Minigraph } from "@/types/minigraph";
 import { Facebook, Instagram, Twitter } from "lucide-react";
+import Image from "next/image";
 
 interface EditMinigraphModalProps {
   minigraph: Minigraph;
@@ -39,6 +40,7 @@ const formSchema = z.object({
   facebook: z.boolean(),
   instagram: z.boolean(),
   twitter: z.boolean(),
+  screenshot_url: z.string().url("Please enter a valid URL").optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -50,8 +52,8 @@ export default function EditMinigraphModal({
   onSuccess,
 }: EditMinigraphModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
   const supabase = createClientComponentClient();
-  console.log("minigraph", { minigraph });
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,13 +63,13 @@ export default function EditMinigraphModal({
       facebook: minigraph.facebook,
       instagram: minigraph.instagram,
       twitter: minigraph.twitter,
+      screenshot_url: minigraph.screenshot_url || "",
     },
     mode: "onChange",
   });
 
   const onSubmit = async () => {
     const data = form.getValues();
-    console.log(data);
     setIsSubmitting(true);
     try {
       const { error } = await supabase
@@ -79,6 +81,7 @@ export default function EditMinigraphModal({
           facebook: data.facebook,
           instagram: data.instagram,
           twitter: data.twitter,
+          screenshot_url: data.screenshot_url,
         })
         .eq("id", minigraph.id);
 
@@ -92,6 +95,35 @@ export default function EditMinigraphModal({
       toast.error("Failed to update minigraph");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleUrlBlur = async () => {
+    const url = form.getValues("url");
+    if (url) {
+      setIsCapturingScreenshot(true);
+      try {
+        const response = await fetch("/api/screenshot", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to capture screenshot");
+        }
+
+        const data = await response.json();
+        console.log("data", data);
+        form.setValue("screenshot_url", data.screenshot);
+      } catch (error) {
+        console.error("Error capturing screenshot:", error);
+        toast.error("Failed to capture screenshot");
+      } finally {
+        setIsCapturingScreenshot(false);
+      }
     }
   };
 
@@ -136,11 +168,33 @@ export default function EditMinigraphModal({
               <FormItem>
                 <FormLabel htmlFor="url">URL</FormLabel>
                 <FormControl>
-                  <Input id="url" {...field} />
+                  <Input
+                    id="url"
+                    {...field}
+                    onBlur={(e) => {
+                      field.onBlur(e);
+                      handleUrlBlur();
+                    }}
+                  />
                 </FormControl>
               </FormItem>
             )}
           />
+
+          {isCapturingScreenshot && <p>Generating screenshot...</p>}
+
+          {form.watch("screenshot_url") && (
+            <div className="mt-4">
+              <Image
+                src={form.watch("screenshot_url") || ""}
+                alt="Minigraph Screenshot"
+                width={300}
+                height={200}
+                className="rounded-md object-cover"
+              />
+            </div>
+          )}
+
           <div className="space-y-4 mt-4">
             <FormLabel htmlFor="">Social Media Platforms</FormLabel>
             <div className="flex space-x-4">
@@ -196,6 +250,7 @@ export default function EditMinigraphModal({
               />
             </div>
           </div>
+
           <Button type="submit" disabled={isSubmitting} onClick={onSubmit}>
             {isSubmitting ? "Updating..." : "Update Minigraph"}
           </Button>
