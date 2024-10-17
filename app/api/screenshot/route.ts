@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import puppeteer from 'puppeteer';
+import * as puppeteer from 'puppeteer';
+import puppeteerCore from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
+import type { Browser, Page } from 'puppeteer-core';
 
 async function getSelectorsToRemove(html: string): Promise<string[]> {
   const myHeaders = new Headers();
@@ -54,15 +57,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'URL is required' }, { status: 400 });
   }
 
+  let browser: Browser | null = null;
+  let page: Page | null = null;
+
   try {
     const ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36';
-    const browser = await puppeteer.launch({
-      headless: true,
-    });
-    const page = await browser.newPage();
-    page.setUserAgent(ua);
+    
+    if (process.env.NODE_ENV === 'development') {
+      browser = (await puppeteer.launch({
+        headless: true,
+      })) as unknown as Browser;
+    } else if (process.env.NODE_ENV === 'production') {
+      browser = await puppeteerCore.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      });
+    }
+
+    if (!browser) {
+      throw new Error('Failed to initialize browser');
+    }
+
+    page = await browser.newPage();
+    await page.setUserAgent(ua);
     await page.goto(url, {
-      timeout: 60000, // 60 seconds timeout
+      timeout: 30000,
     });
 
     // Additional wait to ensure dynamic content is loaded
@@ -70,12 +91,12 @@ export async function POST(request: Request) {
 
     // Get the body content
     const bodyContent = await page.evaluate(() => document.body.outerHTML);
+    
     // Get selectors to remove
     const selectorsToRemove = await getSelectorsToRemove(bodyContent);
-// selectorsToRemove.push('.ab_widget_container_popin-image_close_button')
+
     // Hide elements based on selectors
     for (const selector of selectorsToRemove) {
-      
       const result = await page.evaluate((sel) => {
         const elements = document.querySelectorAll(sel);
         const count = elements.length;
@@ -85,7 +106,6 @@ export async function POST(request: Request) {
         });
         return { count, sel };
       }, selector);
-      
     }
 
     const screenshot = await page.screenshot({ encoding: 'base64' });
@@ -95,5 +115,12 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Screenshot generation failed:', error);
     return NextResponse.json({ error: 'Failed to generate screenshot' }, { status: 500 });
+  } finally {
+    // if (page) {
+    //   await page.close();
+    // }
+    // if (browser) {
+    //   await browser.close();
+    // }
   }
 }
