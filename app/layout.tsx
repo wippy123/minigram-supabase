@@ -13,6 +13,7 @@ import "@/styles/stream-chat-custom-theme.css";
 import { useNotifications } from "./hooks/useNotifications";
 import { LayoutDashboard, Video, BarChart2, Settings } from "lucide-react";
 import Image from "next/image";
+import { MinigraphSearch } from "@/components/MinigraphSearch";
 
 const roboto = Roboto({
   weight: ["400", "700"],
@@ -42,6 +43,7 @@ export default function RootLayout({
                   >
                     Minigram
                   </Link>
+                  <MinigraphSearch />
                   <div className="flex items-center gap-4">
                     {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
                   </div>
