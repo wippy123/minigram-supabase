@@ -9,7 +9,10 @@ export async function POST(req: Request) {
     if (!url) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
-    const executablePath = await chromium.executablePath() || process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+    const executablePath = process.env.NODE_ENV === 'production'
+      ? './public/chromium/chromium.br'
+      : await chromium.executablePath();
+
     console.log('executablePath', executablePath);
     const browser = await chromium.launch({
       executablePath: executablePath,

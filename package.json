@@ -2,8 +2,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx playwright install && next build",
-    "start": "next start"
+    "build": "npx playwright install && npm run copy-chromium && next build",
+    "start": "next start",
+    "copy-chromium": "mkdir -p public/chromium && cp node_modules/@sparticuz/chromium/bin/chromium.br public/chromium/",
+    "serve": "next start"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
