@@ -68,9 +68,9 @@ export async function POST(request: Request) {
   try {
     const ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36';
     console.log('chromiumPath', chromiumPath);
-    const resolvedExecutablePath = await chromium.executablePath();
+    const resolvedExecutablePath = await chromium.executablePath(chromiumPath);
     console.log('Resolved Chromium executable path:', resolvedExecutablePath);
-    
+  
     browser = await puppeteer.launch({
       args: chromium.args,
       executablePath: resolvedExecutablePath,
