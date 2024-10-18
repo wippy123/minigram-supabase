@@ -120,13 +120,19 @@ export default function MinigraphsContent() {
           <EditMinigraphModal
             minigraph={selectedMinigraph}
             isOpen={isEditModalOpen}
-            onClose={() => setIsEditModalOpen(false)}
+            onClose={() => {
+              setIsEditModalOpen(false);
+              setSelectedMinigraph(null);
+            }}
             onSuccess={handleEditSuccess}
           />
           <DeleteMinigraphModal
             minigraph={selectedMinigraph}
             isOpen={isDeleteModalOpen}
-            onClose={() => setIsDeleteModalOpen(false)}
+            onClose={() => {
+              setIsDeleteModalOpen(false);
+              setSelectedMinigraph(null);
+            }}
             onConfirm={handleDeleteConfirm}
           />
         </>
