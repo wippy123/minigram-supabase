@@ -269,9 +269,11 @@ export default function EditMinigraphModal({
             <Label htmlFor="bypassAdRemoval">Bypass Ad Removal</Label>
           </div>
 
-          {isCapturingScreenshot && <p>Generating screenshot...</p>}
-
-          {form.watch("screenshot_url") && (
+          {isCapturingScreenshot ? (
+            <div className="mt-4 h-[300px] flex items-center justify-center bg-gray-100 rounded-md">
+              <p className="text-gray-500">Generating screenshot...</p>
+            </div>
+          ) : form.watch("screenshot_url") ? (
             <div className="mt-4">
               <div className="relative h-[300px] w-full">
                 <Cropper
@@ -300,7 +302,7 @@ export default function EditMinigraphModal({
                 </Button>
               </div>
             </div>
-          )}
+          ) : null}
 
           <div className="space-y-4 mt-4">
             <FormLabel htmlFor="">Social Media Platforms</FormLabel>
