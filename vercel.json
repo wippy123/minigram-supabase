@@ -1,7 +1,18 @@
 {
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "functions": {
+    "app/api/screenshot/route.ts": {
+      "maxDuration": 60
+    }
+  },
   "build": {
     "env": {
-      "CHROME_EXECUTABLE_PATH": "/usr/bin/google-chrome"
+      "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "true"
     }
   }
 }

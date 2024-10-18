@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import chromium from 'chrome-aws-lambda';
-import puppeteerCore from 'puppeteer-core';
-import * as puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer-core';
 import type { Browser, Page } from 'puppeteer-core';
 
 async function getSelectorsToRemove(html: string): Promise<string[]> {
@@ -57,23 +55,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'URL is required' }, { status: 400 });
   }
 
-  let browser: Browser | any | null = null;
+  let browser: Browser | null = null;
   let page: Page | null = null;
 
   try {
     const ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36';
     
-    if (process.env.NODE_ENV === 'production') {
-      browser = await puppeteerCore.launch({
-        args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
+    browser = await puppeteer.launch({
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+      ],
+      executablePath: process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/google-chrome',
       headless: true,
-    }); } else {
-      browser = await puppeteer.launch({
-        headless: true,
-      });
-    }
+    });
 
     if (!browser) {
       throw new Error('Failed to initialize browser');
@@ -85,6 +86,7 @@ export async function POST(request: Request) {
     }
     await page.setUserAgent(ua);
     await page.goto(url, {
+      waitUntil: 'networkidle0',
       timeout: 30000,
     });
 
