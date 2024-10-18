@@ -79,6 +79,7 @@ console.log('browser', browser);
     }
 
     page = await browser.newPage();
+    console.log('page', page);
     await page.setUserAgent(ua);
     await page.goto(url, {
       timeout: 30000,
