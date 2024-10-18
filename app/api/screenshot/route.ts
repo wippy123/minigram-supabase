@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
 import chromium from '@sparticuz/chromium';
 import type { Browser, Page } from 'puppeteer';
+
 export const maxDuration = 60; 
+
 async function getSelectorsToRemove(html: string): Promise<string[]> {
   const myHeaders = new Headers();
   myHeaders.append("Authorization", `Bearer ${process.env.OPENAI_API_KEY}`);
@@ -58,12 +60,15 @@ export async function POST(request: Request) {
 
   let browser: Browser | null = null;
   let page: Page | null = null;
+  
+  // Update this line to reference the local file
+  // const chromiumPath = './public/chromium/chromium-v121.0.0-pack.tar';
   const chromiumPath = 'https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar';
 
   try {
     const ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36';
     console.log('chromiumPath', chromiumPath);
-    const resolvedExecutablePath = await chromium.executablePath(chromiumPath);
+    const resolvedExecutablePath = await chromium.executablePath();
     console.log('Resolved Chromium executable path:', resolvedExecutablePath);
     
     browser = await puppeteer.launch({
@@ -91,21 +96,21 @@ console.log('browser', browser);
     const bodyContent = await page.evaluate(() => document.body.outerHTML);
     console.log('bodyContent', bodyContent);
     // Get selectors to remove
-    const selectorsToRemove = await getSelectorsToRemove(bodyContent);
+    // const selectorsToRemove = await getSelectorsToRemove(bodyContent);
 
-    // Hide elements based on selectors
-    for (const selector of selectorsToRemove) {
-      const result = await page.evaluate((sel) => {
-        const elements = document.querySelectorAll(sel);
-        const count = elements.length;
-        elements.forEach(el => {
-          // Use setAttribute to set the style, which works for all element types
-          el.setAttribute('style', 'display: none !important');
-        });
-        return { count, sel };
-      }, selector);
-    }
-
+    // // Hide elements based on selectors
+    // for (const selector of selectorsToRemove) {
+    //   const result = await page.evaluate((sel) => {
+    //     const elements = document.querySelectorAll(sel);
+    //     const count = elements.length;
+    //     elements.forEach(el => {
+    //       el.setAttribute('style', 'display: none !important');
+    //     });
+    //     return { count, sel };
+    //   }, selector);
+    //   console.log('result', result);
+    // }
+    
     const screenshot = await page.screenshot({ encoding: 'base64' });
     await browser.close();
 
