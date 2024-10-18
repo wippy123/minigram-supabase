@@ -114,7 +114,7 @@ console.log('browser', browser);
     //   console.log('result', result);
     // }
     
-    const screenshot = await page.screenshot({ encoding: 'base64' });
+    const screenshot = await page.screenshot({ fullPage: true, encoding: 'base64' });
     await browser.close();
 
     return NextResponse.json({ screenshot: `data:image/png;base64,${screenshot}` });
