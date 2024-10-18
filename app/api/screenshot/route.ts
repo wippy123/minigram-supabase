@@ -62,7 +62,7 @@ export async function POST(request: Request) {
   let page: Page | null = null;
   
   // Update this line to reference the local file
-  const chromiumPath = './public/chromium/chromium-v121.0.0-pack.tar';
+  const chromiumPath = 'https://minigram-supabase.vercel.app/chromium/chromium-v121.0.0-pack.tar';
   // const chromiumPath = 'https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar';
 
   try {
