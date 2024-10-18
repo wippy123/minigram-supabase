@@ -90,7 +90,10 @@ console.log('browser', browser);
     });
 
     // Additional wait to ensure dynamic content is loaded
-    await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 2000)));
+    await page.evaluate(() => {
+      new Promise((resolve) => setTimeout(resolve, 2000))
+      window.scrollTo(0, 0);
+    });
 
     // Get the body content
     const bodyContent = await page.evaluate(() => document.body.outerHTML);
