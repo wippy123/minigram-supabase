@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     await page.goto(url, { waitUntil: 'networkidle0' });
 
     const screenshot = await page.screenshot({ type: 'png', fullPage: true });
-    const base64Screenshot = screenshot.toString('base64');
+    const base64Screenshot = Buffer.from(screenshot as string).toString('base64');
 
     return NextResponse.json({ screenshot: `data:image/png;base64,${base64Screenshot}` });
   } catch (error) {
