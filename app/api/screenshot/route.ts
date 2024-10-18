@@ -68,7 +68,6 @@ export async function POST(request: Request) {
     
     browser = await puppeteer.launch({
       args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
       executablePath: resolvedExecutablePath,
       headless: true,
     });
@@ -90,7 +89,7 @@ console.log('browser', browser);
 
     // Get the body content
     const bodyContent = await page.evaluate(() => document.body.outerHTML);
-    
+    console.log('bodyContent', bodyContent);
     // Get selectors to remove
     const selectorsToRemove = await getSelectorsToRemove(bodyContent);
 
