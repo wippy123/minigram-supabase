@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import chromium from 'chrome-aws-lambda';
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
 
 export const maxDuration = 60;
 
@@ -10,28 +11,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'URL is required' }, { status: 400 });
   }
 
-  let browser = null;
-
+  let browser;
   try {
-    browser = await chromium.puppeteer.launch({
+    browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
+      executablePath: await chromium.executablePath(),
       headless: true,
+      ignoreHTTPSErrors: true,
     });
 
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle0' });
+    const screenshot = await page.screenshot({ encoding: 'base64' });
 
-    const screenshot = await page.screenshot({ type: 'png' });
-    const base64Screenshot = Buffer.from(screenshot as string).toString('base64');
-
-    return NextResponse.json({ screenshot: `data:image/png;base64,${base64Screenshot}` });
+    return NextResponse.json({ screenshot: `data:image/png;base64,${screenshot}` });
   } catch (error) {
     console.error('Screenshot capture failed:', error);
     return NextResponse.json({ error: 'Failed to capture screenshot' }, { status: 500 });
   } finally {
-    if (browser !== null) {
+    if (browser) {
       await browser.close();
     }
   }

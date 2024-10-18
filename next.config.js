@@ -4,7 +4,7 @@ const nextConfig = {
     domains: [process.env.NEXT_PUBLIC_SUPABASE_URL].filter(Boolean).map(url => new URL(url).hostname),
   },
   experimental: {
-    serverComponentsExternalPackages: ['canvas', 'html-to-image'],
+    serverComponentsExternalPackages: ['@sparticuz/chromium'],
   },
   webpack: (config, { isServer }) => {
     if (isServer) {
