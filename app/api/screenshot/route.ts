@@ -4,6 +4,7 @@ import puppeteer from 'puppeteer-core';
 import os from 'os';
 import { Jimp } from "jimp";
 import { parse } from 'node-html-parser';
+import { template } from 'lodash';
 
 export const maxDuration = 60;
 
@@ -25,6 +26,7 @@ async function getSelectorsToRemove(html: string): Promise<string[]> {
 
   const raw = JSON.stringify({
     "model": "gpt-4o-mini",
+    "temperature": 0.9,
     "messages": [
       {
         "role": "system",
@@ -37,9 +39,11 @@ async function getSelectorsToRemove(html: string): Promise<string[]> {
          If you identify an element that might be a dialog, provide any element selector as well that exist within the dialog so that it can be hidden.
          Remember to use the proper CSS selectors to target the elements.
          Use the role attribute to help identify dialog elements. ex. role="dialog" or role="alertdialog".
-         Provide a json response that has the key 'selectors' and an array of selector strings to hide. 
+         Provide a json response that has the key 'selectors' and an array of selector strings to hide.
          If possible, identify any elements as well that might be chat dialogs or chat widgets so that they can be hidden.
-          Keep the selector list to just the selector id or classname.  Do not make it a complex object.
+         Do not identify any elements that if hidden, would remove content from the page.
+         Do not identify elements such as images, videos, menus, buttons.
+         Keep the selector list to just the selector id or classname.  Do not make it a complex object.
          Be sure to make it easily parseable so no code markers please. \n\nHere is the HTML content for analysis:\n\n ${html}`
       }
     ]
@@ -79,11 +83,10 @@ async function splitAndAnalyzeHTML(html: string, headers: Headers): Promise<stri
     chunks.push(currentChunk);
   }
 
-  const allSelectors: string[] = [];
-console.log("chunks", chunks);
-  for (const chunk of chunks) {
+  const chunkPromises = chunks.map(chunk => {
     const raw = JSON.stringify({
       "model": "gpt-4o-mini",
+      "temperature": 0.9,
       "messages": [
         {
           "role": "system",
@@ -96,17 +99,21 @@ console.log("chunks", chunks);
          If you identify an element that might be a dialog, provide any element selector as well that exist within the dialog so that it can be hidden.
          Remember to use the proper CSS selectors to target the elements.
          Use the role attribute to help identify dialog elements. ex. role="dialog" or role="alertdialog".
-         Provide a json response that has the key 'selectors' and an array of selector strings to hide. 
+         Provide a json response that has the key 'selectors' and an array of selector strings to hide.
          If possible, identify any elements as well that might be chat dialogs or chat widgets so that they can be hidden.
+          Do not identify any elements that if hidden, would remove content from the page.
+         Do not identify elements such as images, videos, menus, buttons.
           Keep the selector list to just the selector id or classname.  Do not make it a complex object.
          Be sure to make it easily parseable so no code markers please. \n\nHere is the HTML fragment for analysis:\n\n \n\n${chunk}`
         }
       ]
     });
 
-    const chunkSelectors = await sendRequest(raw, headers);
-    allSelectors.push(...chunkSelectors);
-  }
+    return sendRequest(raw, headers);
+  });
+
+  const allSelectorsArrays = await Promise.all(chunkPromises);
+  const allSelectors = allSelectorsArrays.flat();
 
   return Array.from(new Set(allSelectors)); // Remove duplicates
 }
@@ -121,7 +128,6 @@ async function sendRequest(raw: string, headers: Headers): Promise<string[]> {
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", requestOptions);
     const result = await response.json();
-    console.log("result", result);
     const content = JSON.parse(result.choices?.[0].message.content);
     const selectors = content?.selectors || [];
     console.log("Selectors identified by AI:", selectors);
@@ -154,7 +160,7 @@ async function cropImage(buffer: Buffer, x: number, y: number, width: number, he
 }
 
 export async function POST(request: Request) {
-  const { url } = await request.json();
+  const { url, bypassAdRemoval } = await request.json();
 
   if (!url) {
     return NextResponse.json({ error: 'URL is required' }, { status: 400 });
@@ -189,6 +195,7 @@ export async function POST(request: Request) {
     await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 3000)));
     const bodyContent = await page.evaluate(() => document.body.outerHTML);
 
+    if (!bypassAdRemoval) {
     const selectorsToRemove = await getSelectorsToRemove(bodyContent);
 
     // Hide elements based on selectors
@@ -197,16 +204,19 @@ export async function POST(request: Request) {
         try {
         const elements = document.querySelectorAll(sel);
         const count = elements.length;
-        elements.forEach(el => {
-          el.setAttribute('style', 'display: none !important');
-        });
-        return { count, sel };
+        if (count > 0) {  
+          elements.forEach(el => {
+            el.setAttribute('style', 'display: none !important');
+          });
+          return { count, sel };
+        }
       } catch (e) {
         console.log("error hiding element", e);
       }
       }, selector);
       console.log('result', result);
     }
+  }
 
     const screenshot = await page.screenshot({ fullPage: true });
     

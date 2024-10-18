@@ -25,6 +25,7 @@ import { toast } from "react-hot-toast";
 import { Minigraph } from "@/types/minigraph";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import Image from "next/image";
+import { Label } from "@/components/ui/label";
 
 interface EditMinigraphModalProps {
   minigraph: Minigraph;
@@ -41,6 +42,7 @@ const formSchema = z.object({
   instagram: z.boolean(),
   twitter: z.boolean(),
   screenshot_url: z.string().url("Please enter a valid URL").optional(),
+  bypassAdRemoval: z.boolean().default(true),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -64,6 +66,7 @@ export default function EditMinigraphModal({
       instagram: minigraph.instagram,
       twitter: minigraph.twitter,
       screenshot_url: minigraph.screenshot_url || "",
+      bypassAdRemoval: true,
     },
     mode: "onChange",
   });
@@ -108,7 +111,10 @@ export default function EditMinigraphModal({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ url }),
+          body: JSON.stringify({
+            url,
+            bypassAdRemoval: form.getValues("bypassAdRemoval"),
+          }),
         });
 
         if (!response.ok) {
@@ -179,6 +185,21 @@ export default function EditMinigraphModal({
               </FormItem>
             )}
           />
+
+          <div className="flex items-center space-x-2">
+            <Controller
+              name="bypassAdRemoval"
+              control={form.control}
+              render={({ field }) => (
+                <Checkbox
+                  id="bypassAdRemoval"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+            <Label htmlFor="bypassAdRemoval">Bypass Ad Removal</Label>
+          </div>
 
           {isCapturingScreenshot && <p>Generating screenshot...</p>}
 

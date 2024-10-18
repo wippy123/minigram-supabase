@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { useState } from "react";
-import { FieldValues, useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { FieldValues, useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
@@ -13,11 +13,13 @@ import { Facebook, Instagram, Twitter } from "lucide-react";
 import { Form, FormControl, FormField, FormLabel } from "@/components/ui/form";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { toast } from "react-hot-toast";
+import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   purpose: z.string().min(2, "Purpose must be at least 2 characters"),
   url: z.string().url("Please enter a valid URL"),
+  bypassAdRemoval: z.boolean().default(true),
   facebook: z.boolean().default(false),
   instagram: z.boolean().default(false),
   twitter: z.boolean().default(false),
@@ -42,12 +44,14 @@ export default function MinigraphForm({ onSubmit }: MinigraphFormProps) {
     reset,
     watch,
     trigger,
+    control,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       purpose: "",
       url: "",
+      bypassAdRemoval: true,
       facebook: false,
       instagram: false,
       twitter: false,
@@ -61,10 +65,11 @@ export default function MinigraphForm({ onSubmit }: MinigraphFormProps) {
 
     setIsGeneratingScreenshot(true);
     try {
+      const bypassAdRemoval = watch("bypassAdRemoval");
       const response = await fetch("/api/screenshot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: urlToCapture }),
+        body: JSON.stringify({ url: urlToCapture, bypassAdRemoval }),
       });
 
       if (!response.ok) {
@@ -173,6 +178,21 @@ export default function MinigraphForm({ onSubmit }: MinigraphFormProps) {
         )}
       />
 
+      <div className="flex items-center space-x-2 mt-4">
+        <Controller
+          name="bypassAdRemoval"
+          control={control}
+          render={({ field }) => (
+            <Checkbox
+              id="bypassAdRemoval"
+              checked={field.value}
+              onCheckedChange={field.onChange}
+            />
+          )}
+        />
+        <Label htmlFor="bypassAdRemoval">Bypass Ad Removal</Label>
+      </div>
+
       <div className="mt-4">
         <FormLabel htmlFor="">Screenshot Preview</FormLabel>
         <div className="mt-2 border rounded-lg overflow-hidden w-48 h-36 relative">
@@ -240,7 +260,6 @@ export default function MinigraphForm({ onSubmit }: MinigraphFormProps) {
           />
         </div>
       </div>
-
       <Button type="submit" disabled={isSubmitting} className="mt-6">
         {isSubmitting ? "Submitting..." : "Create Minigraph"}
       </Button>
