@@ -43,7 +43,7 @@ export default function RootLayout({
                   >
                     Minigram
                   </Link>
-                  <div className="flex-1 max-w-md mx-4">
+                  <div className="flex-1 max-w-md mx-4 flex justify-center">
                     <MinigraphSearch />
                   </div>
                   <div className="flex items-center gap-4">

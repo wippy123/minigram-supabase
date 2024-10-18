@@ -2,9 +2,53 @@
 
 import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import type { Database } from "@/types/supabase";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+
+export type Database = {
+  public: {
+    Tables: {
+      minigraphs: {
+        Row: {
+          id: string;
+          name: string;
+          purpose: string;
+          url: string;
+          screenshot_url: string | null;
+          facebook: boolean;
+          instagram: boolean;
+          twitter: boolean;
+          user_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          purpose: string;
+          url: string;
+          screenshot_url?: string | null;
+          facebook?: boolean;
+          instagram?: boolean;
+          twitter?: boolean;
+          user_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          purpose?: string;
+          url?: string;
+          screenshot_url?: string | null;
+          facebook?: boolean;
+          instagram?: boolean;
+          twitter?: boolean;
+          user_id?: string;
+          created_at?: string;
+        };
+      };
+    };
+  };
+};
 
 type Minigraph = Database["public"]["Tables"]["minigraphs"]["Row"];
 
