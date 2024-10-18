@@ -9,18 +9,10 @@ export async function POST(req: Request) {
     if (!url) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
-
-    const chromiumExecutablePath = process.env.VERCEL
-      ? path.join(
-          '/vercel',
-          '.cache',
-          'ms-playwright',
-          'chromium-1140'
-        )
-      : process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
-
+    const executablePath = await chromium.executablePath() || process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+    console.log('executablePath', executablePath);
     const browser = await chromium.launch({
-      executablePath: chromiumExecutablePath,
+      executablePath: executablePath,
       args: ['--disable-http2', '--ignore-certificate-errors', '--disable-web-security']
     });
 
