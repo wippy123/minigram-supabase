@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "app/api/screenshot/route.ts": {
-      "maxDuration": 60
-    }
-  },
   "build": {
     "env": {
       "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "true"
