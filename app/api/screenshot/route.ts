@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
 import os from 'os';
-import sharp from 'sharp';
+import { Jimp} from "jimp";
 
 export const maxDuration = 60;
 
@@ -22,12 +22,11 @@ function getLocalChromePath() {
   }
 }
 
-async function resizeImage(buffer: Buffer, width: number, height: number): Promise<Buffer> {
-  const resizedImageBuffer = await sharp(buffer)
-    .resize(width, height, { fit: 'cover' })
-    .toBuffer();
-
-  return resizedImageBuffer;
+async function cropImage(buffer: Buffer, x: number, y: number, width: number, height: number): Promise<Buffer> {
+  
+  const image = await Jimp.read(buffer);
+  const croppedImage = image.crop({x, y, w:width, h:height});
+  return await croppedImage.getBuffer("image/png");
 }
 
 export async function POST(request: Request) {
@@ -63,9 +62,13 @@ export async function POST(request: Request) {
     await page.goto(url, { waitUntil: 'load', timeout: 60000 });
 
     // Additional wait to ensure dynamic content is loaded
-    await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 2000)));
-    const screenshot = await page.screenshot({ clip: {x: 0, y: 0, width: 800, height: 800}});
-    const base64Screenshot = Buffer.from(screenshot as Buffer).toString('base64');
+    await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 3000)));
+   
+    const screenshot = await page.screenshot({ fullPage: true });
+    
+    const croppedScreenshot = await cropImage(screenshot as Buffer, 0, 0, 800, 800);
+    console.log('croppedScreenshot', croppedScreenshot);
+    const base64Screenshot = croppedScreenshot.toString('base64');
     return NextResponse.json({ screenshot: `data:image/png;base64,${base64Screenshot}` });
   } catch (error) {
     console.error('Screenshot capture failed:', error);
