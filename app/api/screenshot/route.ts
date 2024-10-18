@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { chromium } from 'playwright-core';
-import path from 'path';
+import playwright from 'playwright-core';
+import chromium from "@sparticuz/chromium-min";
 
 export async function POST(req: Request) {
   try {
@@ -9,13 +9,12 @@ export async function POST(req: Request) {
     if (!url) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
-    const executablePath = process.env.NODE_ENV === 'production'
-      ? './public/chromium/chromium.br'
-      : await chromium.executablePath();
+    const executablePath = await chromium.executablePath();
 
     console.log('executablePath', executablePath);
-    const browser = await chromium.launch({
+    const browser = await playwright.chromium.launch({
       executablePath: executablePath,
+      headless: true,
       args: ['--disable-http2', '--ignore-certificate-errors', '--disable-web-security']
     });
 

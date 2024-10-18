@@ -12,19 +12,21 @@ const nextConfig = {
       include: /node_modules\/chrome-aws-lambda/,
     });
 
-    if (isServer) {
-      config.externals.push('chrome-aws-lambda');
-    }
 
     if (isServer) {
       config.externals.push('puppeteer-core');
     }
 
+    if (isServer) {
+      config.externals.push('@sparticuz/chromium');
+    }
+
+
     return config;
   },
   experimental: {
     esmExternals: false,
-    serverComponentsExternalPackages: ['playwright-core'],
+    serverComponentsExternalPackages: ['playwright-core', '@sparticuz/chromium'],
   },
 }
 
