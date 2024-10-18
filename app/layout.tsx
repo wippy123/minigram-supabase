@@ -49,12 +49,12 @@ export default function RootLayout({
 
               <div className="flex flex-1 pt-16">
                 {/* Left Navigation */}
-                <nav className="w-64 border-r border-border fixed left-0 top-16 h-[calc(100vh-4rem)] bg-background flex flex-col">
+                <nav className="w-44 border-r border-border fixed left-0 top-16 h-[calc(100vh-4rem)] bg-background flex flex-col">
                   <ul className="flex-1 flex flex-col space-y-1 pt-4 px-2">
                     <li>
                       <NavLink
-                        href="/HomePage"
-                        title="Dashboard"
+                        href="/"
+                        title="Overview"
                         icon={LayoutDashboard}
                       />
                     </li>
