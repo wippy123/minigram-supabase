@@ -4,6 +4,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import type { Database } from "@/types/supabase";
 import { Search } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -30,6 +31,7 @@ export function MinigraphSearch() {
   const [showDropdown, setShowDropdown] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const supabase = createClientComponentClient<Database>();
 
@@ -75,6 +77,11 @@ export function MinigraphSearch() {
     searchMinigraphs();
   }, [debouncedSearchTerm, supabase]);
 
+  const handleMinigraphClick = (minigraphId: string) => {
+    router.push(`/minigraphs/${minigraphId}`);
+    setShowDropdown(false);
+  };
+
   return (
     <div className="relative w-64">
       <div className="flex items-center bg-white dark:bg-gray-800 rounded-full shadow-sm border border-gray-300 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 dark:focus-within:ring-blue-400 transition-all duration-300">
@@ -104,9 +111,9 @@ export function MinigraphSearch() {
             <ul className="max-h-64 overflow-y-auto">
               {results.map((minigraph) => (
                 <li key={minigraph.id}>
-                  <Link
-                    href={`/minigraphs/${minigraph.id}`}
-                    className="block p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
+                  <button
+                    onClick={() => handleMinigraphClick(minigraph.id)}
+                    className="w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
                   >
                     <div className="font-semibold text-gray-800 dark:text-gray-200">
                       {minigraph.name}
@@ -114,7 +121,7 @@ export function MinigraphSearch() {
                     <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">
                       {minigraph.purpose}
                     </div>
-                  </Link>
+                  </button>
                 </li>
               ))}
             </ul>

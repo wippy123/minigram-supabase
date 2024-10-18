@@ -36,14 +36,16 @@ export default function RootLayout({
             <div className="flex flex-col min-h-screen bg-background">
               {/* Top Navigation */}
               <header className="border-b border-border h-16 w-full fixed top-0 left-0 z-10 bg-background dark:bg-gray-900">
-                <div className="h-full flex items-center justify-between px-4">
+                <div className="h-full flex items-center justify-between px-4 max-w-7xl mx-auto">
                   <Link
                     href="/"
                     className="text-2xl font-bold font-display text-gray-900 dark:text-white"
                   >
                     Minigram
                   </Link>
-                  <MinigraphSearch />
+                  <div className="flex-1 max-w-md mx-4">
+                    <MinigraphSearch />
+                  </div>
                   <div className="flex items-center gap-4">
                     {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
                   </div>
