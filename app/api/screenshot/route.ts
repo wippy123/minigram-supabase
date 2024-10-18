@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
 import chromium from '@sparticuz/chromium';
 import type { Browser, Page } from 'puppeteer';
-
+export const maxDuration = 60; 
 async function getSelectorsToRemove(html: string): Promise<string[]> {
   const myHeaders = new Headers();
   myHeaders.append("Authorization", `Bearer ${process.env.OPENAI_API_KEY}`);
