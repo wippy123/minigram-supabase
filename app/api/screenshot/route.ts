@@ -62,7 +62,7 @@ export async function POST(request: Request) {
   let page: Page | null = null;
   
   // Update this line to reference the local file
-  const chromiumPath = 'https://minigram-supabase.vercel.app/chromium/chromium-v121.0.0-pack.tar';
+  const chromiumPath = 'https://minigram-supabase.vercel.app/chromium/chromium-v130.0.0-pack.tar';
   // const chromiumPath = 'https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar';
 
   try {
@@ -85,14 +85,24 @@ console.log('browser', browser);
     page = await browser.newPage();
     console.log('page', page);
     await page.setUserAgent(ua);
+
+    // Set a larger viewport size
+    await page.setViewport({ width: 1920, height: 1080 });
+
     await page.goto(url, {
       timeout: 30000,
+      waitUntil: 'networkidle0', // Wait until there are no more than 0 network connections for at least 500 ms
     });
 
-    // Additional wait to ensure dynamic content is loaded
-    await page.evaluate(() => {
-       window.scrollTo(0, 0);
-      new Promise((resolve) => setTimeout(resolve, 2000))
+    // Scroll to top and wait for any lazy-loaded content
+    await page.evaluate(async () => {
+      window.scrollTo(0, 0);
+      // Scroll down and up to trigger lazy loading
+      const scrollHeight = document.documentElement.scrollHeight;
+      window.scrollTo(0, scrollHeight);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      window.scrollTo(0, 0);
+      await new Promise(resolve => setTimeout(resolve, 1000));
     });
 
     // Get the body content
@@ -114,7 +124,7 @@ console.log('browser', browser);
     //   console.log('result', result);
     // }
     
-    const screenshot = await page.screenshot({ fullPage: true, encoding: 'base64' });
+    const screenshot = await page.screenshot({ fullPage: true, encoding: 'base64',  captureBeyondViewport: true });
     await browser.close();
 
     return NextResponse.json({ screenshot: `data:image/png;base64,${screenshot}` });
