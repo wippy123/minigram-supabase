@@ -16,10 +16,15 @@ const nextConfig = {
       config.externals.push('chrome-aws-lambda');
     }
 
+    if (isServer) {
+      config.externals.push('puppeteer-core');
+    }
+
     return config;
   },
   experimental: {
     esmExternals: false,
+    serverComponentsExternalPackages: ['puppeteer-core'],
   },
 }
 
