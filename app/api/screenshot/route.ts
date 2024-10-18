@@ -4,7 +4,6 @@ import puppeteer from 'puppeteer-core';
 import os from 'os';
 import { Jimp } from "jimp";
 import { parse } from 'node-html-parser';
-import { template } from 'lodash';
 
 export const maxDuration = 60;
 
@@ -42,6 +41,7 @@ async function getSelectorsToRemove(html: string): Promise<string[]> {
          Provide a json response that has the key 'selectors' and an array of selector strings to hide.
          If possible, identify any elements as well that might be chat dialogs or chat widgets so that they can be hidden.
          Do not identify any elements that if hidden, would remove content from the page.
+         Do not identify images, elements with aria-labels or have roles that are not dialog, overlay or alertdialog.
          Do not identify elements such as images, videos, menus, buttons.
          Keep the selector list to just the selector id or classname.  Do not make it a complex object.
          Be sure to make it easily parseable so no code markers please. \n\nHere is the HTML content for analysis:\n\n ${html}`
@@ -101,7 +101,8 @@ async function splitAndAnalyzeHTML(html: string, headers: Headers): Promise<stri
          Use the role attribute to help identify dialog elements. ex. role="dialog" or role="alertdialog".
          Provide a json response that has the key 'selectors' and an array of selector strings to hide.
          If possible, identify any elements as well that might be chat dialogs or chat widgets so that they can be hidden.
-          Do not identify any elements that if hidden, would remove content from the page.
+         Do not identify any elements that if hidden, would remove content from the page.
+         Do not identify images, elements with aria-labels or have roles that are not dialog, overlay or alertdialog.
          Do not identify elements such as images, videos, menus, buttons.
           Keep the selector list to just the selector id or classname.  Do not make it a complex object.
          Be sure to make it easily parseable so no code markers please. \n\nHere is the HTML fragment for analysis:\n\n \n\n${chunk}`
@@ -218,7 +219,7 @@ export async function POST(request: Request) {
     }
   }
 
-    const screenshot = await page.screenshot({ fullPage: true });
+    const screenshot = await page.screenshot();
     
     const croppedScreenshot = await cropImage(screenshot as Buffer, 0, 0, 800, 800);
     const base64Screenshot = croppedScreenshot.toString('base64');

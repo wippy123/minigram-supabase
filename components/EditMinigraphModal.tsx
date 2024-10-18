@@ -19,13 +19,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { toast } from "react-hot-toast";
 import { Minigraph } from "@/types/minigraph";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
+import Cropper from "react-easy-crop";
+import { Point, Area } from "react-easy-crop/types";
 
 interface EditMinigraphModalProps {
   minigraph: Minigraph;
@@ -70,6 +72,10 @@ export default function EditMinigraphModal({
     },
     mode: "onChange",
   });
+
+  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   const onSubmit = async () => {
     const data = form.getValues();
@@ -132,9 +138,71 @@ export default function EditMinigraphModal({
     }
   };
 
+  const onCropComplete = useCallback(
+    (croppedArea: Area, croppedAreaPixels: Area) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    []
+  );
+
+  const createImage = (url: string): Promise<HTMLImageElement> =>
+    new Promise((resolve, reject) => {
+      const image = document.createElement("img") as HTMLImageElement;
+      image.addEventListener("load", () => resolve(image));
+      image.addEventListener("error", (error: ErrorEvent) => reject(error));
+      image.setAttribute("crossOrigin", "anonymous");
+      image.src = url;
+    });
+
+  const getCroppedImg = async (
+    imageSrc: string,
+    pixelCrop: Area
+  ): Promise<string> => {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      return "";
+    }
+
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+
+    ctx.drawImage(
+      image,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height
+    );
+
+    return canvas.toDataURL("image/jpeg");
+  };
+
+  const handleCropImage = async () => {
+    if (!croppedAreaPixels) return;
+
+    try {
+      const croppedImage = await getCroppedImg(
+        form.getValues("screenshot_url") || "",
+        croppedAreaPixels
+      );
+      form.setValue("screenshot_url", croppedImage);
+      toast.success("Image cropped successfully");
+    } catch (error) {
+      console.error("Error cropping image:", error);
+      toast.error("Failed to crop image");
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Edit Minigraph</DialogTitle>
         </DialogHeader>
@@ -205,13 +273,32 @@ export default function EditMinigraphModal({
 
           {form.watch("screenshot_url") && (
             <div className="mt-4">
-              <Image
-                src={form.watch("screenshot_url") || ""}
-                alt="Minigraph Screenshot"
-                width={300}
-                height={200}
-                className="rounded-md object-cover"
-              />
+              <div className="relative h-[300px] w-full">
+                <Cropper
+                  image={form.watch("screenshot_url") || ""}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={16 / 9}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
+                />
+              </div>
+              <div className="mt-2 flex justify-between items-center">
+                <input
+                  type="range"
+                  value={zoom}
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  aria-labelledby="Zoom"
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className="w-1/2"
+                />
+                <Button onClick={handleCropImage} type="button">
+                  Crop Image
+                </Button>
+              </div>
             </div>
           )}
 
