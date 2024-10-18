@@ -12,6 +12,7 @@ import { PresenceProvider } from "./components/PresenceContext";
 import "@/styles/stream-chat-custom-theme.css";
 import { useNotifications } from "./hooks/useNotifications";
 import { LayoutDashboard, Video, BarChart2, Settings } from "lucide-react";
+import Image from "next/image";
 
 const roboto = Roboto({
   weight: ["400", "700"],
@@ -50,6 +51,17 @@ export default function RootLayout({
               <div className="flex flex-1 pt-16">
                 {/* Left Navigation */}
                 <nav className="w-44 border-r border-border fixed left-0 top-16 h-[calc(100vh-4rem)] bg-background flex flex-col">
+                  {/* Avatar space */}
+                  <div className="flex justify-center items-center py-4">
+                    <div className="w-20 h-20 rounded-full overflow-hidden">
+                      <Image
+                        src="/Minigram.png" // Replace with your actual avatar image path
+                        alt="User Avatar"
+                        width={80}
+                        height={80}
+                      />
+                    </div>
+                  </div>
                   <ul className="flex-1 flex flex-col space-y-1 pt-4 px-2">
                     <li>
                       <NavLink
@@ -87,7 +99,7 @@ export default function RootLayout({
                   </div>
                 </nav>
                 {/* Main Content */}
-                <main className="flex-1 flex flex-col ml-16 p-4 bg-gray-100 dark:bg-gray-900">
+                <main className="flex-1 flex flex-col ml-44 p-4 bg-gray-100 dark:bg-gray-900">
                   {/* Page Content */}
                   <div className="flex-1">
                     <div className="max-w-5xl mx-auto">{children}</div>
