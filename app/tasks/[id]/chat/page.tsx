@@ -30,13 +30,13 @@ export default function ChatPage() {
   const [channel, setChannel] = useState<any>();
   const [chatInfo, setChatInfo] = useState<any>(null);
   const searchParams = useSearchParams();
-  const taskDataParam = searchParams.get("taskData");
+  const taskDataParam = searchParams?.get("taskData");
   const task: Task | null = taskDataParam
     ? JSON.parse(decodeURIComponent(taskDataParam))
     : null;
   // Use the useParams hook to get the task ID from the URL
   const params = useParams();
-  const taskId = params.id as string;
+  const taskId = params?.id as string;
 
   function formatDateTime(date?: string, time?: string) {
     if (!date) return "No due date";

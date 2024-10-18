@@ -17,7 +17,14 @@ type User = {
 };
 
 export default function TeamDetailsPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = typeof params?.id === "string" ? params.id : null;
+
+  if (!id) {
+    // Handle the missing id scenario, e.g., show an error or redirect
+    return <div>Invalid team ID.</div>;
+  }
+
   const [team, setTeam] = useState<Team | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [user, setUser] = useState<User | null>(null);

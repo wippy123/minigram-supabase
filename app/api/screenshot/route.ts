@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import * as puppeteer from 'puppeteer';
+import chromium from 'chrome-aws-lambda';
 import puppeteerCore from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+import * as puppeteer from 'puppeteer'
 import type { Browser, Page } from 'puppeteer-core';
 
 async function getSelectorsToRemove(html: string): Promise<string[]> {
@@ -57,21 +57,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'URL is required' }, { status: 400 });
   }
 
-  let browser: Browser | null = null;
+  let browser: Browser | any | null = null;
   let page: Page | null = null;
 
   try {
     const ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36';
     
-    if (process.env.NODE_ENV === 'development') {
-      browser = (await puppeteer.launch({
-        headless: true,
-      })) as unknown as Browser;
-    } else if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production') {
       browser = await puppeteerCore.launch({
         args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+      headless: true,
+    }); } else {
+      browser = await puppeteer.launch({
         headless: true,
       });
     }
@@ -81,6 +80,9 @@ export async function POST(request: Request) {
     }
 
     page = await browser.newPage();
+    if (!page) {
+      throw new Error('Failed to initialize page');
+    }
     await page.setUserAgent(ua);
     await page.goto(url, {
       timeout: 30000,
@@ -116,5 +118,8 @@ export async function POST(request: Request) {
     console.error('Screenshot generation failed:', error);
     return NextResponse.json({ error: 'Failed to generate screenshot' }, { status: 500 });
   } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
 }
