@@ -4,12 +4,18 @@ const nextConfig = {
     domains: [process.env.NEXT_PUBLIC_SUPABASE_URL].filter(Boolean).map(url => new URL(url).hostname),
   },
   experimental: {
-    serverComponentsExternalPackages: ['puppeteer-core'],
+    serverComponentsExternalPackages: ['canvas', 'html-to-image'],
   },
   webpack: (config, { isServer }) => {
     if (isServer) {
-      config.externals.push('puppeteer-core');
+      config.externals = [...config.externals, 'chrome-aws-lambda'];
     }
+
+    config.module.rules.push({
+      test: /\.map$/,
+      use: "ignore-loader"
+    });
+
     return config;
   },
 }
