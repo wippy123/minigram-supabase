@@ -43,6 +43,7 @@
     "lucide-react": "^0.436.0",
     "next": "latest",
     "next-themes": "^0.3.0",
+    "node-html-parser": "^6.1.13",
     "node-html-to-image": "^5.0.0",
     "npm": "^10.9.0",
     "pica": "^9.0.1",
