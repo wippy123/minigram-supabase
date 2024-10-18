@@ -12,7 +12,13 @@ import EditMinigraphModal from "@/components/EditMinigraphModal";
 import DeleteMinigraphModal from "@/components/DeleteMinigraphModal";
 import { Minigraph } from "@/types/minigraph";
 import { toast } from "react-hot-toast";
-import { Facebook, Instagram, Twitter } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Twitter,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 export default function MinigraphsContent() {
   const [minigraphs, setMinigraphs] = useState<Minigraph[]>([]);
@@ -23,6 +29,8 @@ export default function MinigraphsContent() {
   const [selectedMinigraph, setSelectedMinigraph] = useState<Minigraph | null>(
     null
   );
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const supabase = createClientComponentClient();
 
   const fetchMinigraphs = async () => {
@@ -82,6 +90,19 @@ export default function MinigraphsContent() {
     }
   };
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentMinigraphs = minigraphs.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(minigraphs.length / itemsPerPage);
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
@@ -99,16 +120,37 @@ export default function MinigraphsContent() {
       {loading ? (
         <MinigraphsSkeleton />
       ) : minigraphs.length > 0 ? (
-        <div className="space-y-4">
-          {minigraphs.map((minigraph) => (
-            <MinigraphItem
-              key={minigraph.id}
-              minigraph={minigraph}
-              onEditClick={handleEditClick}
-              onDeleteClick={handleDeleteClick}
-            />
-          ))}
-        </div>
+        <>
+          <div className="space-y-4">
+            {currentMinigraphs.map((minigraph) => (
+              <MinigraphItem
+                key={minigraph.id}
+                minigraph={minigraph}
+                onEditClick={handleEditClick}
+                onDeleteClick={handleDeleteClick}
+              />
+            ))}
+          </div>
+          <div className="flex justify-between items-center mt-4">
+            <Button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              variant="outline"
+            >
+              <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+            </Button>
+            <span>
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              variant="outline"
+            >
+              Next <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </>
       ) : (
         <p className="text-center mt-8">
           No minigraphs found. Create your first one!
