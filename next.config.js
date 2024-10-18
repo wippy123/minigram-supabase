@@ -24,7 +24,7 @@ const nextConfig = {
   },
   experimental: {
     esmExternals: false,
-    serverComponentsExternalPackages: ['puppeteer-core'],
+    serverComponentsExternalPackages: ['playwright-core'],
   },
 }
 
