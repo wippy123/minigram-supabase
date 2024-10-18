@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { chromium } from 'playwright-core';
+import path from 'path';
 
 export async function POST(req: Request) {
   try {
@@ -9,8 +10,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
 
+    const chromiumExecutablePath = process.env.VERCEL
+      ? path.join(
+          '/vercel',
+          '.cache',
+          'ms-playwright',
+          'chromium-1140',
+          'chrome-linux',
+          'chrome'
+        )
+      : process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+
     const browser = await chromium.launch({
-      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
+      executablePath: chromiumExecutablePath,
     });
     const page = await browser.newPage();
     await page.goto(url);
