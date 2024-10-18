@@ -62,8 +62,8 @@ export async function POST(request: Request) {
   let page: Page | null = null;
   
   // Update this line to reference the local file
-  // const chromiumPath = './public/chromium/chromium-v121.0.0-pack.tar';
-  const chromiumPath = 'https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar';
+  const chromiumPath = './public/chromium/chromium-v121.0.0-pack.tar';
+  // const chromiumPath = 'https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar';
 
   try {
     const ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36';
