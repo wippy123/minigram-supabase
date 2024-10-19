@@ -41,7 +41,7 @@ export default function MinigraphsContent() {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching minigraphs:", error);
+      console.error("Error fetching minigrams:", error);
     } else {
       setMinigraphs(data || []);
     }
@@ -80,10 +80,10 @@ export default function MinigraphsContent() {
         .eq("id", selectedMinigraph.id);
 
       if (error) {
-        console.error("Error deleting minigraph:", error);
-        toast.error("Failed to delete minigraph");
+        console.error("Error deleting minigram:", error);
+        toast.error("Failed to delete minigram");
       } else {
-        toast.success("Minigraph deleted successfully");
+        toast.success("Minigram deleted successfully");
         fetchMinigraphs();
       }
       setIsDeleteModalOpen(false);
@@ -106,10 +106,10 @@ export default function MinigraphsContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Your Minigraphs</h1>
+        <h1 className="text-3xl font-bold">Your Minigrams</h1>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>Create New Minigraph</Button>
+            <Button>Create New Minigram</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[800px] sm:max-h-[80vh] overflow-y-auto">
             <CreateMinigraphModal onSuccess={handleCreateSuccess} />
@@ -153,7 +153,7 @@ export default function MinigraphsContent() {
         </>
       ) : (
         <p className="text-center mt-8">
-          No minigraphs found. Create your first one!
+          No minigrams found. Create your first one!
         </p>
       )}
 

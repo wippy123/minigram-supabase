@@ -114,7 +114,7 @@ export function MinigraphSearch() {
           .limit(5);
 
         if (error) {
-          console.error("Error searching minigraphs:", error);
+          console.error("Error searching minigrams:", error);
         } else {
           setResults((data as unknown as Minigraph[]) || []);
         }
@@ -140,7 +140,7 @@ export function MinigraphSearch() {
         <Search className="w-5 h-5 text-gray-400 ml-3" />
         <input
           type="text"
-          placeholder="Search minigraphs..."
+          placeholder="Search minigrams..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full py-2 px-4 rounded-full focus:outline-none bg-transparent dark:text-white text-sm"

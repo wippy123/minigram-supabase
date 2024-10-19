@@ -33,17 +33,17 @@ async function getSelectorsToRemove(html: string): Promise<string[]> {
       },
       {
         "role": "user",
-        "content": `I need to analyze the following HTML content to identify any overlay,dialog elements or any element that might block interaction with the main content until clicked, such as marketing overlays, dialogs or cookie messages.
-         Please return a JSON response identifying any element selector that meets the above criteria. 
-         If you identify an element that might be a dialog, provide any element selector as well that exist within the dialog so that it can be hidden.
-         Remember to use the proper CSS selectors to target the elements.
+        "content": `Analyze the HTML fragment.  Identify selectors for elements that might be dialogs, overlays or alertdialogs.
+          Any elements that mention cookies, cookie policy, privacy policy, dialogs or modals that are open.
+          If their ids or classnames mentions cookies, cookie policy, privacy policy, dialogs or modals return their selectors.
+          If their content mentions cookies, cookie policy, privacy policy, dialogs or modals return their selectors.
          Use the role attribute to help identify dialog elements. ex. role="dialog" or role="alertdialog".
-         Provide a json response that has the key 'selectors' and an array of selector strings to hide.
+         Provide a json response that has the key 'selectors' and an array of selector strings to hide from the user so they have a better view of the page.
          If possible, identify any elements as well that might be chat dialogs or chat widgets so that they can be hidden.
          Do not identify any elements that if hidden, would remove content from the page.
          Do not identify images, elements with aria-labels or have roles that are not dialog, overlay or alertdialog.
          Do not identify elements such as images, videos, menus, buttons.
-         Keep the selector list to just the selector id or classname.  Do not make it a complex object.
+          Keep the selector list to just the selector id or classname.  Do not make it a complex object.
          Be sure to make it easily parseable so no code markers please. \n\nHere is the HTML content for analysis:\n\n ${html}`
       }
     ]
@@ -94,12 +94,12 @@ async function splitAndAnalyzeHTML(html: string, headers: Headers): Promise<stri
         },
         {
           "role": "user",
-          "content": `I need to analyze the following HTML fragment to identify any overlay,dialog elements or any element that might block interaction with the main content until clicked, such as marketing overlays, dialogs or cookie messages.
-         Please return a JSON response identifying any element selector that meets the above criteria. 
-         If you identify an element that might be a dialog, provide any element selector as well that exist within the dialog so that it can be hidden.
-         Remember to use the proper CSS selectors to target the elements.
+          "content": `Analyze the HTML fragment.  Identify selectors for elements that might be dialogs, overlays or alertdialogs.
+           Any elements that mention cookies, cookie policy, privacy policy, dialogs or modals that are open.
+          If their ids or classnames mentions cookies, cookie policy, privacy policy, dialogs or modals return their selectors.
+          If their content mentions cookies, cookie policy, privacy policy, dialogs or modals return their selectors.
          Use the role attribute to help identify dialog elements. ex. role="dialog" or role="alertdialog".
-         Provide a json response that has the key 'selectors' and an array of selector strings to hide.
+         Provide a json response that has the key 'selectors' and an array of selector strings to hide from the user so they have a better view of the page.
          If possible, identify any elements as well that might be chat dialogs or chat widgets so that they can be hidden.
          Do not identify any elements that if hidden, would remove content from the page.
          Do not identify images, elements with aria-labels or have roles that are not dialog, overlay or alertdialog.

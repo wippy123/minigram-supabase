@@ -96,12 +96,12 @@ export default function EditMinigraphModal({
 
       if (error) throw error;
 
-      toast.success("Minigraph updated successfully!");
+      toast.success("Minigram updated successfully!");
       onSuccess();
       onClose();
     } catch (error) {
-      console.error("Error updating minigraph:", error);
-      toast.error("Failed to update minigraph");
+      console.error("Error updating minigram:", error);
+      toast.error("Failed to update minigram");
     } finally {
       setIsSubmitting(false);
     }
@@ -204,7 +204,7 @@ export default function EditMinigraphModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Edit Minigraph</DialogTitle>
+          <DialogTitle>Edit Minigram</DialogTitle>
         </DialogHeader>
         <form className="space-y-4">
           <FormField
@@ -361,7 +361,7 @@ export default function EditMinigraphModal({
           </div>
 
           <Button type="submit" disabled={isSubmitting} onClick={onSubmit}>
-            {isSubmitting ? "Updating..." : "Update Minigraph"}
+            {isSubmitting ? "Updating..." : "Update Minigram"}
           </Button>
         </form>
       </DialogContent>

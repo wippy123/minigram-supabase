@@ -62,7 +62,7 @@ export default function MinigraphDetail() {
   useEffect(() => {
     async function fetchMinigraph() {
       if (typeof params.id !== "string") {
-        setError("Invalid minigraph ID");
+        setError("Invalid minigram ID");
         setIsLoading(false);
         return;
       }
@@ -74,8 +74,8 @@ export default function MinigraphDetail() {
         .single();
 
       if (error) {
-        setError("Failed to fetch minigraph");
-        console.error("Error fetching minigraph:", error);
+        setError("Failed to fetch minigram");
+        console.error("Error fetching minigram:", error);
       } else {
         setMinigraph(data);
       }
@@ -92,7 +92,7 @@ export default function MinigraphDetail() {
   if (error || !minigraph) {
     return (
       <div className="text-center mt-8 text-red-500">
-        {error || "Minigraph not found"}
+        {error || "Minigram not found"}
       </div>
     );
   }
@@ -128,7 +128,7 @@ export default function MinigraphDetail() {
           </h2>
           <img
             src={minigraph.screenshot_url}
-            alt="Minigraph Screenshot"
+            alt="Minigram Screenshot"
             className="max-w-full h-auto rounded-lg shadow-sm"
           />
         </div>
@@ -137,7 +137,7 @@ export default function MinigraphDetail() {
         href="/minigraphs"
         className="inline-block mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
       >
-        Back to Minigraphs
+        Back to Minigrams
       </Link>
     </div>
   );

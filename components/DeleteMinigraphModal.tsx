@@ -25,9 +25,9 @@ export default function DeleteMinigraphModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Minigraph</DialogTitle>
+          <DialogTitle>Delete Minigram</DialogTitle>
         </DialogHeader>
-        <p>Are you sure you want to delete the minigraph "{minigraph.name}"?</p>
+        <p>Are you sure you want to delete the minigram "{minigraph.name}"?</p>
         <p>This action cannot be undone.</p>
         <DialogFooter>
           <Button onClick={onClose} variant="outline">

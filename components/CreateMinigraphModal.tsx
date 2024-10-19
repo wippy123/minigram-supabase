@@ -21,8 +21,8 @@ export default function CreateMinigraphModal({
     try {
       onSuccess();
     } catch (error) {
-      console.error("Error creating minigraph:", error);
-      setError("Failed to create minigraph. Please try again.");
+      console.error("Error creating minigram:", error);
+      setError("Failed to create minigram. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -31,7 +31,7 @@ export default function CreateMinigraphModal({
   return (
     <div>
       <DialogHeader>
-        <DialogTitle>Create New Minigraph</DialogTitle>
+        <DialogTitle>Create New Minigram</DialogTitle>
       </DialogHeader>
       <div className="mt-4">
         <MinigraphForm onSubmit={handleSubmit} />
