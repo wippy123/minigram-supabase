@@ -119,13 +119,13 @@ export default function MinigraphForm({
 
       if (error) throw error;
 
-      toast.success("Minigraph created successfully!");
+      toast.success("Minigram created successfully!");
       form.reset();
       setScreenshotUrl(null);
       onSubmit();
     } catch (error) {
-      console.error("Error saving minigraph:", error);
-      toast.error("Failed to create minigraph");
+      console.error("Error saving minigram:", error);
+      toast.error("Failed to create minigram");
     } finally {
       setIsSubmitting(false);
     }

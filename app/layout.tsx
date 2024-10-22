@@ -83,6 +83,13 @@ export default function RootLayout({
                     </li>
                     <li>
                       <NavLink
+                        href="/create-minigram-app"
+                        title="Create"
+                        icon={Video}
+                      />
+                    </li>
+                    <li>
+                      <NavLink
                         href="/analytics"
                         title="Analytics"
                         icon={BarChart2}
