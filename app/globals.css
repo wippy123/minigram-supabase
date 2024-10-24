@@ -79,3 +79,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+.ProseMirror {
+  height: 100vh;
+  > * + * {
+    margin-top: 0.75em;
+  }
+  
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  img.resize-handle {
+    display: inline-block;
+    resize: both;
+    overflow: auto;
+  }
+}

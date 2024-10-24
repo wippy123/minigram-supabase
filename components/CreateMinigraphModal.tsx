@@ -3,7 +3,6 @@
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import MinigraphForm from "@/app/minigraph/minigraph-form";
 import { useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 interface CreateMinigraphModalProps {
   onSuccess: () => void;
