@@ -10,6 +10,10 @@ import TextStyle from "@tiptap/extension-text-style";
 import { FontFamily } from "@tiptap/extension-font-family";
 import Highlight from "@tiptap/extension-highlight";
 import { BackgroundColor } from "./extensions/BackgroundColor";
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,6 +39,7 @@ import {
   Image,
   Code,
   Highlighter,
+  Table as TableIcon,
 } from "lucide-react";
 
 export const TiptapEditor = ({
@@ -51,6 +56,7 @@ export const TiptapEditor = ({
   const [imageHeight, setImageHeight] = useState("auto");
   const [htmlContent, setHtmlContent] = useState("");
   const [highlightColor, setHighlightColor] = useState("#ffff00"); // Default yellow
+  const [tableBordersEnabled, setTableBordersEnabled] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -79,9 +85,38 @@ export const TiptapEditor = ({
           class: "bg-color",
         },
       }),
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: {
+          class: tableBordersEnabled ? "table-borders" : "",
+        },
+      }),
+      TableRow.extend({
+        renderHTML({ HTMLAttributes }) {
+          const attrs = { ...HTMLAttributes };
+          if (tableBordersEnabled) {
+            attrs.class = (attrs.class || "") + " table-row-border";
+          }
+          return ["tr", attrs, 0];
+        },
+      }),
+      TableHeader,
+      TableCell,
     ],
     content: content,
   });
+
+  useEffect(() => {
+    if (editor) {
+      editor
+        .chain()
+        .focus()
+        .updateAttributes("table", {
+          class: tableBordersEnabled ? "table-borders" : "",
+        })
+        .run();
+    }
+  }, [tableBordersEnabled, editor]);
 
   useEffect(() => {
     if (!editor) return;
@@ -127,6 +162,55 @@ export const TiptapEditor = ({
   const applyHighlight = () => {
     if (editor) {
       editor.chain().focus().toggleHighlight({ color: highlightColor }).run();
+    }
+  };
+
+  const insertTable = () => {
+    editor
+      ?.chain()
+      .focus()
+      .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+      .run();
+  };
+
+  const addColumnBefore = () => {
+    editor?.chain().focus().addColumnBefore().run();
+  };
+
+  const addColumnAfter = () => {
+    editor?.chain().focus().addColumnAfter().run();
+  };
+
+  const deleteColumn = () => {
+    editor?.chain().focus().deleteColumn().run();
+  };
+
+  const addRowBefore = () => {
+    editor?.chain().focus().addRowBefore().run();
+  };
+
+  const addRowAfter = () => {
+    editor?.chain().focus().addRowAfter().run();
+  };
+
+  const deleteRow = () => {
+    editor?.chain().focus().deleteRow().run();
+  };
+
+  const deleteTable = () => {
+    editor?.chain().focus().deleteTable().run();
+  };
+
+  const toggleTableBorders = () => {
+    setTableBordersEnabled(!tableBordersEnabled);
+    if (editor) {
+      editor
+        .chain()
+        .focus()
+        .updateAttributes("table", {
+          class: !tableBordersEnabled ? "table-borders" : "",
+        })
+        .run();
     }
   };
 
@@ -249,7 +333,7 @@ export const TiptapEditor = ({
             editor
               .chain()
               .focus()
-              .setBackgroundColor((event.target as HTMLInputElement).value)
+              .setHighlight({ color: (event.target as HTMLInputElement).value })
               .run()
           }
           value={editor.getAttributes("textStyle").backgroundColor || "#ffffff"}
@@ -332,6 +416,48 @@ export const TiptapEditor = ({
             <Button onClick={insertHtml}>Insert HTML</Button>
           </DialogContent>
         </Dialog>
+
+        <Button
+          size="icon"
+          variant="outline"
+          onClick={insertTable}
+          title="Insert Table"
+        >
+          <TableIcon className="h-4 w-4" />
+        </Button>
+
+        {editor.isActive("table") && (
+          <>
+            <Button
+              size="sm"
+              variant={tableBordersEnabled ? "secondary" : "outline"}
+              onClick={toggleTableBorders}
+            >
+              {tableBordersEnabled ? "Disable Borders" : "Enable Borders"}
+            </Button>
+            <Button size="sm" variant="outline" onClick={addColumnBefore}>
+              Add Column Before
+            </Button>
+            <Button size="sm" variant="outline" onClick={addColumnAfter}>
+              Add Column After
+            </Button>
+            <Button size="sm" variant="outline" onClick={deleteColumn}>
+              Delete Column
+            </Button>
+            <Button size="sm" variant="outline" onClick={addRowBefore}>
+              Add Row Before
+            </Button>
+            <Button size="sm" variant="outline" onClick={addRowAfter}>
+              Add Row After
+            </Button>
+            <Button size="sm" variant="outline" onClick={deleteRow}>
+              Delete Row
+            </Button>
+            <Button size="sm" variant="outline" onClick={deleteTable}>
+              Delete Table
+            </Button>
+          </>
+        )}
       </div>
       <EditorContent
         editor={editor}

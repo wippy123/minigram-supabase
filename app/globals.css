@@ -82,8 +82,14 @@
 
 .ProseMirror {
   height: 100vh;
+  padding: 1rem;
   > * + * {
     margin-top: 0.75em;
+  }
+
+  .tableWrapper {
+    margin: 0 auto;
+    border: 1px solid #000;
   }
   
   img {
@@ -96,4 +102,18 @@
     resize: both;
     overflow: auto;
   }
+}
+
+.table-borders {
+  border-collapse: collapse;
+  border: 1px solid #ccc;
+}
+
+.table-borders td,
+.table-borders th {
+  border: 1px solid #ccc;
+}
+
+.table-row-border {
+  border-bottom: 1px solid #ccc;
 }
