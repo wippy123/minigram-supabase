@@ -12,6 +12,7 @@ import Highlight from "@tiptap/extension-highlight";
 import { BackgroundColor } from "./extensions/BackgroundColor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,8 @@ import {
   AlignCenter,
   AlignRight,
   Image,
+  Code,
+  Highlighter,
 } from "lucide-react";
 
 export const TiptapEditor = ({
@@ -42,13 +45,19 @@ export const TiptapEditor = ({
   onUpdate: (content: string) => void;
 }) => {
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [isHtmlDialogOpen, setIsHtmlDialogOpen] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
   const [imageWidth, setImageWidth] = useState("100%");
   const [imageHeight, setImageHeight] = useState("auto");
+  const [htmlContent, setHtmlContent] = useState("");
+  const [highlightColor, setHighlightColor] = useState("#ffff00"); // Default yellow
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        bulletList: { keepMarks: true },
+        orderedList: { keepMarks: true },
+      }),
       Underline,
       Link,
       TiptapImage.configure({
@@ -64,7 +73,7 @@ export const TiptapEditor = ({
       Color,
       TextStyle,
       FontFamily,
-      Highlight,
+      Highlight.configure({ multicolor: true }),
       BackgroundColor.configure({
         HTMLAttributes: {
           class: "bg-color",
@@ -104,6 +113,20 @@ export const TiptapEditor = ({
       setImageWidth("100%");
       setImageHeight("auto");
       setIsImageDialogOpen(false);
+    }
+  };
+
+  const insertHtml = () => {
+    if (editor && htmlContent) {
+      editor.commands.insertContent(htmlContent);
+      setHtmlContent("");
+      setIsHtmlDialogOpen(false);
+    }
+  };
+
+  const applyHighlight = () => {
+    if (editor) {
+      editor.chain().focus().toggleHighlight({ color: highlightColor }).run();
     }
   };
 
@@ -279,6 +302,34 @@ export const TiptapEditor = ({
               </div>
             </div>
             <Button onClick={addImage}>Insert Image</Button>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isHtmlDialogOpen} onOpenChange={setIsHtmlDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="icon" variant="outline">
+              <Code className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Insert HTML</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="html-content" className="text-right">
+                  HTML Content
+                </Label>
+                <Textarea
+                  id="html-content"
+                  value={htmlContent}
+                  onChange={(e) => setHtmlContent(e.target.value)}
+                  className="col-span-3"
+                  rows={5}
+                />
+              </div>
+            </div>
+            <Button onClick={insertHtml}>Insert HTML</Button>
           </DialogContent>
         </Dialog>
       </div>

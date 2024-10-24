@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,39 @@ export function BrandPageComponent() {
   const [font, setFont] = useState("");
   const [header, setHeader] = useState("");
   const [footer, setFooter] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBrandSettings = async () => {
+      const supabase = createClientComponentClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data, error } = await supabase
+          .from("brand_settings")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching brand settings:", error);
+          toast.error("Failed to load brand settings.");
+        } else if (data) {
+          setLogoPreview(data.logo_url);
+          setPalette(data.palette || "zinc");
+          setFont(data.font || "");
+          setHeader(data.header || "");
+          setFooter(data.footer || "");
+        }
+      }
+      setIsLoading(false);
+    };
+
+    fetchBrandSettings();
+  }, []);
+
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -79,7 +112,7 @@ export function BrandPageComponent() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      let logo_url = null;
+      let logo_url = logoPreview;
       if (logo) {
         const supabase = createClientComponentClient();
         const { data, error } = await supabase.storage
@@ -109,6 +142,10 @@ export function BrandPageComponent() {
       toast.error("Failed to save brand settings. Please try again.");
     }
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto p-4">
