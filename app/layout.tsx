@@ -11,7 +11,14 @@ import { Toaster } from "react-hot-toast";
 import { PresenceProvider } from "./components/PresenceContext";
 import "@/styles/stream-chat-custom-theme.css";
 import { useNotifications } from "./hooks/useNotifications";
-import { LayoutDashboard, Video, BarChart2, Settings } from "lucide-react";
+import {
+  LayoutDashboard,
+  Video,
+  BarChart2,
+  Settings,
+  PlusCircle,
+  Palette,
+} from "lucide-react";
 import Image from "next/image";
 import { MinigraphSearch } from "@/components/MinigraphSearch";
 
@@ -85,7 +92,7 @@ export default function RootLayout({
                       <NavLink
                         href="/create-minigram-app"
                         title="Create"
-                        icon={Video}
+                        icon={PlusCircle}
                       />
                     </li>
                     <li>
@@ -93,6 +100,13 @@ export default function RootLayout({
                         href="/analytics"
                         title="Analytics"
                         icon={BarChart2}
+                      />
+                    </li>
+                    <li>
+                      <NavLink
+                        href="/branding"
+                        title="Branding"
+                        icon={Palette}
                       />
                     </li>
                   </ul>

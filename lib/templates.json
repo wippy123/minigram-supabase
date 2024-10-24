@@ -1,5 +1,4 @@
 {
-
   "nextjs-developer": {
     "name": "Next.js developer",
     "lib": ["nextjs@14.2.5", "typescript", "@types/node", "@types/react", "@types/react-dom", "postcss", "tailwindcss", "shadcn"],

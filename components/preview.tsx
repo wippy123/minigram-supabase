@@ -40,6 +40,7 @@ export function Preview({
 
   const isLinkAvailable = result?.template !== "code-interpreter-v1";
 
+  console.log("result", result);
   return (
     <div className="absolute md:relative top-0 left-0 shadow-2xl md:rounded-tl-3xl md:rounded-bl-3xl md:border-l md:border-y bg-popover h-full w-full overflow-auto">
       <Tabs

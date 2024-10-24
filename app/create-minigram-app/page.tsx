@@ -30,7 +30,7 @@ export default function Home() {
   const [languageModel, setLanguageModel] = useLocalStorage<LLMModelConfig>(
     "languageModel",
     {
-      model: "claude-3-5-sonnet-20240620",
+      model: "claude-3-5-sonnet-latest",
     }
   );
 
@@ -174,6 +174,10 @@ export default function Home() {
     setChatInput("");
     setFiles([]);
     setCurrentTab("code");
+    setTimeout(() => {
+      // setCurrentTab("fragment");
+      setCurrentTab("code");
+    }, 1500);
 
     posthog.capture("chat_submit", {
       template: selectedTemplate,
