@@ -6,8 +6,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import CreateMinigraphModal from "@/components/CreateMinigraphModal";
 import EditMinigraphModal from "@/components/EditMinigraphModal";
 import DeleteMinigraphModal from "@/components/DeleteMinigraphModal";
 import { Minigraph } from "@/types/minigraph";
