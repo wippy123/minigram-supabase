@@ -4,7 +4,7 @@ import { AuthDialog } from "@/components/auth-dialog";
 import { Chat } from "@/components/chat";
 import { ChatInput } from "@/components/chat-input";
 import { ChatPicker } from "@/components/chat-picker";
-import { ChatSettings } from "@/components/chat-settings";
+// import { ChatSettings } from "@/components/chat-settings";
 import { NavBar } from "@/components/navbar";
 import { Preview } from "@/components/preview";
 import { AuthViewType, useAuth } from "@/lib/auth";
@@ -260,7 +260,7 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen max-h-screen">
+    <main className="flex min-h-[90vh] max-h-[90vh]">
       {supabase && (
         <AuthDialog
           open={isAuthDialogOpen}
@@ -271,7 +271,9 @@ export default function Home() {
       )}
       <div className="grid w-full md:grid-cols-2">
         <div
-          className={`flex flex-col w-full max-h-full max-w-[800px] mx-auto px-4 overflow-auto ${fragment ? "col-span-1" : "col-span-2"}`}
+          className={`flex flex-col w-full max-h-full max-w-[800px] mx-auto px-4 overflow-auto ${
+            fragment ? "col-span-1" : "col-span-2"
+          }`}
         >
           <NavBar
             session={session}
@@ -283,11 +285,13 @@ export default function Home() {
             canUndo={messages.length > 1 && !isLoading}
             onUndo={handleUndo}
           />
-          <Chat
-            messages={messages}
-            isLoading={isLoading}
-            setCurrentPreview={setCurrentPreview}
-          />
+          <div className="pt-[10px]">
+            <Chat
+              messages={messages}
+              isLoading={isLoading}
+              setCurrentPreview={setCurrentPreview}
+            />
+          </div>
           <ChatInput
             retry={retry}
             isErrored={error !== undefined}
@@ -301,20 +305,21 @@ export default function Home() {
             files={files}
             handleFileChange={handleFileChange}
           >
-            <ChatPicker
+            {/* add back if want options for chat */}
+            {/* <ChatPicker
               templates={templates}
               selectedTemplate={selectedTemplate}
               onSelectedTemplateChange={setSelectedTemplate}
               models={modelsList.models}
               languageModel={languageModel}
               onLanguageModelChange={handleLanguageModelChange}
-            />
-            <ChatSettings
+            /> */}
+            {/* <ChatSettings
               languageModel={languageModel}
               onLanguageModelChange={handleLanguageModelChange}
               apiKeyConfigurable={!process.env.NEXT_PUBLIC_NO_API_KEY_INPUT}
               baseURLConfigurable={!process.env.NEXT_PUBLIC_NO_BASE_URL_INPUT}
-            />
+            /> */}
           </ChatInput>
         </div>
         <Preview

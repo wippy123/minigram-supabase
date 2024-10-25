@@ -56,16 +56,12 @@ export function DeployDialog({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="default">
-          <Logo style="e2b" width={16} height={16} className="mr-2" />
-          Deploy
-        </Button>
+        <Button variant="default">Save Minigram</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="p-4 w-80 flex flex-col gap-2">
-        <div className="text-sm font-semibold">Deploy</div>
+        <div className="text-sm font-semibold">Save</div>
         <div className="text-sm text-muted-foreground">
-          Deploying the fragment will make it publicly accessible to others via
-          link.
+          Saving the minigram will make it available to you and your audience.
         </div>
         <form className="flex flex-col gap-2" onSubmit={publishURL}>
           {publishedURL ? (

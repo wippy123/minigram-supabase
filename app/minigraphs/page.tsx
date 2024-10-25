@@ -19,11 +19,11 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function MinigraphsContent() {
   const [minigraphs, setMinigraphs] = useState<Minigraph[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedMinigraph, setSelectedMinigraph] = useState<Minigraph | null>(
@@ -51,11 +51,6 @@ export default function MinigraphsContent() {
   useEffect(() => {
     fetchMinigraphs();
   }, [supabase]);
-
-  const handleCreateSuccess = () => {
-    setIsCreateDialogOpen(false);
-    fetchMinigraphs();
-  };
 
   const handleEditClick = (minigraph: Minigraph) => {
     setSelectedMinigraph(minigraph);
@@ -107,14 +102,9 @@ export default function MinigraphsContent() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Your Minigrams</h1>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>Create New Minigram</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[800px] sm:max-h-[80vh] overflow-y-auto">
-            <CreateMinigraphModal onSuccess={handleCreateSuccess} />
-          </DialogContent>
-        </Dialog>
+        <Link href="/create-minigram-app">
+          <Button>Create New Minigram</Button>
+        </Link>
       </div>
 
       {loading ? (

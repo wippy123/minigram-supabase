@@ -42,7 +42,7 @@ export function Preview({
 
   console.log("result", result);
   return (
-    <div className="absolute md:relative top-0 left-0 shadow-2xl md:rounded-tl-3xl md:rounded-bl-3xl md:border-l md:border-y bg-popover h-full w-full overflow-auto">
+    <div className="absolute md:relative top-0 left-0 shadow-2xl md:rounded-3xl md:border bg-popover h-full w-full overflow-auto">
       <Tabs
         value={selectedTab}
         onValueChange={(value) =>
@@ -50,7 +50,7 @@ export function Preview({
         }
         className="h-full flex flex-col items-start justify-start"
       >
-        <div className="w-full p-2 grid grid-cols-3 items-center border-b">
+        <div className="w-full p-2 grid grid-cols-3 items-center border-b px-4">
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
