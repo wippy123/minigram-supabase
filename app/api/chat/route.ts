@@ -5,7 +5,9 @@ import { toPrompt } from '@/lib/prompt'
 import ratelimit from '@/lib/ratelimit'
 import { fragmentSchema as schema } from '@/lib/schema'
 import { Templates } from '@/lib/templates'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { streamObject, LanguageModel, CoreMessage } from 'ai'
+import { cookies } from 'next/headers';
 
 export const maxDuration = 60
 
@@ -30,8 +32,9 @@ export async function POST(req: Request) {
     model: LLMModel
     config: LLMModelConfig
   } = await req.json()
+  const supabase = createServerComponentClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
 
-  console.log('template', template)
 
   const limit = !config.apiKey
     ? await ratelimit(
@@ -40,6 +43,36 @@ export async function POST(req: Request) {
         ratelimitWindow,
       )
     : false
+
+       const { data, error } = await supabase?.from('brand_settings').select('header, footer, font, palette')
+        .eq('user_id', user?.id)
+        .single()
+
+
+  if (data?.header) {
+    messages.push({
+      role: "user",
+      content: [{ type: "text", text: `be sure to add the following code as the header to any fragment you generate: ${data?.header}` }],
+    });
+  }
+  if (data?.footer) {
+    messages.push({
+      role: "user",
+      content: [{ type: "text", text: `be sure to add the following code as the footer to any fragment you generate: ${data?.footer}` }],
+    });
+  }
+  if (data?.font) {
+    messages.push({
+      role: "user",
+      content: [{ type: "text", text: `be sure to following font for any fragment you generate: ${data?.font}. Ensure you use the correct font weights and sizes and add an @font-face declaration to the head of the document` }],
+    });
+  }
+  if (data?.palette) {
+    messages.push({
+      role: "user",
+      content: [{ type: "text", text: `be sure to use the following shadcn palette for any fragment you generate: ${data?.palette} add any additional css you need to make sure the colors are correct` }],
+    });
+  }
 
   if (limit) {
     return new Response('You have reached your request limit for the day.', {

@@ -149,7 +149,12 @@ export default function Home() {
       stop();
     }
 
-    const content: Message["content"] = [{ type: "text", text: chatInput }];
+    const content: Message["content"] = [
+      {
+        type: "text",
+        text: chatInput,
+      },
+    ];
     const images = await toMessageImage(files);
 
     if (images.length > 0) {
