@@ -37,6 +37,7 @@ export function DeployDialog({
 
   useEffect(() => {
     setPublishedURL(null);
+    setDuration("1h");
   }, [url]);
 
   async function publishURL(e: React.FormEvent<HTMLFormElement>) {
@@ -64,7 +65,7 @@ export function DeployDialog({
           Saving the minigram will make it available to you and your audience.
         </div>
         <form className="flex flex-col gap-2" onSubmit={publishURL}>
-          {publishedURL ? (
+          {/* {publishedURL ? (
             <div className="flex items-center gap-2">
               <Input value={publishedURL} readOnly />
               <CopyButton content={publishedURL} />
@@ -85,13 +86,13 @@ export function DeployDialog({
                 </SelectGroup>
               </SelectContent>
             </Select>
-          )}
+          )} */}
           <Button
             type="submit"
             variant="default"
             disabled={publishedURL !== null}
           >
-            {publishedURL ? "Deployed" : "Accept and deploy"}
+            {publishedURL ? "Saved" : "Save"}
           </Button>
         </form>
       </DropdownMenuContent>
