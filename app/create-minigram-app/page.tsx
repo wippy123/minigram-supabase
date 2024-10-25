@@ -1,16 +1,15 @@
 "use client";
 
-import { AuthDialog } from "@/components/auth-dialog";
 import { Chat } from "@/components/chat";
 import { ChatInput } from "@/components/chat-input";
 import { NavBar } from "@/components/navbar";
 import { Preview } from "@/components/preview";
 import { AuthViewType, useAuth } from "@/lib/auth";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Message, toAISDKMessages, toMessageImage } from "@/lib/messages";
 import { LLMModelConfig } from "@/lib/models";
 import modelsList from "@/lib/models.json";
 import { FragmentSchema, fragmentSchema as schema } from "@/lib/schema";
-import { supabase } from "@/lib/supabase";
 import templates, { TemplateId } from "@/lib/templates";
 import { ExecutionResult } from "@/lib/types";
 import { DeepPartial } from "ai";
@@ -18,6 +17,8 @@ import { experimental_useObject as useObject } from "ai/react";
 import { usePostHog } from "posthog-js/react";
 import { useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
+import { CreateMinigraphModal } from "@/components/CreateMinigraphModal";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [chatInput, setChatInput] = useLocalStorage("chat", "");
@@ -178,7 +179,6 @@ export default function Home() {
     setFiles([]);
     setCurrentTab("code");
     setTimeout(() => {
-      // setCurrentTab("fragment");
       setCurrentTab("code");
     }, 1500);
 
@@ -211,28 +211,6 @@ export default function Home() {
     setFiles(files);
   }
 
-  function logout() {
-    supabase
-      ? supabase.auth.signOut()
-      : console.warn("Supabase is not initialized");
-  }
-
-  function handleLanguageModelChange(e: LLMModelConfig) {
-    setLanguageModel({ ...languageModel, ...e });
-  }
-
-  function handleSocialClick(target: "github" | "x" | "discord") {
-    if (target === "github") {
-      window.open("https://github.com/e2b-dev/fragments", "_blank");
-    } else if (target === "x") {
-      window.open("https://x.com/e2b_dev", "_blank");
-    } else if (target === "discord") {
-      window.open("https://discord.gg/U7KEcGErtQ", "_blank");
-    }
-
-    posthog.capture(`${target}_click`);
-  }
-
   function handleClearChat() {
     stop();
     setChatInput("");
@@ -257,16 +235,19 @@ export default function Home() {
     setCurrentPreview({ fragment: undefined, result: undefined });
   }
 
+  const [publishedURL, setPublishedURL] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handlePublish = (url: string) => {
+    console.log("handlePublish", url);
+    setPublishedURL(url);
+    setIsCreateModalOpen(true);
+  };
+
+  const router = useRouter();
+
   return (
     <main className="flex min-h-[90vh] max-h-[90vh]">
-      {supabase && (
-        <AuthDialog
-          open={isAuthDialogOpen}
-          setOpen={setAuthDialog}
-          view={authView}
-          supabase={supabase}
-        />
-      )}
       <div className="grid w-full md:grid-cols-2">
         <div
           className={`flex flex-col w-full max-h-full max-w-[800px] mx-auto px-4 overflow-auto ${
@@ -300,21 +281,6 @@ export default function Home() {
             handleFileChange={handleFileChange}
           >
             <></>
-            {/* add back if want options for chat */}
-            {/* <ChatPicker
-              templates={templates}
-              selectedTemplate={selectedTemplate}
-              onSelectedTemplateChange={setSelectedTemplate}
-              models={modelsList.models}
-              languageModel={languageModel}
-              onLanguageModelChange={handleLanguageModelChange}
-            /> */}
-            {/* <ChatSettings
-              languageModel={languageModel}
-              onLanguageModelChange={handleLanguageModelChange}
-              apiKeyConfigurable={!process.env.NEXT_PUBLIC_NO_API_KEY_INPUT}
-              baseURLConfigurable={!process.env.NEXT_PUBLIC_NO_BASE_URL_INPUT}
-            /> */}
           </ChatInput>
         </div>
         <Preview
@@ -326,8 +292,20 @@ export default function Home() {
           fragment={fragment}
           result={result as ExecutionResult}
           onClose={() => setFragment(undefined)}
+          onPublish={handlePublish}
         />
       </div>
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="sm:max-w-[800px] sm:max-h-[80vh] overflow-y-auto">
+          <CreateMinigraphModal
+            screenshotUrl={publishedURL || ""}
+            onClose={() => {
+              setIsCreateModalOpen(false);
+              router.push("/minigraphs");
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

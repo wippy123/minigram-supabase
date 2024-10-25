@@ -5,20 +5,23 @@ import MinigraphForm from "@/app/minigraph/minigraph-form";
 import { useState } from "react";
 
 interface CreateMinigraphModalProps {
-  onSuccess: () => void;
+  onClose: () => void;
+  screenshotUrl: string;
 }
 
-export default function CreateMinigraphModal({
-  onSuccess,
+export function CreateMinigraphModal({
+  onClose,
+  screenshotUrl,
 }: CreateMinigraphModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
     setIsLoading(true);
+    setError(null);
 
     try {
-      onSuccess();
+      onClose(); // Close the modal on success
     } catch (error) {
       console.error("Error creating minigram:", error);
       setError("Failed to create minigram. Please try again.");
@@ -33,7 +36,7 @@ export default function CreateMinigraphModal({
         <DialogTitle>Create New Minigram</DialogTitle>
       </DialogHeader>
       <div className="mt-4">
-        <MinigraphForm onSubmit={handleSubmit} />
+        <MinigraphForm onSubmit={handleSubmit} url={screenshotUrl} />
       </div>
       {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>

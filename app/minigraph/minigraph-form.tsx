@@ -14,11 +14,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import Cropper from "react-easy-crop";
-import { Point, Area } from "react-easy-crop/types";
 import { toast } from "react-hot-toast";
 
 const formSchema = z.object({
@@ -37,36 +35,48 @@ type FormValues = z.infer<typeof formSchema>;
 interface MinigraphFormProps {
   onSubmit: () => Promise<void>;
   initialValues?: Partial<FormValues>;
+  url?: string;
 }
 
 export default function MinigraphForm({
   onSubmit,
   initialValues,
+  url,
 }: MinigraphFormProps) {
   const supabase = createClientComponentClient();
   const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
-  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGeneratingScreenshot, setIsGeneratingScreenshot] = useState(false);
-  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
+  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(
+    url || null
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       purpose: "",
-      url: "",
+      url: url || "",
       facebook: false,
       instagram: false,
       twitter: false,
-      screenshot_url: "",
+      screenshot_url: screenshotUrl || "",
       bypassAdRemoval: true,
       ...initialValues,
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (url) {
+      handleUrlBlur();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (screenshotUrl) {
+      form.setValue("screenshot_url", screenshotUrl);
+    }
+  }, [screenshotUrl, form]);
 
   const handleUrlBlur = async () => {
     const url = form.getValues("url");
@@ -90,6 +100,7 @@ export default function MinigraphForm({
 
         const data = await response.json();
         form.setValue("screenshot_url", data.screenshot);
+        setScreenshotUrl(data.screenshot);
       } catch (error) {
         console.error("Error capturing screenshot:", error);
         toast.error("Failed to capture screenshot");
@@ -128,68 +139,6 @@ export default function MinigraphForm({
       toast.error("Failed to create minigram");
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const onCropComplete = useCallback(
-    (croppedArea: Area, croppedAreaPixels: Area) => {
-      setCroppedAreaPixels(croppedAreaPixels);
-    },
-    []
-  );
-
-  const createImage = (url: string): Promise<HTMLImageElement> =>
-    new Promise((resolve, reject) => {
-      const image = new Image();
-      image.addEventListener("load", () => resolve(image));
-      image.addEventListener("error", (error) => reject(error));
-      image.setAttribute("crossOrigin", "anonymous");
-      image.src = url;
-    });
-
-  const getCroppedImg = async (
-    imageSrc: string,
-    pixelCrop: Area
-  ): Promise<string> => {
-    const image = await createImage(imageSrc);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) {
-      return "";
-    }
-
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
-
-    ctx.drawImage(
-      image,
-      pixelCrop.x,
-      pixelCrop.y,
-      pixelCrop.width,
-      pixelCrop.height,
-      0,
-      0,
-      pixelCrop.width,
-      pixelCrop.height
-    );
-
-    return canvas.toDataURL("image/jpeg");
-  };
-
-  const handleCropImage = async () => {
-    if (!croppedAreaPixels) return;
-
-    try {
-      const croppedImage = await getCroppedImg(
-        form.getValues("screenshot_url") || "",
-        croppedAreaPixels
-      );
-      form.setValue("screenshot_url", croppedImage);
-      toast.success("Image cropped successfully");
-    } catch (error) {
-      console.error("Error cropping image:", error);
-      toast.error("Failed to crop image");
     }
   };
 
@@ -268,32 +217,11 @@ export default function MinigraphForm({
         </div>
       ) : form.watch("screenshot_url") ? (
         <div className="mt-4">
-          <div className="relative h-[300px] w-full">
-            <Cropper
-              image={form.watch("screenshot_url") || ""}
-              crop={crop}
-              zoom={zoom}
-              aspect={16 / 9}
-              onCropChange={setCrop}
-              onZoomChange={setZoom}
-              onCropComplete={onCropComplete}
-            />
-          </div>
-          <div className="mt-2 flex justify-between items-center">
-            <input
-              type="range"
-              value={zoom}
-              min={1}
-              max={3}
-              step={0.1}
-              aria-labelledby="Zoom"
-              onChange={(e) => setZoom(Number(e.target.value))}
-              className="w-1/2"
-            />
-            <Button onClick={handleCropImage} type="button">
-              Crop Image
-            </Button>
-          </div>
+          <img
+            src={form.watch("screenshot_url")}
+            alt="Screenshot"
+            className="max-w-full h-auto rounded-md"
+          />
         </div>
       ) : null}
 
@@ -351,7 +279,9 @@ export default function MinigraphForm({
         </div>
       </div>
 
-      <Button type="submit">Submit</Button>
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Submitting..." : "Submit"}
+      </Button>
     </form>
   );
 }

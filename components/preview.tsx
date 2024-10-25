@@ -24,6 +24,7 @@ export function Preview({
   fragment,
   result,
   onClose,
+  onPublish,
 }: {
   apiKey: string | undefined;
   selectedTab: "code" | "fragment";
@@ -33,6 +34,7 @@ export function Preview({
   fragment?: DeepPartial<FragmentSchema>;
   result?: ExecutionResult;
   onClose: () => void;
+  onPublish: (url: string) => void;
 }) {
   if (!fragment) {
     return null;
@@ -40,7 +42,6 @@ export function Preview({
 
   const isLinkAvailable = result?.template !== "code-interpreter-v1";
 
-  console.log("result", result);
   return (
     <div className="absolute md:relative top-0 left-0 shadow-2xl md:rounded-3xl md:border bg-popover h-full w-full overflow-auto">
       <Tabs
@@ -102,6 +103,7 @@ export function Preview({
                   url={result.url!}
                   sbxId={result.sbxId!}
                   apiKey={apiKey}
+                  onPublish={onPublish}
                 />
               )}
             </div>
