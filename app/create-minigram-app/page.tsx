@@ -3,8 +3,6 @@
 import { AuthDialog } from "@/components/auth-dialog";
 import { Chat } from "@/components/chat";
 import { ChatInput } from "@/components/chat-input";
-import { ChatPicker } from "@/components/chat-picker";
-// import { ChatSettings } from "@/components/chat-settings";
 import { NavBar } from "@/components/navbar";
 import { Preview } from "@/components/preview";
 import { AuthViewType, useAuth } from "@/lib/auth";
@@ -276,10 +274,6 @@ export default function Home() {
           }`}
         >
           <NavBar
-            session={session}
-            showLogin={() => setAuthDialog(true)}
-            signOut={logout}
-            onSocialClick={handleSocialClick}
             onClear={handleClearChat}
             canClear={messages.length > 0}
             canUndo={messages.length > 1 && !isLoading}
@@ -305,6 +299,7 @@ export default function Home() {
             files={files}
             handleFileChange={handleFileChange}
           >
+            <></>
             {/* add back if want options for chat */}
             {/* <ChatPicker
               templates={templates}
