@@ -23,10 +23,10 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const [chatInput, setChatInput] = useLocalStorage("chat", "");
   const [files, setFiles] = useState<File[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState<"auto" | TemplateId>(
-    "auto"
-  );
-  const [languageModel, setLanguageModel] = useLocalStorage<LLMModelConfig>(
+  const [selectedTemplate, _setSelectedTemplate] = useState<
+    "auto" | TemplateId
+  >("auto");
+  const [languageModel, _setLanguageModel] = useLocalStorage<LLMModelConfig>(
     "languageModel",
     {
       model: "claude-3-5-sonnet-latest",
