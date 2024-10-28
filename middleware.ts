@@ -3,26 +3,57 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-  const supabase = createMiddlewareClient({ req, res })
+  console.log('🔒 Middleware executing for path:', req.nextUrl.pathname)
+  try {
+    // Create a response first
+    const res = NextResponse.next()
+    
+    // Create the Supabase client
+    const supabase = createMiddlewareClient({ req, res })
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    // Verify the session
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession()
 
-  console.log('user in middleware', user)
-  // If the user is not logged in, redirect to login
-  if (!user) {
-    const redirectUrl = req.nextUrl.clone()
-    redirectUrl.pathname = '/login'
-    redirectUrl.searchParams.set(`redirectedFrom`, req.nextUrl.pathname)
-    return NextResponse.redirect(redirectUrl)
+    if (error) {
+      console.error('🔒 Middleware auth error:', error.message)
+      // Handle auth error by redirecting to login
+      return redirectToLogin(req)
+    }
+
+    // If no session and not accessing a public route, redirect to login
+    if (!session) {
+      return redirectToLogin(req)
+    }
+
+    return res
+  } catch (error) {
+    console.error('🔒 Middleware execution error:', error)
+    return redirectToLogin(req)
   }
-
-  return res
 }
 
-// Update the matcher to include all routes except login and other public routes
+function redirectToLogin(req: NextRequest) {
+  const requestUrl = new URL(req.url)
+  const redirectUrl = new URL('/login', requestUrl.origin)
+  redirectUrl.searchParams.set('redirectedFrom', requestUrl.pathname)
+  return NextResponse.redirect(redirectUrl)
+}
+
+// Update matcher to include all protected routes and exclude public ones
 export const config = {
-  matcher: ['/((?!login|register|api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api/auth (auth endpoints)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files (public folder)
+     * - auth related routes (login, register)
+     */
+    '/((?!api/auth|_next/static|_next/image|favicon.ico|login|register|public).*)',
+  ],
 }
