@@ -10,6 +10,7 @@ export async function middleware(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  console.log('user in middleware', user)
   // If the user is not logged in, redirect to login
   if (!user) {
     const redirectUrl = req.nextUrl.clone()
