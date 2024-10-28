@@ -27,6 +27,7 @@ import {
   SlidersHorizontal,
   Film,
 } from "lucide-react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 function AcmeRubberBandGame() {
   const [stretch, setStretch] = useState(0);
@@ -155,6 +156,20 @@ function AcmeRubberBandGame() {
 }
 
 export function OverviewPage() {
+  const getUser = async () => {
+    const supabase = createClientComponentClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    console.log("User in OverviewPage", user);
+    return user;
+  };
+
+  useEffect(() => {
+    console.log("OverviewPage mounted");
+    getUser();
+  }, []);
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold">Minigram Overview</h1>
