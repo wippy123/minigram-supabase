@@ -41,12 +41,8 @@ export const updateSession = async (request: NextRequest) => {
 
     console.log("Middleware user", {user, path:request.nextUrl.pathname, error: user.error});
     // protected routes
-    if (request.nextUrl.pathname.startsWith("/protected") && user.error) {
-      return NextResponse.redirect(new URL("/sign-in", request.url));
-    }
-
-    if (request.nextUrl.pathname === "/" && !user.error) {
-      return NextResponse.redirect(new URL("/protected", request.url));
+    if (!user.data.user) {
+      return NextResponse.redirect(new URL("/login", request.url));
     }
 
     return response;
