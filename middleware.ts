@@ -2,8 +2,10 @@ import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+console.log("Middleware running");
+
+
 export async function middleware(req: NextRequest) {
-  console.log("Middleware running");
   const res = NextResponse.next()
   const supabase = createMiddlewareClient({ req, res })
 
@@ -27,4 +29,4 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api/auth|_next/static|_next/image|favicon.ico|login|register|public).*)',]}
+  matcher: [ "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",]}
