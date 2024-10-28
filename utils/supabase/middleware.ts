@@ -1,9 +1,8 @@
+import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const updateSession = async (request: NextRequest) => {
-  // This `try/catch` block is only here for the interactive tutorial.
-  // Feel free to remove once you have Supabase connected.
   try {
     // Create an unmodified response
     let response = NextResponse.next({
@@ -11,33 +10,13 @@ export const updateSession = async (request: NextRequest) => {
         headers: request.headers,
       },
     });
+    const supabase = createMiddlewareClient({ req: request, res: response })
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) =>
-              request.cookies.set(name, value),
-            );
-            response = NextResponse.next({
-              request,
-            });
-            cookiesToSet.forEach(({ name, value, options }) =>
-              response.cookies.set(name, value, options),
-            );
-          },
-        },
-      },
-    );
+    const user = await supabase.auth.getUser()
 
     // This will refresh session if expired - required for Server Components
+    await supabase.auth.getSession()
     // https://supabase.com/docs/guides/auth/server-side/nextjs
-    const user = await supabase.auth.getUser();
 
     console.log("Middleware user", {user, path:request.nextUrl.pathname, error: user.error});
     // protected routes
