@@ -1,6 +1,8 @@
 When I ask for UI changes, i do not want to to get changes to other parts of the app or page beyond what I ask for.
 Code Style and Structure:
 - Write concise, technical TypeScript code with accurate examples
+- Do not make mistakes in the code I ask you to write
+- If you reference a component ensure it exists
 - Use functional and declarative programming patterns; avoid classes
 - Prefer iteration and modularization over code duplication
 - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError)
