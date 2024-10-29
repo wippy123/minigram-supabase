@@ -1,5 +1,3 @@
-// import "prismjs/plugins/line-numbers/prism-line-numbers.js";
-// import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import "./code-theme.css";
 import Prism from "prismjs";
 import "prismjs/components/prism-javascript";
@@ -16,7 +14,7 @@ export function CodeView({ code, lang }: { code: string; lang: string }) {
 
   return (
     <pre
-      className="p-4 pt-2"
+      className="p-4 pt-2 font-normal"
       style={{
         fontSize: 12,
         backgroundColor: "transparent",
@@ -24,7 +22,7 @@ export function CodeView({ code, lang }: { code: string; lang: string }) {
         margin: 0,
       }}
     >
-      <code className={`language-${lang}`}>{code}</code>
+      <code className={`language-${lang} font-normal`}>{code}</code>
     </pre>
   );
 }

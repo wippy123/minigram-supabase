@@ -31,12 +31,20 @@ export function Chat({
     >
       {messages.map((message: Message, index: number) => (
         <div
-          className={`flex flex-col px-4 shadow-sm whitespace-pre-wrap ${message.role !== "user" ? "bg-accent dark:bg-white/5 border text-accent-foreground dark:text-muted-foreground py-4 rounded-2xl gap-4 w-full" : "bg-gradient-to-b from-black/5 to-black/10 dark:from-black/30 dark:to-black/50 py-2 rounded-xl gap-2 w-fit"} font-serif`}
+          className={`flex flex-col px-4 shadow-sm whitespace-pre-wrap ${
+            message.role !== "user"
+              ? "bg-accent dark:bg-white/5 border text-accent-foreground dark:text-muted-foreground py-4 rounded-2xl gap-4 w-full"
+              : "bg-gradient-to-b from-black/5 to-black/10 dark:from-black/30 dark:to-black/50 py-2 rounded-xl gap-2 w-fit"
+          }`}
           key={index}
         >
           {message.content.map((content, id) => {
             if (content.type === "text") {
-              return content.text;
+              return (
+                <span key={id} className="font-normal">
+                  {content.text}
+                </span>
+              );
             }
             if (content.type === "image") {
               return (
@@ -63,10 +71,10 @@ export function Chat({
                 <Terminal strokeWidth={2} className="text-[#FF8800]" />
               </div>
               <div className="pl-2 pr-4 flex flex-col">
-                <span className="font-bold font-sans text-sm text-primary">
+                <span className="font-medium text-sm text-primary">
                   {message.object.title}
                 </span>
-                <span className="font-sans text-sm text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   Click to see fragment
                 </span>
               </div>
