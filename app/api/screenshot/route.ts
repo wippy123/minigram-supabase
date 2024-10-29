@@ -209,8 +209,7 @@ export async function POST(request: Request) {
       }, selector);
       console.log('result', result);
     }
-  }
-    await page.waitForNetworkIdle({idleTime: 1000})
+    }
 
     const screenshot = await page.screenshot({fullPage: true});
     
