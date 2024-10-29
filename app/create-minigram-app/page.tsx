@@ -84,13 +84,14 @@ export default function Home() {
         });
 
         const result = await response.json();
-        console.log("result", result);
         posthog.capture("sandbox_created", { url: result.url });
 
         setResult(result);
         setCurrentPreview({ fragment, result });
         setMessage({ result });
-        setCurrentTab("fragment");
+        setTimeout(() => {
+          setCurrentTab("fragment");
+        }, 1500);
         setIsPreviewLoading(false);
       }
     },
@@ -178,9 +179,6 @@ export default function Home() {
     setChatInput("");
     setFiles([]);
     setCurrentTab("code");
-    setTimeout(() => {
-      setCurrentTab("code");
-    }, 1500);
 
     posthog.capture("chat_submit", {
       template: selectedTemplate,
@@ -239,7 +237,6 @@ export default function Home() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const handlePublish = (url: string) => {
-    console.log("handlePublish", url);
     setPublishedURL(url);
     setIsCreateModalOpen(true);
   };

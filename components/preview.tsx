@@ -13,7 +13,7 @@ import { FragmentSchema } from "@/lib/schema";
 import { ExecutionResult } from "@/lib/types";
 import { DeepPartial } from "ai";
 import { ChevronsRight, LoaderCircle } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 export function Preview({
   apiKey,
@@ -36,6 +36,19 @@ export function Preview({
   onClose: () => void;
   onPublish: (url: string) => void;
 }) {
+  const [showResult, setShowResult] = useState(false);
+
+  useEffect(() => {
+    if (result) {
+      const timer = setTimeout(() => {
+        setShowResult(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowResult(false);
+    }
+  }, [result]);
+
   if (!fragment) {
     return null;
   }
@@ -124,7 +137,13 @@ export function Preview({
               )}
             </TabsContent>
             <TabsContent value="fragment" className="h-full">
-              {result && <FragmentPreview result={result as ExecutionResult} />}
+              {result && showResult ? (
+                <FragmentPreview result={result as ExecutionResult} />
+              ) : result && !showResult ? (
+                <div className="h-full w-full flex items-center justify-center">
+                  <LoaderCircle className="h-8 w-8 animate-spin" />
+                </div>
+              ) : null}
             </TabsContent>
           </div>
         )}
