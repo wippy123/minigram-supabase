@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
 import os from 'os';
-import { Jimp } from "jimp";
 import { parse } from 'node-html-parser';
 
 export const maxDuration = 60;
@@ -153,13 +152,6 @@ function getLocalChromePath() {
   }
 }
 
-async function cropImage(buffer: Buffer, x: number, y: number, width: number, height: number): Promise<Buffer> {
-  
-  const image = await Jimp.read(buffer);
-  const croppedImage = image.crop({x, y, w:width, h:height});
-  return await croppedImage.getBuffer("image/png");
-}
-
 export async function POST(request: Request) {
   const { url, bypassAdRemoval } = await request.json();
 
@@ -218,11 +210,11 @@ export async function POST(request: Request) {
       console.log('result', result);
     }
   }
+    await page.waitForNetworkIdle({idleTime: 1000})
 
-    const screenshot = await page.screenshot();
+    const screenshot = await page.screenshot({fullPage: true});
     
-    const croppedScreenshot = await cropImage(screenshot as Buffer, 0, 0, 800, 800);
-    const base64Screenshot = croppedScreenshot.toString('base64');
+    const base64Screenshot = (screenshot as Buffer).toString('base64');
     return NextResponse.json({ screenshot: `data:image/png;base64,${base64Screenshot}` });
   } catch (error) {
     console.error('Screenshot capture failed:', error);

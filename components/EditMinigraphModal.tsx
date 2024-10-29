@@ -26,8 +26,6 @@ import { Minigraph } from "@/types/minigraph";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
-import Cropper from "react-easy-crop";
-import { Point, Area } from "react-easy-crop/types";
 
 interface EditMinigraphModalProps {
   minigraph: Minigraph;
@@ -72,10 +70,6 @@ export default function EditMinigraphModal({
     },
     mode: "onChange",
   });
-
-  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   const onSubmit = async () => {
     const data = form.getValues();
@@ -138,68 +132,6 @@ export default function EditMinigraphModal({
     }
   };
 
-  const onCropComplete = useCallback(
-    (croppedArea: Area, croppedAreaPixels: Area) => {
-      setCroppedAreaPixels(croppedAreaPixels);
-    },
-    []
-  );
-
-  const createImage = (url: string): Promise<HTMLImageElement> =>
-    new Promise((resolve, reject) => {
-      const image = document.createElement("img") as HTMLImageElement;
-      image.addEventListener("load", () => resolve(image));
-      image.addEventListener("error", (error: ErrorEvent) => reject(error));
-      image.setAttribute("crossOrigin", "anonymous");
-      image.src = url;
-    });
-
-  const getCroppedImg = async (
-    imageSrc: string,
-    pixelCrop: Area
-  ): Promise<string> => {
-    const image = await createImage(imageSrc);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) {
-      return "";
-    }
-
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
-
-    ctx.drawImage(
-      image,
-      pixelCrop.x,
-      pixelCrop.y,
-      pixelCrop.width,
-      pixelCrop.height,
-      0,
-      0,
-      pixelCrop.width,
-      pixelCrop.height
-    );
-
-    return canvas.toDataURL("image/jpeg");
-  };
-
-  const handleCropImage = async () => {
-    if (!croppedAreaPixels) return;
-
-    try {
-      const croppedImage = await getCroppedImg(
-        form.getValues("screenshot_url") || "",
-        croppedAreaPixels
-      );
-      form.setValue("screenshot_url", croppedImage);
-      toast.success("Image cropped successfully");
-    } catch (error) {
-      console.error("Error cropping image:", error);
-      toast.error("Failed to crop image");
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
@@ -233,6 +165,20 @@ export default function EditMinigraphModal({
               </FormItem>
             )}
           />
+          <div className="flex items-center space-x-2">
+            <Controller
+              name="bypassAdRemoval"
+              control={form.control}
+              render={({ field }) => (
+                <Checkbox
+                  id="bypassAdRemoval"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+            <Label htmlFor="bypassAdRemoval">Bypass Ad Removal</Label>
+          </div>
           <FormField
             name="url"
             register={form.register}
@@ -254,52 +200,27 @@ export default function EditMinigraphModal({
             )}
           />
 
-          <div className="flex items-center space-x-2">
-            <Controller
-              name="bypassAdRemoval"
-              control={form.control}
-              render={({ field }) => (
-                <Checkbox
-                  id="bypassAdRemoval"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              )}
-            />
-            <Label htmlFor="bypassAdRemoval">Bypass Ad Removal</Label>
-          </div>
-
           {isCapturingScreenshot ? (
             <div className="mt-4 h-[300px] flex items-center justify-center bg-gray-100 rounded-md">
               <p className="text-gray-500">Generating screenshot...</p>
             </div>
           ) : form.watch("screenshot_url") ? (
             <div className="mt-4">
-              <div className="relative h-[300px] w-full">
-                <Cropper
-                  image={form.watch("screenshot_url") || ""}
-                  crop={crop}
-                  zoom={zoom}
-                  aspect={16 / 9}
-                  onCropChange={setCrop}
-                  onZoomChange={setZoom}
-                  onCropComplete={onCropComplete}
-                />
-              </div>
-              <div className="mt-2 flex justify-between items-center">
-                <input
-                  type="range"
-                  value={zoom}
-                  min={1}
-                  max={3}
-                  step={0.1}
-                  aria-labelledby="Zoom"
-                  onChange={(e) => setZoom(Number(e.target.value))}
-                  className="w-1/2"
-                />
-                <Button onClick={handleCropImage} type="button">
-                  Crop Image
-                </Button>
+              <div className="h-[300px] w-full overflow-y-scroll border rounded-md">
+                <div className="min-h-[300px] w-full relative">
+                  <Image
+                    src={form.watch("screenshot_url") || ""}
+                    alt="Screenshot"
+                    style={{
+                      objectFit: "cover",
+                      height: "auto",
+                      width: "100%",
+                    }}
+                    width={800}
+                    height={600}
+                    className="absolute top-0 left-0"
+                  />
+                </div>
               </div>
             </div>
           ) : null}
