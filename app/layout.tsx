@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { MinigraphSearch } from "@/components/MinigraphSearch";
+import { WithAuth } from "@/components/WithAuth";
 
 const roboto = Roboto({
   weight: ["400", "700"],
@@ -50,9 +51,11 @@ export default function RootLayout({
                   >
                     Minigram
                   </Link>
-                  <div className="flex-1 max-w-md mx-4 flex justify-center">
-                    <MinigraphSearch />
-                  </div>
+                  <WithAuth>
+                    <div className="flex-1 max-w-md mx-4 flex justify-center">
+                      <MinigraphSearch />
+                    </div>
+                  </WithAuth>
                   <div className="flex items-center gap-4">
                     {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
                   </div>

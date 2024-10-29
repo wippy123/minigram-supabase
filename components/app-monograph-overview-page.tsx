@@ -161,7 +161,6 @@ export function OverviewPage() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    console.log("User in OverviewPage", user);
     return user;
   };
 

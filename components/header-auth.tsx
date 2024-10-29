@@ -14,8 +14,6 @@ export function HeaderAuth() {
   const supabase = createClientComponentClient();
 
   const fetchUserAndAvatar = async (userId: string) => {
-    console.log("fetching user and avatar for", userId);
-
     let id = userId;
     if (!userId) {
       const {
@@ -38,11 +36,9 @@ export function HeaderAuth() {
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("auth state changed", event, session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          console.log("session user", session.user);
           fetchUserAndAvatar(session.user.id);
         }
       }
@@ -55,6 +51,7 @@ export function HeaderAuth() {
 
   const handleSignOut = async () => {
     await signOutAction();
+    supabase.auth.signOut();
     setUser(null);
   };
 
