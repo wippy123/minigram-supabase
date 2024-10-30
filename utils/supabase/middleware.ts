@@ -18,7 +18,6 @@ export const updateSession = async (request: NextRequest) => {
     await supabase.auth.getSession()
     // https://supabase.com/docs/guides/auth/server-side/nextjs
 
-    console.log("Middleware user", {user, path:request.nextUrl.pathname, error: user.error});
     // protected routes
     if (!user.data.user) {
       return NextResponse.redirect(new URL("/login", request.url));
