@@ -1,7 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Overview } from "@/components/analytics/overview";
-import { RecentVideos } from "@/components/analytics/recent-videos";
-import { TopVideos } from "@/components/analytics/top-videos";
 
 export default function DashboardPage() {
   return (
@@ -52,34 +50,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Views Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Overview />
-          </CardContent>
-        </Card>
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Recent Minigraphs</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RecentVideos />
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Top Performing Minigraphs</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TopVideos />
-        </CardContent>
-      </Card>
     </div>
   );
 }
