@@ -21,6 +21,7 @@ export function DeployDialog({
   onPublish: (publishedURL: string) => void;
 }) {
   const posthog = usePostHogInit();
+
   const [publishedURL, setPublishedURL] = useState<string | null>(null);
   const [duration, setDuration] = useState<string | null>(null);
 
