@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   }: { fragment: FragmentSchema; userID: string; apiKey?: string } =
     await req.json()
 
-    const sbx = await Sandbox.create('ckqy8rppy986dt8b20o6', {
+    const sbx = await Sandbox.create(process.env.E2B_SANDBOX_ID as string, {
       metadata: { template: 'minigram-app', userID: userID },
       timeoutMs: sandboxTimeout,
       apiKey,

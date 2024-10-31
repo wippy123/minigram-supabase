@@ -10,13 +10,14 @@ RUN chmod +x /compile_page.sh
 # Install dependencies and customize sandbox
 WORKDIR /home/user/nextjs-app
 
-RUN npx create-next-app@latest . --ts --tailwind --no-eslint --import-alias "@/*" --use-npm --no-app --no-src-dir --yes
+RUN npx create-next-app@13.5.7 . --ts --tailwind --no-eslint --import-alias "@/*" --use-npm --no-app --no-src-dir --yes
+RUN npx -y shadcn@latest init -d
+RUN npx --legacy-peer-deps shadcn@latest add --all
 COPY _app.tsx pages/_app.tsx
 COPY next.config.js /home/user/next.config.js
 COPY .env /home/user/.env
-RUN npx -y shadcn@latest init -d
-RUN npx -y --legacy-peer-deps shadcn@latest add --all
-RUN npm install -y posthog-js
+RUN npm install -g npm@10.9.0
+RUN npm install -y posthog-js --legacy-peer-deps
 RUN npm install next-themes --legacy-peer-deps
 RUN npm install -y tailwindcss-animate --legacy-peer-deps
 RUN export NEXT_PUBLIC_POSTHOG_KEY="phc_EOAMo0r88mktumtod7X83x9XZ5pz7W5Njdrv4JauOoQ"
