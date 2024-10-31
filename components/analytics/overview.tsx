@@ -18,11 +18,13 @@ interface AnalyticsData {
   views: number;
 }
 
-interface PostHogResponse {
-  result: Array<{
-    date: string;
-    value: number;
-  }>;
+interface PostHogPageviewResponse {
+  pageviews: {
+    result: Array<{
+      data: number[];
+      days: string[];
+    }>;
+  };
 }
 
 export function Overview() {
@@ -33,24 +35,18 @@ export function Overview() {
   useEffect(() => {
     async function fetchAnalytics() {
       try {
-        // Replace with your actual PostHog API endpoint
-        const response = await fetch("/api/analytics/overview", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
+        const response = await fetch("/api/analytics/overview");
         if (!response.ok) {
           throw new Error("Failed to fetch analytics data");
         }
 
-        const result: PostHogResponse = await response.json();
+        const result: PostHogPageviewResponse = await response.json();
 
         // Transform the data into the format needed for the chart
-        const formattedData = result.result.map((item) => ({
-          date: format(new Date(item.date), "MMM d"),
-          views: item.value,
+        const pageviewData = result.pageviews.result[0];
+        const formattedData = pageviewData.data.map((value, index) => ({
+          date: format(new Date(pageviewData.days[index]), "MMM d"),
+          views: value,
         }));
 
         setData(formattedData);
@@ -83,7 +79,7 @@ export function Overview() {
     return (
       <Card className="col-span-4">
         <CardHeader>
-          <CardTitle>Analytics Overview</CardTitle>
+          <CardTitle>Page Views</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[350px] w-full" />
@@ -95,17 +91,21 @@ export function Overview() {
   return (
     <Card className="col-span-4">
       <CardHeader>
-        <CardTitle>Analytics Overview</CardTitle>
+        <CardTitle>Page Views</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={350}>
-          <LineChart data={data}>
+          <LineChart
+            data={data}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
             <XAxis
               dataKey="date"
               stroke="#888888"
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              tickMargin={10}
             />
             <YAxis
               stroke="#888888"
@@ -113,14 +113,18 @@ export function Overview() {
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `${value}`}
+              tickMargin={10}
             />
             <Tooltip
               contentStyle={{
                 backgroundColor: "hsl(var(--background))",
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "6px",
+                padding: "8px",
               }}
               labelStyle={{ color: "hsl(var(--foreground))" }}
+              formatter={(value: number) => [`${value} views`, "Page Views"]}
+              labelFormatter={(label) => `Date: ${label}`}
             />
             <Line
               type="monotone"
@@ -128,7 +132,11 @@ export function Overview() {
               stroke="hsl(var(--primary))"
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 6, fill: "hsl(var(--primary))" }}
+              activeDot={{
+                r: 6,
+                fill: "hsl(var(--primary))",
+                strokeWidth: 0,
+              }}
             />
           </LineChart>
         </ResponsiveContainer>
