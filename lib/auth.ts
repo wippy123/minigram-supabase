@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 import { Session } from '@supabase/supabase-js'
-import { usePostHog } from 'posthog-js/react'
 import { useState, useEffect } from 'react'
+import { usePostHogInit } from './hooks/usePostHogInit'
 
 export type AuthViewType =
   | 'sign_in'
@@ -40,6 +40,7 @@ export async function getUserAPIKey(session: Session) {
       }
     })
 
+
   const defaultTeam = teams?.find((team) => team.is_default)
   return defaultTeam?.apiKeys[0]
 }
@@ -50,7 +51,8 @@ export function useAuth(
 ) {
   const [session, setSession] = useState<Session | null>(null)
   const [apiKey, setApiKey] = useState<string | undefined>(undefined)
-  const posthog = usePostHog()
+  const posthog = usePostHogInit()
+
   let recovery = false
 
   useEffect(() => {

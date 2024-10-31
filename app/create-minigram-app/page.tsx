@@ -14,7 +14,7 @@ import templates, { TemplateId } from "@/lib/templates";
 import { ExecutionResult } from "@/lib/types";
 import { DeepPartial } from "ai";
 import { experimental_useObject as useObject } from "ai/react";
-import { usePostHog } from "posthog-js/react";
+import { usePostHogInit } from "@/lib/hooks/usePostHogInit";
 import { useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import { CreateMinigraphModal } from "@/components/CreateMinigraphModal";
@@ -33,7 +33,7 @@ export default function Home() {
     }
   );
 
-  const posthog = usePostHog();
+  const posthog = usePostHogInit();
 
   const [result, setResult] = useState<ExecutionResult>();
   const [messages, setMessages] = useState<Message[]>([]);

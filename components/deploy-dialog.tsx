@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Duration } from "@/lib/duration";
-import { usePostHog } from "posthog-js/react";
+import { usePostHogInit } from "@/lib/hooks/usePostHogInit";
 import { useEffect, useState } from "react";
 
 export function DeployDialog({
@@ -20,7 +20,7 @@ export function DeployDialog({
   apiKey: string | undefined;
   onPublish: (publishedURL: string) => void;
 }) {
-  const posthog = usePostHog();
+  const posthog = usePostHogInit();
   const [publishedURL, setPublishedURL] = useState<string | null>(null);
   const [duration, setDuration] = useState<string | null>(null);
 
