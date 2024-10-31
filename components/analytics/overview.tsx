@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Line,
   LineChart,
@@ -11,109 +11,33 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
 import {
   ComposableMap,
   Geographies,
   Geography,
   ZoomableGroup,
 } from "react-simple-maps";
+import { AnalyticsData } from "@/app/analytics/page";
+import { CountryData } from "@/app/analytics/page";
 
-interface AnalyticsData {
-  date: string;
-  views: number;
+interface OverviewProps {
+  formattedData: AnalyticsData[];
+  countryData: CountryData[];
 }
 
-interface CountryData {
-  id: string;
-  value: number;
+function formatUTCDate(dateStr: string) {
+  const date = new Date(dateStr);
+  // Add one day to correct the UTC offset
+  date.setDate(date.getDate() + 1);
+  return date.toISOString().split("T")[0];
 }
 
-interface CountryInsight {
-  data: number[];
-  label: string;
-  count: number;
-  breakdown_value: string[];
-}
-
-interface PostHogResponse {
-  pageviews: {
-    result: Array<{
-      data: number[];
-      days: string[];
-    }>;
-  };
-  countryInsights: CountryInsight[];
-}
-
-export function Overview() {
-  const [data, setData] = useState<AnalyticsData[]>([]);
-  const [countryData, setCountryData] = useState<CountryData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchAnalytics() {
-      try {
-        const response = await fetch("/api/analytics/overview");
-        if (!response.ok) {
-          throw new Error("Failed to fetch analytics data");
-        }
-
-        const result: PostHogResponse = await response.json();
-
-        // Transform pageview data
-        const pageviewData = result.pageviews.result[0];
-        const formattedData = pageviewData.data.map((value, index) => ({
-          date: format(new Date(pageviewData.days[index]), "MMM d"),
-          views: value,
-        }));
-
-        // Transform country data from new format
-        const countryData = result.countryInsights.map((insight) => ({
-          id: insight.label,
-          value: insight.count,
-        }));
-
-        setData(formattedData);
-        setCountryData(countryData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchAnalytics();
-  }, []);
-
-  if (error) {
-    return (
-      <Card className="col-span-4">
-        <CardHeader>
-          <CardTitle>Analytics Overview</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-[350px] text-red-500">
-            {error}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <Card className="col-span-4">
-        <CardHeader>
-          <CardTitle>Analytics Overview</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[350px] w-full" />
-        </CardContent>
-      </Card>
-    );
-  }
+export function Overview({ formattedData, countryData }: OverviewProps) {
+  // Transform the data to correct UTC dates
+  const correctedData = formattedData.map((item) => ({
+    ...item,
+    date: formatUTCDate(item.date),
+  }));
 
   return (
     <>
@@ -124,7 +48,7 @@ export function Overview() {
         <CardContent>
           <ResponsiveContainer width="100%" height={350}>
             <LineChart
-              data={data}
+              data={correctedData}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
             >
               <XAxis
@@ -171,7 +95,7 @@ export function Overview() {
         </CardContent>
       </Card>
 
-      <Card className="col-span-4">
+      <Card className="col-span-4 mt-4">
         <CardHeader>
           <CardTitle>Geographic Distribution</CardTitle>
         </CardHeader>

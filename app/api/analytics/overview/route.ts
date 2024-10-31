@@ -13,7 +13,7 @@ export async function GET() {
     startDate.setDate(startDate.getDate() - 30);
 
     // Keep existing fetches
-    const [pageviewResult, usersResult, countriesResult, personsResult, countryInsights] = await Promise.all([
+    const [pageviewResult, usersResult, countriesResult, personsResult, countryInsights, appInsights, browserInsights] = await Promise.all([
       // Existing pageview trends fetch
       fetch(`${host}/api/projects/98915/insights/trend/`, {
         method: 'POST',
@@ -95,44 +95,67 @@ export async function GET() {
         }
       }),
 
-      // New custom insight fetch
+      // New country fetch
       fetch(`${host}/api/projects/98915/insights/2033242/`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${process.env.POSTHOG_ADMIN_API_KEY}`,
           'Content-Type': 'application/json'
         }
+      }),
+     // New custom insight fetch
+     fetch(`${host}/api/projects/98915/insights/2033490/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${process.env.POSTHOG_ADMIN_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }),
+      // New browser/device insights fetch
+      fetch(`${host}/api/projects/98915/insights/2034259/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${process.env.POSTHOG_ADMIN_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
       })
     ]);
 
+
     if (!pageviewResult.ok || !personsResult.ok || !usersResult.ok || 
-        !countriesResult.ok || !countryInsights.ok) {
+        !countriesResult.ok || !countryInsights.ok || !appInsights.ok ||
+        !browserInsights.ok) {
       const error = await Promise.any([
         pageviewResult, 
         personsResult, 
         usersResult, 
         countriesResult,
-        countryInsights
+        countryInsights,
+        appInsights,
+        browserInsights
       ].filter(r => !r.ok).map(r => r.json()));
       
       console.error('PostHog API Error:', error);
       throw new Error('Failed to fetch analytics data');
     }
 
-    const [pageviewData, personsData, usersData, countriesData, customInsightData] = await Promise.all([
+    const [pageviewData, personsData, usersData, countriesData, customInsightData, appInsightsData, browserInsightsData] = await Promise.all([
       pageviewResult.json(),
       personsResult.json(),
       usersResult.json(),
       countriesResult.json(),
-      countryInsights.json()
+      countryInsights.json(),
+      appInsights.json(),
+      browserInsights.json()
     ]);
 
     return NextResponse.json({ 
       pageviews: pageviewData,
       persons: personsData.results,
       users: usersData,
-    //   countries: countriesData,
       countryInsights: customInsightData.result,
+      appInsights: appInsightsData.result,
+      browserInsights: browserInsightsData.result
     });
   } catch (error) {
     console.error('Analytics Error:', error);
