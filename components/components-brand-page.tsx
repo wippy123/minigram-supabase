@@ -23,7 +23,84 @@ import {
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
 import { TiptapEditor } from "@/components/tiptap-editor";
-import { shadcnPalettes, googleFonts } from "@/constants/brand-page-constants";
+import { shadcnPalettes } from "@/constants/brand-page-constants";
+
+const GOOGLE_FONTS = [
+  "Roboto",
+  "Open Sans",
+  "Lato",
+  "Montserrat",
+  "Poppins",
+  "Inter",
+  "Playfair Display",
+  "Source Sans Pro",
+  "Ubuntu",
+  "Merriweather",
+  "Raleway",
+  "Nunito",
+  "Work Sans",
+  "DM Sans",
+  "Quicksand",
+  "Outfit",
+  "Mulish",
+  "Lora",
+  "Crimson Text",
+  "Libre Baskerville",
+  "Source Serif Pro",
+  "Cormorant Garavin",
+  "Spectral",
+  "Josefin Sans",
+  "Comfortaa",
+  "Righteous",
+  "Pacifico",
+  "Dancing Script",
+  "Permanent Marker",
+  "Fira Code",
+  "JetBrains Mono",
+  "Space Mono",
+  "Source Code Pro",
+  "Lexend",
+  "Plus Jakarta Sans",
+  "Space Grotesk",
+  "Manrope",
+];
+
+const FontPreview = ({ font }: { font: string }) => {
+  if (!font) return null;
+
+  // Convert the font value back to the proper Google Font name
+  const fontName = font
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+  useEffect(() => {
+    // Create a clean font name for the URL (spaces to +)
+    const fontUrl = fontName.replace(/ /g, "+");
+    const link = document.createElement("link");
+    link.href = `https://fonts.googleapis.com/css2?family=${fontUrl}&display=swap`;
+    link.rel = "stylesheet";
+    document.head.appendChild(link);
+
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, [fontName]);
+
+  return (
+    <div className="mt-2 p-4 border rounded-md">
+      <p
+        style={{
+          fontFamily: `"${fontName}", sans-serif`,
+          fontSize: "1.25rem",
+          fontWeight: 400,
+        }}
+      >
+        The quick brown fox jumps over the lazy dog
+      </p>
+    </div>
+  );
+};
 
 async function saveBrandSettings(settings: {
   logo_url: string | null;
@@ -208,21 +285,24 @@ export function BrandPageComponent() {
 
             <div>
               <Label htmlFor="font">Font</Label>
-              <Select value={font} onValueChange={setFont}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a font" />
-                </SelectTrigger>
-                <SelectContent>
-                  {googleFonts.map((fontName) => (
-                    <SelectItem
-                      key={fontName}
-                      value={fontName.toLowerCase().replace(" ", "-")}
-                    >
-                      {fontName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <Select value={font} onValueChange={setFont}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a font" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GOOGLE_FONTS.map((fontName) => (
+                      <SelectItem
+                        key={fontName}
+                        value={fontName.toLowerCase().replace(/ /g, "-")}
+                      >
+                        {fontName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FontPreview font={font} />
+              </div>
             </div>
 
             <div>
