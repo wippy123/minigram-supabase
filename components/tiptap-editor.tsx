@@ -219,7 +219,7 @@ export const TiptapEditor = ({
   }
 
   return (
-    <div className="border rounded-md p-2 flex flex-col h-[calc(100vh-200px)]">
+    <div className="border rounded-md p-2 flex flex-col h-[200px]">
       <div className="mb-2 flex flex-wrap gap-2">
         <Button
           size="icon"

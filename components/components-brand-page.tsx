@@ -227,12 +227,16 @@ export function BrandPageComponent() {
 
             <div>
               <Label htmlFor="header">Custom Header</Label>
-              <TiptapEditor content={header} onUpdate={setHeader} />
+              <div>
+                <TiptapEditor content={header} onUpdate={setHeader} />
+              </div>
             </div>
 
             <div>
               <Label htmlFor="footer">Custom Footer</Label>
-              <TiptapEditor content={footer} onUpdate={setFooter} />
+              <div>
+                <TiptapEditor content={footer} onUpdate={setFooter} />
+              </div>
             </div>
           </div>
         </CardContent>
