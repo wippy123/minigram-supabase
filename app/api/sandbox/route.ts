@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   
   // Install packages
   if (fragment.has_additional_dependencies) {
-    await sbx.commands.run(fragment.install_dependencies_command)
+    await sbx.commands.run(fragment.install_dependencies_command + ' --legacy-peer-deps')
     console.log(
       `Installed dependencies: ${fragment.additional_dependencies.join(', ')} in sandbox ${sbx.sandboxId}`,
     )
