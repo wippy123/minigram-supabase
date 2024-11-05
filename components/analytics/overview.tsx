@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Line,
   LineChart,
@@ -10,7 +9,6 @@ import {
   YAxis,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   ComposableMap,
   Geographies,
@@ -40,8 +38,8 @@ export function Overview({ formattedData, countryData }: OverviewProps) {
   }));
 
   return (
-    <>
-      <Card className="col-span-4">
+    <div className="bg-transparent p-0">
+      <Card className="col-span-4 border-none p-0">
         <CardHeader>
           <CardTitle>Total Views</CardTitle>
         </CardHeader>
@@ -95,7 +93,7 @@ export function Overview({ formattedData, countryData }: OverviewProps) {
         </CardContent>
       </Card>
 
-      <Card className="col-span-4 mt-4">
+      <Card className="col-span-4 mt-4 border-none p-0">
         <CardHeader>
           <CardTitle>Geographic Distribution</CardTitle>
         </CardHeader>
@@ -158,6 +156,6 @@ export function Overview({ formattedData, countryData }: OverviewProps) {
           </div>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }

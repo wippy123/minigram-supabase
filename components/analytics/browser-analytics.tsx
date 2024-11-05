@@ -1,6 +1,5 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
 import {
   PieChart,
   Pie,
@@ -64,7 +63,7 @@ export function BrowserAnalytics({ insights }: BrowserAnalyticsProps) {
   );
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 h-[350px]">
       <div className="grid grid-cols-2 gap-4">
         <div className="h-[300px]">
           <h3 className="text-sm font-medium mb-2">Browsers</h3>

@@ -2,12 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  PieChart,
-  Pie,
-  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend,
+  Cell,
 } from "recharts";
 
 interface AppInsight {
@@ -59,7 +60,7 @@ export function AppInsightsChart({ insights }: AppInsightsChartProps) {
           <CardTitle>Top App Distribution</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px] w-full flex items-center justify-center">
+          <div className="h-[450px] w-full flex items-center justify-center">
             <p className="text-muted-foreground">Loading analytics data...</p>
           </div>
         </CardContent>
@@ -70,11 +71,11 @@ export function AppInsightsChart({ insights }: AppInsightsChartProps) {
   if (insights.length === 0) {
     return (
       <Card>
-        <CardHeader>
+        <CardHeader className="p-4">
           <CardTitle>Top Apps Distribution</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px] w-full flex items-center justify-center">
+          <div className="h-[450px] w-full flex items-center justify-center">
             <p className="text-muted-foreground">No data available</p>
           </div>
         </CardContent>
@@ -86,33 +87,35 @@ export function AppInsightsChart({ insights }: AppInsightsChartProps) {
   const colors = ["#2563eb", "#16a34a", "#dc2626", "#9333ea", "#ea580c"];
 
   return (
-    <Card>
+    <Card className="h-[550px]">
       <CardHeader>
         <CardTitle>Top Apps Distribution</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[400px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={150}
-                fill="#8884d8"
-                dataKey="value"
-              >
+          <ResponsiveContainer width="100%" height={470}>
+            <BarChart
+              data={data}
+              layout="vertical"
+              margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+            >
+              <XAxis type="number" />
+              <YAxis
+                type="category"
+                dataKey="name"
+                width={90}
+                style={{ fontSize: "12px" }}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="value" barSize={30}>
                 {data.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={colors[index % colors.length]}
                   />
                 ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-            </PieChart>
+              </Bar>
+            </BarChart>
           </ResponsiveContainer>
         </div>
       </CardContent>

@@ -111,27 +111,27 @@ export default function AnalyticsPage() {
 
       <div className="container mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6">Channel Analytics</h1>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="col-span-4">
-            <CardHeader>
-              <CardTitle>Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="pl-2">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 ">
+          <Card className="col-span-4 bg-transparent border-none">
+            <CardContent className="pl-2 p-0">
               <Overview formattedData={data} countryData={countryData} />
             </CardContent>
           </Card>
-          <Card className="col-span-3">
-            <CardHeader>
-              <CardTitle>Browser & Device Analytics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <BrowserAnalytics insights={browserInsights} />
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="mt-6">
-          <AppInsightsChart insights={appInsights} />
+          <div className="col-span-3 space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Browser & Device Analytics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BrowserAnalytics insights={browserInsights} />
+              </CardContent>
+            </Card>
+            <Card className="bg-transparent border-none p-0">
+              <CardContent>
+                <AppInsightsChart insights={appInsights} />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </>
