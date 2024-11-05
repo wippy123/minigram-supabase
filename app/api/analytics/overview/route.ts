@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-
+import {  supabase } from '@/lib/supabaseClient';
 export async function GET() {
   try {
     if (!process.env.POSTHOG_ADMIN_API_KEY) {
@@ -149,12 +149,46 @@ export async function GET() {
       browserInsights.json()
     ]);
 
+
+    const filteredAppInsights = async (insights: any[]) => {
+      const { data: minigrams } = await supabase
+        .from('minigraphs')
+        .select('*');
+
+
+      if (!minigrams || !Array.isArray(insights)) {
+        console.log('Missing required data or insights is not an array');
+        return [];
+      }
+
+      // Filter and transform the insights array
+      const filteredResults = insights.filter(insight => {
+        if (!insight?.label) return false;
+        const insightLabel = String(insight.label);
+        const matchingMinigram = minigrams.find(minigram => 
+          minigram?.url && insightLabel.includes(minigram.url)
+        );
+        
+        if (matchingMinigram) {
+          // Update the insight label to use the minigram name
+          insight.label = matchingMinigram.name;
+          return true;
+        }
+        return false;
+      });
+
+      return filteredResults;
+    };
+
+    const filteredInsights = await filteredAppInsights(appInsightsData.result);
+
+
     return NextResponse.json({ 
       pageviews: pageviewData,
       persons: personsData.results,
       users: usersData,
       countryInsights: customInsightData.result,
-      appInsights: appInsightsData.result,
+      appInsights: filteredInsights,
       browserInsights: browserInsightsData.result
     });
   } catch (error) {
