@@ -99,7 +99,7 @@ export default function AnalyticsPage() {
   }, []);
 
   return (
-    <>
+    <div className="bg-muted" style={{ height: "calc(100vh + 24px)" }}>
       <Dialog open={isLoading} modal>
         <DialogContent className="sm:max-w-md flex flex-col items-center p-12">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -109,15 +109,21 @@ export default function AnalyticsPage() {
         </DialogContent>
       </Dialog>
 
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto px-6 pt-6">
         <h1 className="text-3xl font-bold mb-6">Channel Analytics</h1>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 ">
-          <Card className="col-span-4 bg-transparent border-none">
-            <CardContent className="pl-2 p-0">
-              <Overview formattedData={data} countryData={countryData} />
-            </CardContent>
-          </Card>
-          <div className="col-span-3 space-y-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <div className="col-span-4">
+            <Card className="h-[800px]">
+              <CardHeader>
+                <CardTitle>Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Overview formattedData={data} countryData={countryData} />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="col-span-3 grid grid-rows-2 gap-4 h-[800px]">
             <Card>
               <CardHeader>
                 <CardTitle>Browser & Device Analytics</CardTitle>
@@ -126,7 +132,11 @@ export default function AnalyticsPage() {
                 <BrowserAnalytics insights={browserInsights} />
               </CardContent>
             </Card>
-            <Card className="bg-transparent border-none p-0">
+
+            <Card>
+              <CardHeader>
+                <CardTitle>App Insights</CardTitle>
+              </CardHeader>
               <CardContent>
                 <AppInsightsChart insights={appInsights} />
               </CardContent>
@@ -134,6 +144,6 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
