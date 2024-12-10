@@ -29,132 +29,6 @@ import {
 } from "lucide-react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-function AcmeRubberBandGame() {
-  const [stretch, setStretch] = useState(0);
-  const [coyotePosition, setCoyotePosition] = useState(0);
-  const [targetPosition, setTargetPosition] = useState(80);
-  const [isLaunched, setIsLaunched] = useState(false);
-  const [score, setScore] = useState(0);
-  const [attempts, setAttempts] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
-
-  const resetTarget = useCallback(() => {
-    setTargetPosition(Math.floor(Math.random() * 40) + 60); // Random position between 60-100
-  }, []);
-
-  useEffect(() => {
-    resetTarget();
-  }, [resetTarget]);
-
-  useEffect(() => {
-    if (isLaunched) {
-      const interval = setInterval(() => {
-        setCoyotePosition((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setIsLaunched(false);
-            setAttempts((a) => a + 1);
-            if (Math.abs(prev - targetPosition) <= 5) {
-              setScore((s) => s + 1);
-            }
-            if (attempts + 1 >= 5) {
-              setGameOver(true);
-            } else {
-              resetTarget();
-            }
-            return 0;
-          }
-          return prev + 5;
-        });
-      }, 50);
-      return () => clearInterval(interval);
-    }
-  }, [isLaunched, targetPosition, attempts, resetTarget]);
-
-  const handleStretch = (value: number[]) => {
-    setStretch(value[0]);
-  };
-
-  const handleLaunch = () => {
-    setIsLaunched(true);
-    setCoyotePosition(0);
-  };
-
-  const handleReset = () => {
-    setStretch(0);
-    setCoyotePosition(0);
-    setIsLaunched(false);
-    setScore(0);
-    setAttempts(0);
-    setGameOver(false);
-    resetTarget();
-  };
-
-  return (
-    <div className="space-y-4">
-      <h3 className="text-xl font-semibold text-center">
-        Acme Inc. Giant Rubber Band v3
-      </h3>
-      <div className="relative h-48 bg-gradient-to-b from-blue-200 to-blue-400 rounded-lg overflow-hidden">
-        <div
-          className="absolute bottom-0 left-0 w-12 h-12 transition-all duration-300 ease-in-out"
-          style={{ transform: `translateX(${coyotePosition}%)` }}
-        >
-          <Image
-            src="/placeholder.svg?height=48&width=48"
-            width={48}
-            height={48}
-            alt="Coyote"
-            className="w-full h-full object-contain"
-          />
-        </div>
-        <div
-          className="absolute top-1/2 w-16 h-16 transform -translate-y-1/2"
-          style={{ left: `${targetPosition}%` }}
-        >
-          <Image
-            src="/placeholder.svg?height=64&width=64"
-            width={64}
-            height={64}
-            alt="Target"
-            className="w-full h-full object-contain"
-          />
-        </div>
-        <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-brown-600 to-brown-400" />
-      </div>
-      <Slider
-        value={[stretch]}
-        onValueChange={handleStretch}
-        max={100}
-        step={1}
-        disabled={isLaunched || gameOver}
-      />
-      <div className="flex justify-between">
-        <Button
-          onClick={handleLaunch}
-          disabled={isLaunched || gameOver || stretch === 0}
-        >
-          Launch Coyote
-        </Button>
-        <Button onClick={handleReset} variant="outline">
-          {gameOver ? "Play Again" : "Reset"}
-        </Button>
-      </div>
-      <div className="text-center space-y-2">
-        <p className="text-sm">
-          Stretch: {stretch}% | Target: {targetPosition}%
-        </p>
-        <p className="text-lg font-semibold">Score: {score} / 5</p>
-        {gameOver && (
-          <p className="text-xl font-bold text-primary">
-            Game Over! Final Score: {score}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
-
 export function OverviewPage() {
   const getUser = async () => {
     const supabase = createClientComponentClient();
@@ -422,7 +296,14 @@ export function OverviewPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <AcmeRubberBandGame />
+            <Image
+              src="/chess.png"
+              alt="Chess game preview"
+              width={600}
+              height={400}
+              className="w-full h-auto rounded-lg"
+              priority
+            />
           </CardContent>
         </Card>
       </div>

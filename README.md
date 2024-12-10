@@ -95,4 +95,25 @@ Please file feedback and issues over on the [Supabase GitHub org](https://github
 - [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
 - [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
 
+
 e2b template build -c "cd /home/user && npx next --turbo" --cpu-count=4 --memory-mb=4096
+
+## Env Variables
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_ACCESS_TOKEN
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+RESEND_API_KEY
+NEXT_PUBLIC_GETSTREAM_API_KEY
+GETSTREAM_API_SECRET
+NEXT_PUBLIC_APP_URL
+OPENAI_API_KEY
+E2B_API_KEY
+# Get your Anthropic API key here https://console.anthropic.com
+ANTHROPIC_API_KEY
+NEXT_PUBLIC_POSTHOG_KEY
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com # or your self-hosted instance
+POSTHOG_ADMIN_API_KEY
+E2B_SANDBOX_ID=s3fnj8q3lbghad1f15u6
