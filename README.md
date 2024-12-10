@@ -117,3 +117,6 @@ NEXT_PUBLIC_POSTHOG_KEY
 NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com # or your self-hosted instance
 POSTHOG_ADMIN_API_KEY
 E2B_SANDBOX_ID=s3fnj8q3lbghad1f15u6
+
+## NOTES
+In the sandbox api route, set the sandbox timeout to the desired value.
